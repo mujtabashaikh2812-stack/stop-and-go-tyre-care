@@ -102,6 +102,7 @@ body {
   justify-content: center;
   color: #000;
   box-shadow: 0 0 25px var(--gold-glow);
+  flex-shrink: 0;
 }
 
 .brand-title {
@@ -163,6 +164,12 @@ body {
   padding: 6px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-medium);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-tab-btn {
@@ -211,6 +218,7 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 22px;
+  flex-wrap: wrap;
 }
 
 .card-icon {
@@ -240,7 +248,7 @@ body {
 /* Form Grid */
 .grid-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
@@ -329,7 +337,7 @@ input:focus, select:focus {
 /* Service Cards */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -362,7 +370,7 @@ input:focus, select:focus {
   gap: 12px;
 }
 
-.check-icon { color: var(--text-muted); }
+.check-icon { color: var(--text-muted); flex-shrink: 0; }
 .check-icon.active { color: var(--gold-primary); }
 
 .service-title {
@@ -417,6 +425,7 @@ input:focus, select:focus {
   gap: 10px;
   font-size: 0.85rem;
   color: var(--text-secondary);
+  flex-wrap: wrap;
 }
 
 .input-inline input {
@@ -457,6 +466,7 @@ input:focus, select:focus {
   align-items: center;
   gap: 14px;
   font-size: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .toggle-checkbox {
@@ -559,6 +569,7 @@ input:focus, select:focus {
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   transition: all 0.2s ease;
   box-shadow: 0 4px 15px var(--blue-glow);
@@ -580,6 +591,7 @@ input:focus, select:focus {
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   transition: all 0.2s ease;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
@@ -610,7 +622,7 @@ input:focus, select:focus {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 16px;
 }
 
 .modal-content {
@@ -621,10 +633,10 @@ input:focus, select:focus {
   width: 100%;
   max-height: 92vh;
   overflow-y: auto;
-  padding: 28px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
   box-shadow: var(--shadow-main);
 }
 
@@ -639,7 +651,7 @@ input:focus, select:focus {
   align-items: center;
   gap: 12px;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .close-modal-btn {
@@ -653,13 +665,14 @@ input:focus, select:focus {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .printable-receipt-area {
   background: #FFFFFF;
   color: #0F172A;
   font-family: var(--font-mono);
-  padding: 24px;
+  padding: 20px;
   border-radius: 12px;
   font-size: 0.85rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
@@ -819,7 +832,7 @@ input:focus, select:focus {
 
 .stats-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -828,7 +841,7 @@ input:focus, select:focus {
   background: var(--bg-surface);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: 20px;
 }
 
 .stat-card.featured {
@@ -869,7 +882,7 @@ input:focus, select:focus {
 }
 
 .customer-card-header {
-  padding: 18px 24px;
+  padding: 18px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -885,8 +898,8 @@ input:focus, select:focus {
 }
 
 .customer-avatar-badge {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   background: var(--bg-app);
   border: 1px solid var(--gold-primary);
   border-radius: 50%;
@@ -896,6 +909,7 @@ input:focus, select:focus {
   font-weight: 800;
   color: var(--gold-primary);
   font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .customer-name { font-size: 1.05rem; font-weight: 700; color: var(--text-white); }
@@ -905,12 +919,14 @@ input:focus, select:focus {
   font-size: 0.82rem;
   color: var(--text-secondary);
   margin-top: 3px;
+  flex-wrap: wrap;
 }
 
 .customer-stats-summary {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .stat-badge-small {
@@ -946,7 +962,7 @@ input:focus, select:focus {
 .customer-history-drawer {
   background: var(--bg-app);
   border-top: 1px solid var(--border-medium);
-  padding: 20px 24px;
+  padding: 18px 20px;
 }
 
 .drawer-title {
@@ -1003,7 +1019,7 @@ input:focus, select:focus {
 /* Analytics */
 .analytics-two-col {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
 }
 
@@ -1070,7 +1086,7 @@ input:focus, select:focus {
 /* Inventory Cards */
 .inventory-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
@@ -1121,12 +1137,75 @@ input:focus, select:focus {
 
 .restock-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 18px;
   align-items: flex-end;
 }
 
 .margin-top { margin-top: 24px; }
+
+/* 📱 SMALL MOBILE SCREEN RESPONSIVE OVERRIDES (< 640px) */
+@media (max-width: 640px) {
+  .app-wrapper {
+    padding: 12px;
+  }
+
+  .header-container {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .card-container {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .billing-summary-footer {
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .summary-totals-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dual-billing-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-generate-bill, .btn-generate-whatsapp {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .customer-card-header {
+    padding: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .customer-stats-summary {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
 
 /* Thermal Print Overrides */
 @media print {
