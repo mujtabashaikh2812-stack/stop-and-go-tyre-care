@@ -144,7 +144,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                 <span className="input-hint">Default password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
                 
-                {/* PROMINENT FORGOT PASSWORD BUTTON */}
+                {/* PROMINENT YELLOW FORGOT PASSWORD LINK */}
                 <button
                   type="button"
                   onClick={() => {
@@ -155,7 +155,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
                     background: 'transparent',
                     border: 'none',
                     color: 'var(--yellow-primary)',
-                    fontSize: '0.82rem',
+                    fontSize: '0.85rem',
                     fontWeight: '700',
                     cursor: 'pointer',
                     textDecoration: 'underline'
@@ -193,26 +193,6 @@ export default function AdminLoginGate({ onLoginSuccess }) {
               <ShieldCheck size={20} />
               <span>Unlock Dashboard & Billing</span>
             </button>
-
-            <div style={{ textAlign: 'center', marginTop: '16px' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsResetMode(true);
-                  setErrorMsg('');
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  textDecoration: 'underline'
-                }}
-              >
-                🔑 Forgot Password? Click here to reset
-              </button>
-            </div>
           </form>
         ) : (
           /* FORGOT PASSWORD RESET FORM */
