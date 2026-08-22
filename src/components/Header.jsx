@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight } from 'lucide-react';
+import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight, Globe, Coffee } from 'lucide-react';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function Header({ activeTab, setActiveTab, todayStats, onLogout }) {
+export default function Header({ activeTab, setActiveTab, todayStats, onLogout, currentLang, setLanguage }) {
   const [time, setTime] = useState(new Date());
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -12,32 +14,44 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout }
   const navItems = [
     {
       id: 'billing',
-      label: 'New Job Card',
-      subtitle: 'Create Billing Slip',
+      label: t.newJobCard,
+      subtitle: t.newJobCardSub,
       icon: ClipboardList
     },
     {
       id: 'customers',
-      label: 'Customers & History',
-      subtitle: 'CRM & Visit Logs',
+      label: t.customers,
+      subtitle: t.customersSub,
       icon: Users
     },
     {
       id: 'analytics',
-      label: 'Analytics',
-      subtitle: 'Sales & Revenue Insights',
+      label: t.analytics,
+      subtitle: t.analyticsSub,
       icon: BarChart3
     },
     {
       id: 'inventory',
-      label: 'Stock & Inventory',
-      subtitle: 'Consumables Tracker',
+      label: t.inventory,
+      subtitle: t.inventorySub,
       icon: Package
     },
     {
+      id: 'bookings',
+      label: t.bookings,
+      subtitle: t.bookingsSub,
+      icon: Calendar
+    },
+    {
+      id: 'expenses',
+      label: t.expenses,
+      subtitle: t.expensesSub,
+      icon: Coffee
+    },
+    {
       id: 'price_settings',
-      label: 'Master Price Settings',
-      subtitle: 'Admin Rate Configurator',
+      label: t.priceSettings,
+      subtitle: t.priceSettingsSub,
       icon: Settings
     }
   ];
@@ -52,11 +66,33 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout }
           </div>
           <div>
             <h1 className="brand-title">STOP & GO</h1>
-            <p className="brand-subtitle">TOTAL TYRE CARE CENTRE</p>
+            <p className="brand-subtitle">{t.brandSubtitle}</p>
           </div>
         </div>
 
         <div className="header-right-info">
+          {/* Language Selector Dropdown */}
+          <div className="info-chip" style={{ border: '1px solid var(--yellow-primary)' }}>
+            <Globe size={15} style={{ color: 'var(--yellow-primary)' }} />
+            <select
+              value={currentLang}
+              onChange={(e) => setLanguage(e.target.value)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--yellow-primary)',
+                fontWeight: '700',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+            >
+              <option value="en" style={{ background: '#000', color: '#fff' }}>English 🇬🇧</option>
+              <option value="mr" style={{ background: '#000', color: '#fff' }}>मराठी 🇮🇳</option>
+              <option value="hi" style={{ background: '#000', color: '#fff' }}>हिंदी 🇮🇳</option>
+            </select>
+          </div>
+
           <div className="info-chip">
             <Calendar size={15} className="chip-icon" />
             <span>{time.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
@@ -66,8 +102,8 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout }
             <span>{time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
           </div>
           <div className="revenue-chip">
-            <span className="chip-label">Today:</span>
-            <span className="chip-value">₹{todayStats.totalRevenue.toLocaleString('en-IN')}</span>
+            <span className="chip-label">{t.todayRevenue}:</span>
+            <span className="chip-value">₹{todayStats.netProfit.toLocaleString('en-IN')}</span>
             <span className="chip-count">({todayStats.jobCount} Cars)</span>
           </div>
 
@@ -79,7 +115,7 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout }
             title="Lock app & Logout"
           >
             <LogOut size={15} />
-            <span>Lock & Logout</span>
+            <span>{t.adminLogout}</span>
           </button>
         </div>
       </div>

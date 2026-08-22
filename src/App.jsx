@@ -7,19 +7,32 @@ import CustomerHistory from './components/CustomerHistory';
 import Analytics from './components/Analytics';
 import Inventory from './components/Inventory';
 import ServicePriceEditor from './components/ServicePriceEditor';
+import Bookings from './components/Bookings';
+import ExpensesAndScrap from './components/ExpensesAndScrap';
 import AdminLoginGate from './components/AdminLoginGate';
 
-import { getJobCards, saveJobCard, getInventory, getServicePrices } from './utils/storage';
+import {
+  getJobCards, saveJobCard, getInventory, getServicePrices,
+  getBookings, getExpenses, getSalaries, getScrapSales,
+  getLanguage, setLanguage as saveLanguage
+} from './utils/storage';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('stop_go_auth') === 'true';
   });
 
+  const [currentLang, setCurrentLang] = useState(() => getLanguage());
   const [activeTab, setActiveTab] = useState('billing');
+  
+  // Data States
   const [jobCards, setJobCards] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [services, setServices] = useState({});
+  const [bookings, setBookings] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [salaries, setSalaries] = useState([]);
+  const [scrapSales, setScrapSales] = useState([]);
 
   // Form State
   const [customerData, setCustomerData] = useState({
@@ -34,19 +47,33 @@ export default function App() {
 
   // Modal State
   const [activeReceipt, setActiveReceipt] = useState(null);
-  const [billingMode, setBillingMode] = useState('bill'); // 'bill' | 'whatsapp'
+  const [billingMode, setBillingMode] = useState('bill');
 
   useEffect(() => {
     setJobCards(getJobCards());
     setInventory(getInventory());
     setServices(getServicePrices());
+    setBookings(getBookings());
+    setExpenses(getExpenses());
+    setSalaries(getSalaries());
+    setScrapSales(getScrapSales());
   }, []);
 
-  // Compute Today Stats
+  const handleLanguageChange = (lang) => {
+    saveLanguage(lang);
+    setCurrentLang(lang);
+  };
+
+  // Compute Today Stats (Net Profit = Gross Revenue - Daily Expenses)
   const todayStr = new Date().toISOString().split('T')[0];
   const todayCards = jobCards.filter(c => c.date === todayStr);
+  const todayExp = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + e.amount, 0);
+  const todayScrap = scrapSales.filter(s => s.date === todayStr).reduce((sum, s) => sum + s.totalAmount, 0);
+  const todayGross = todayCards.reduce((sum, c) => sum + c.total, 0) + todayScrap;
+  const todayNetProfit = Math.max(0, todayGross - todayExp);
+
   const todayStats = {
-    totalRevenue: todayCards.reduce((sum, c) => sum + c.total, 0),
+    netProfit: todayNetProfit,
     jobCount: todayCards.length
   };
 
@@ -67,65 +94,76 @@ export default function App() {
       return;
     }
 
-    // Build selected services list
+    // Build selected services list according to client rate rules
     const selectedList = [];
 
     if (services.wheelAlignment?.enabled) {
-      selectedList.push({ name: 'Wheel Alignment', amount: services.wheelAlignment.price });
+      selectedList.push({ name: 'Wheel Alignment', amount: services.wheelAlignment.price || 350 });
     }
     if (services.wheelBalancing?.enabled) {
-      const typeLabel = services.wheelBalancing.type === 'two' ? '2 Tyres' : '4 Tyres';
-      const amt = services.wheelBalancing.type === 'two' ? services.wheelBalancing.priceTwo : services.wheelBalancing.priceFour;
-      selectedList.push({ name: `Wheel Balancing (${typeLabel})`, amount: amt });
+      const count = parseInt(services.wheelBalancing.tyresCount, 10) || 4;
+      const rate = services.wheelBalancing.pricePerTyre || 50;
+      selectedList.push({ name: `Wheel Balancing (${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
     }
     if (services.weight?.enabled) {
       const g = parseInt(services.weight.grams, 10) || 0;
-      const label = services.weight.weightType === 'brass' ? 'Brass Weight' : 'Sticker Weight';
-      const amt = g * services.weight.pricePerGram;
-      selectedList.push({ name: `Wheel Weight (${label} - ${g}g)`, amount: amt });
+      const typeLabel = services.weight.weightType === 'sticker' ? 'Sticker Weight (₹4/g)' : 'Brass Weight (₹2/g)';
+      const rate = services.weight.weightType === 'sticker' ? (services.weight.stickerRate || 4) : (services.weight.brassRate || 2);
+      selectedList.push({ name: `Wheel Weight (${typeLabel} - ${g}g)`, amount: g * rate });
     }
     if (services.tyreFitting?.enabled) {
-      const fQty = parseInt(services.tyreFitting.fittingQty, 10) || 0;
-      const fitAmt = fQty * services.tyreFitting.fittingRate;
-      let label = `Tyre Fitting (${fQty} Tyres)`;
-      let totalAmt = fitAmt;
+      const fQty = parseInt(services.tyreFitting.fittingQty, 10) || 1;
+      const fRate = services.tyreFitting.rimSize === 'large' ? (services.tyreFitting.largeRimRate || 125) : (services.tyreFitting.smallRimRate || 100);
+      const rimLabel = services.tyreFitting.rimSize === 'large' ? 'Rim 16-18' : 'Rim 12-15';
+      let label = `Tyre Fitting (${rimLabel} - ${fQty} Tyres @ ₹${fRate}/tyre)`;
+      let totalAmt = fQty * fRate;
       
       if (services.tyreFitting.newValve) {
         const vQty = parseInt(services.tyreFitting.valveQty, 10) || 0;
-        const vRate = parseInt(services.tyreFitting.valveRate, 10) || 0;
+        const vRate = parseInt(services.tyreFitting.valveRate, 10) || 60;
         const vAmt = vQty * vRate;
-        label += ` + ${vQty} New Valves`;
+        label += ` + ${vQty} New Valves (₹${vAmt})`;
         totalAmt += vAmt;
       }
       selectedList.push({ name: label, amount: totalAmt });
     }
     if (services.tyreRotation?.enabled) {
-      selectedList.push({ name: 'Tyre Rotation', amount: services.tyreRotation.price });
+      const count = parseInt(services.tyreRotation.tyresCount, 10) || 4;
+      const rate = services.tyreRotation.ratePerTyre || 50;
+      const pattern = services.tyreRotation.rotationPattern || 'Cross Pattern';
+      selectedList.push({ name: `Tyre Rotation (${pattern} - ${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
     }
     if (services.headlightBuffing?.enabled) {
-      selectedList.push({ name: 'Head Light Buffing (Cleaning)', amount: services.headlightBuffing.price });
+      selectedList.push({ name: 'Head Light Buffing (Cleaning)', amount: services.headlightBuffing.price || 700 });
     }
     if (services.airFilling?.enabled) {
-      const label = services.airFilling.airType === 'nitrogen' ? 'Nitrogen Air Filling' : 'Normal Air Filling';
-      const amt = services.airFilling.airType === 'nitrogen' ? services.airFilling.price : 40;
+      let label = 'Normal Air Filling';
+      let amt = services.airFilling.normalPrice || 20;
+      if (services.airFilling.airType === 'nitrogen_full') {
+        label = 'Nitrogen Air Full Fill';
+        amt = services.airFilling.nitrogenFullPrice || 150;
+      } else if (services.airFilling.airType === 'nitrogen_topup') {
+        label = 'Nitrogen Air Top-Up';
+        amt = services.airFilling.nitrogenTopupPrice || 50;
+      }
       selectedList.push({ name: label, amount: amt });
     }
     if (services.tubelessPuncher?.enabled) {
       const qty = parseInt(services.tubelessPuncher.qty, 10) || 0;
-      const amt = qty * services.tubelessPuncher.pricePerPuncher;
-      selectedList.push({ name: `Tubeless Puncher (${qty} Repairs)`, amount: amt });
+      const rate = services.tubelessPuncher.pricePerPuncher || 100;
+      selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
     }
     if (services.camberSetting?.enabled) {
-      let label = 'Camber Setting (Front R/L)';
-      let amt = services.camberSetting.priceFront;
-      if (services.camberSetting.position === 'rear') {
-        label = 'Camber Setting (Rear R/L)';
-        amt = services.camberSetting.priceRear;
-      } else if (services.camberSetting.position === 'both') {
-        label = 'Camber Setting (Front & Rear R/L)';
-        amt = services.camberSetting.priceBoth;
-      }
-      selectedList.push({ name: label, amount: amt });
+      selectedList.push({ name: 'Camber Setting (Bolt & Sims Add/Remove)', amount: services.camberSetting.price || 1200 });
+    }
+    if (services.carWashing?.enabled) {
+      selectedList.push({ name: 'Car Washing (Future Service)', amount: services.carWashing.price || 350 });
+    }
+    if (services.internalCleaning?.enabled) {
+      selectedList.push({ name: 'Internal Cleaning (Future Service)', amount: services.internalCleaning.price || 800 });
+    }
+    if (services.oilChange?.enabled) {
+      selectedList.push({ name: 'Engine Oil Change (Future Service)', amount: services.oilChange.price || 1500 });
     }
 
     const subtotal = selectedList.reduce((sum, s) => sum + s.amount, 0);
@@ -159,13 +197,12 @@ export default function App() {
 
   const handleCloseReceiptModal = () => {
     setActiveReceipt(null);
-    // Reset Form
     setCustomerData({ name: '', mobile: '', vehicle: '', year: '', odometer: '' });
     setDiscount(0);
     setServices(getServicePrices());
   };
 
-  // MANDATORY LOGIN GATE: If not authenticated, render Login Gate ONLY!
+  // MANDATORY LOGIN GATE
   if (!isAuthenticated) {
     return <AdminLoginGate onLoginSuccess={handleLoginSuccess} />;
   }
@@ -177,6 +214,8 @@ export default function App() {
         setActiveTab={setActiveTab}
         todayStats={todayStats}
         onLogout={handleLogout}
+        currentLang={currentLang}
+        setLanguage={handleLanguageChange}
       />
 
       <main className="app-main-body">
@@ -195,6 +234,7 @@ export default function App() {
                 discount={discount}
                 setDiscount={setDiscount}
                 onGenerateInvoice={handleGenerateInvoice}
+                currentLang={currentLang}
               />
             )}
           </>
@@ -205,11 +245,26 @@ export default function App() {
         )}
 
         {activeTab === 'analytics' && (
-          <Analytics jobCards={jobCards} />
+          <Analytics jobCards={jobCards} expenses={expenses} scrapSales={scrapSales} />
         )}
 
         {activeTab === 'inventory' && (
           <Inventory inventory={inventory} setInventory={setInventory} />
+        )}
+
+        {activeTab === 'bookings' && (
+          <Bookings bookings={bookings} setBookings={setBookings} />
+        )}
+
+        {activeTab === 'expenses' && (
+          <ExpensesAndScrap
+            expenses={expenses}
+            setExpenses={setExpenses}
+            salaries={salaries}
+            setSalaries={setSalaries}
+            scrapSales={scrapSales}
+            setScrapSales={setScrapSales}
+          />
         )}
 
         {activeTab === 'price_settings' && (
