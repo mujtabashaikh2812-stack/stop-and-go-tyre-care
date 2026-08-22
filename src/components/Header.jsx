@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, Lock, LogOut, Settings, ChevronRight } from 'lucide-react';
+import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight } from 'lucide-react';
 
-export default function Header({ activeTab, setActiveTab, todayStats, isAdminLoggedIn, onOpenAdminLogin, onAdminLogout }) {
+export default function Header({ activeTab, setActiveTab, todayStats, onLogout }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -33,17 +33,14 @@ export default function Header({ activeTab, setActiveTab, todayStats, isAdminLog
       label: 'Stock & Inventory',
       subtitle: 'Consumables Tracker',
       icon: Package
-    }
-  ];
-
-  if (isAdminLoggedIn) {
-    navItems.push({
+    },
+    {
       id: 'price_settings',
       label: 'Master Price Settings',
       subtitle: 'Admin Rate Configurator',
       icon: Settings
-    });
-  }
+    }
+  ];
 
   return (
     <header className="header-container">
@@ -74,27 +71,16 @@ export default function Header({ activeTab, setActiveTab, todayStats, isAdminLog
             <span className="chip-count">({todayStats.jobCount} Cars)</span>
           </div>
 
-          {/* Admin Login / Logout Controls */}
-          {isAdminLoggedIn ? (
-            <button
-              onClick={onAdminLogout}
-              className="info-chip"
-              style={{ background: 'var(--yellow-bg)', borderColor: 'var(--yellow-primary)', color: 'var(--yellow-primary)', fontWeight: '700', cursor: 'pointer' }}
-              title="Click to Log Out as Admin"
-            >
-              <LogOut size={15} />
-              <span>Admin Logout</span>
-            </button>
-          ) : (
-            <button
-              onClick={onOpenAdminLogin}
-              className="info-chip"
-              style={{ cursor: 'pointer', borderColor: 'var(--border-medium)' }}
-            >
-              <Lock size={15} />
-              <span>Admin Login</span>
-            </button>
-          )}
+          {/* Admin Lock & Logout Control */}
+          <button
+            onClick={onLogout}
+            className="info-chip"
+            style={{ background: 'var(--yellow-bg)', borderColor: 'var(--yellow-primary)', color: 'var(--yellow-primary)', fontWeight: '700', cursor: 'pointer' }}
+            title="Lock app & Logout"
+          >
+            <LogOut size={15} />
+            <span>Lock & Logout</span>
+          </button>
         </div>
       </div>
 

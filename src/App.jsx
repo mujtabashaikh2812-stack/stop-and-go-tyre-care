@@ -6,20 +6,20 @@ import ReceiptModal from './components/ReceiptModal';
 import CustomerHistory from './components/CustomerHistory';
 import Analytics from './components/Analytics';
 import Inventory from './components/Inventory';
-import AdminLoginModal from './components/AdminLoginModal';
 import ServicePriceEditor from './components/ServicePriceEditor';
+import AdminLoginGate from './components/AdminLoginGate';
 
 import { getJobCards, saveJobCard, getInventory, getServicePrices } from './utils/storage';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('stop_go_auth') === 'true';
+  });
+
   const [activeTab, setActiveTab] = useState('billing');
   const [jobCards, setJobCards] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [services, setServices] = useState({});
-
-  // Admin Auth State
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   // Form State
   const [customerData, setCustomerData] = useState({
@@ -48,6 +48,17 @@ export default function App() {
   const todayStats = {
     totalRevenue: todayCards.reduce((sum, c) => sum + c.total, 0),
     jobCount: todayCards.length
+  };
+
+  const handleLoginSuccess = () => {
+    sessionStorage.setItem('stop_go_auth', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('stop_go_auth');
+    setIsAuthenticated(false);
+    setActiveTab('billing');
   };
 
   const handleGenerateInvoice = (mode = 'bill') => {
@@ -154,18 +165,18 @@ export default function App() {
     setServices(getServicePrices());
   };
 
+  // MANDATORY LOGIN GATE: If not authenticated, render Login Gate ONLY!
+  if (!isAuthenticated) {
+    return <AdminLoginGate onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="app-wrapper">
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         todayStats={todayStats}
-        isAdminLoggedIn={isAdminLoggedIn}
-        onOpenAdminLogin={() => setIsAdminModalOpen(true)}
-        onAdminLogout={() => {
-          setIsAdminLoggedIn(false);
-          if (activeTab === 'price_settings') setActiveTab('billing');
-        }}
+        onLogout={handleLogout}
       />
 
       <main className="app-main-body">
@@ -201,7 +212,7 @@ export default function App() {
           <Inventory inventory={inventory} setInventory={setInventory} />
         )}
 
-        {activeTab === 'price_settings' && isAdminLoggedIn && (
+        {activeTab === 'price_settings' && (
           <ServicePriceEditor
             services={services}
             setServices={setServices}
@@ -213,15 +224,6 @@ export default function App() {
         activeReceipt={activeReceipt}
         mode={billingMode}
         onClose={handleCloseReceiptModal}
-      />
-
-      <AdminLoginModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        onLoginSuccess={() => {
-          setIsAdminLoggedIn(true);
-          setActiveTab('price_settings');
-        }}
       />
     </div>
   );
