@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, Send, CheckCircle } from 'lucide-react';
+import { X, Printer, Send, CheckCircle, RefreshCw } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 
 export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) {
@@ -14,7 +14,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
     vehicleName,
     vehicleNumber = 'N/A',
     year,
-    odometer,
+    odometer = '0',
     services = [],
     subtotal = 0,
     discount = 0,
@@ -22,12 +22,24 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
     paymentMethod = 'Cash'
   } = activeReceipt;
 
+  // Calculate Next Alignment KM (+5,000 KM rule)
+  const calculateNextAlignmentKm = (odometerStr) => {
+    if (!odometerStr) return null;
+    const numsOnly = odometerStr.replace(/\D/g, '');
+    if (!numsOnly) return null;
+    const currentKm = parseInt(numsOnly, 10);
+    const nextKm = currentKm + 5000;
+    return nextKm.toLocaleString('en-IN');
+  };
+
+  const nextAlignmentKm = calculateNextAlignmentKm(odometer);
+
   const handlePrint = () => {
     window.print();
   };
 
   const handleSendWhatsApp = () => {
-    const itemLines = services.map(s => `• ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
+    const itemLines = services.map(s => `* ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
     
     const messageText = 
       `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
@@ -38,6 +50,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
       `🚘 *Vehicle:* ${vehicleName} (${year})%0A` +
       `🔢 *Reg No:* ${vehicleNumber}%0A` +
       `📟 *Odometer:* ${odometer} KM%0A` +
+      (nextAlignmentKm ? `🔄 *Next Alignment Due:* ${nextAlignmentKm} KM%0A` : '') +
       `📅 *Date:* ${date} ${time}%0A` +
       `------------------------------------%0A` +
       `*SERVICES PERFORMED:*%0A` +
@@ -47,6 +60,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
       (discount > 0 ? `Discount: -₹${discount.toLocaleString('en-IN')}%0A` : '') +
       `*GRAND TOTAL: ₹${total.toLocaleString('en-IN')}*%0A` +
       `Paid via: ${paymentMethod}%0A%0A` +
+      (nextAlignmentKm ? `*Suggested Next Alignment Service at ${nextAlignmentKm} KM*%0A%0A` : '') +
       `Thank you for trusting STOP %26 GO! Drive safe! 🚗💨`;
 
     const cleanMobile = mobile.replace(/\D/g, '');
@@ -83,7 +97,10 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
             <div className="meta-row"><span>Time: {time}</span><span>Pay Mode: {paymentMethod}</span></div>
             <div className="meta-row"><span>Customer: <strong>{customerName}</strong></span><span>Mob: {mobile}</span></div>
             <div className="meta-row"><span>Vehicle: {vehicleName}</span><span>Reg No: <strong>{vehicleNumber}</strong></span></div>
-            <div className="meta-row"><span>KM: {odometer}</span><span>Year: {year}</span></div>
+            <div className="meta-row">
+              <span>Current KM: {odometer}</span>
+              {nextAlignmentKm && <span style={{ color: '#0F172A', fontWeight: '800' }}>Next Align: {nextAlignmentKm} KM</span>}
+            </div>
           </div>
 
           <div className="receipt-divider">---------------------------------------------</div>
@@ -119,7 +136,11 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
 
           <div className="receipt-footer">
             <p>*** Thank You! Visit Again ***</p>
-            <p>Next Service Suggested at 5,000 KM</p>
+            {nextAlignmentKm ? (
+              <p style={{ fontWeight: '800', marginTop: '4px' }}>Next Alignment Due at {nextAlignmentKm} KM</p>
+            ) : (
+              <p>Next Service Suggested at +5,000 KM</p>
+            )}
           </div>
 
         </div>

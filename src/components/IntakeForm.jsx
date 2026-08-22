@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, Car, Gauge, Search, Sparkles, Hash } from 'lucide-react';
+import { User, Phone, Car, Gauge, Search, Sparkles, Hash, RefreshCw } from 'lucide-react';
 import { searchCustomerByMobile } from '../utils/storage';
 
 export default function IntakeForm({ customerData, setCustomerData, paymentMethod, setPaymentMethod }) {
@@ -21,6 +21,17 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
       }
     }
   };
+
+  // Live Next Alignment KM calculation (+5,000 KM rule)
+  const calculateNextKm = (odo) => {
+    if (!odo) return null;
+    const numsOnly = odo.replace(/\D/g, '');
+    if (!numsOnly) return null;
+    const current = parseInt(numsOnly, 10);
+    return (current + 5000).toLocaleString('en-IN');
+  };
+
+  const nextKmVal = calculateNextKm(customerData.odometer);
 
   return (
     <div className="card-container">
@@ -73,7 +84,6 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           />
         </div>
 
-        {/* NEW VEHICLE REGISTRATION NUMBER FIELD */}
         <div className="form-group">
           <label><Hash size={14} /> Vehicle Reg. Number *</label>
           <input
@@ -99,10 +109,15 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           <label><Gauge size={14} /> Kilometer (Odometer)</label>
           <input
             type="text"
-            placeholder="e.g. 34,500 KM"
+            placeholder="e.g. 106000 KM"
             value={customerData.odometer}
             onChange={(e) => setCustomerData({ ...customerData, odometer: e.target.value })}
           />
+          {nextKmVal && (
+            <span className="input-hint" style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>
+              🔄 Next Alignment Due at: {nextKmVal} KM (+5,000 KM)
+            </span>
+          )}
         </div>
 
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
