@@ -885,22 +885,28 @@ input:focus, select:focus {
 .section-title { font-size: 1.35rem; font-weight: 800; color: var(--text-white); }
 .section-desc { font-size: 0.88rem; color: var(--text-secondary); }
 
+/* PERFECT SEARCH BOX STYLING WITH NO OVERLAPPING ICON */
 .search-box-wide {
   position: relative;
-  max-width: 400px;
+  max-width: 440px;
   width: 100%;
 }
 
 .search-box-wide input {
-  padding-left: 44px;
+  padding-left: 48px !important;
+  padding-right: 18px !important;
+  font-size: 0.92rem !important;
+  border-radius: var(--radius-md) !important;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: var(--yellow-primary);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .stats-cards-grid {

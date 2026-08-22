@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare, Trash2 } from 'lucide-react';
+import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare, Trash2, Users } from 'lucide-react';
 import { deleteJobCard, deleteCustomerByMobile } from '../utils/storage';
 
 export default function CustomerHistory({ jobCards, setJobCards }) {
@@ -73,10 +73,14 @@ export default function CustomerHistory({ jobCards, setJobCards }) {
       
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">👥 Customer Directory & 5,000 KM Auto-Reminders</h2>
+          <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Users size={24} style={{ color: 'var(--yellow-primary)' }} />
+            Customer Directory & 5,000 KM Reminders
+          </h2>
           <p className="section-desc">Track customer visit history, vehicle odometers, and automatic 30 km/day service alerts</p>
         </div>
 
+        {/* ULTRA-POLISHED SEARCH BAR WITH PERFECT PADDING & ICON POSITIONING */}
         <div className="search-box-wide">
           <Search className="search-icon" size={18} />
           <input
