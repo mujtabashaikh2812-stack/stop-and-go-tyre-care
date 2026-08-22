@@ -58,13 +58,13 @@ export default function AdminLoginGate({ onLoginSuccess }) {
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
-      justify-content: 'center',
-      background: 'var(--bg-app)',
+      justifyContent: 'center',
+      backgroundColor: 'var(--bg-app)',
       backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(250, 204, 21, 0.08) 0%, transparent 60%)',
       padding: '20px'
     }}>
       <div style={{
-        background: 'var(--bg-surface)',
+        backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-active)',
         borderRadius: 'var(--radius-xl)',
         maxWidth: '440px',
@@ -86,7 +86,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
 
         {resetSuccessMsg && (
           <div style={{
-            background: 'var(--emerald-bg)',
+            backgroundColor: 'var(--emerald-bg)',
             border: '1px solid var(--emerald-primary)',
             color: 'var(--emerald-primary)',
             padding: '12px 14px',
@@ -107,7 +107,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
           /* STANDARD ADMIN LOGIN FORM */
           <form onSubmit={handleLoginSubmit} style={{ textAlign: 'left' }}>
             <div style={{
-              background: 'var(--bg-app)',
+              backgroundColor: 'var(--bg-app)',
               border: '1px solid var(--border-medium)',
               borderRadius: 'var(--radius-md)',
               padding: '12px',
@@ -141,10 +141,10 @@ export default function AdminLoginGate({ onLoginSuccess }) {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                 <span className="input-hint">Default password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
                 
-                {/* CLEAR PROMINENT FORGOT PASSWORD BUTTON */}
+                {/* PROMINENT FORGOT PASSWORD BUTTON */}
                 <button
                   type="button"
                   onClick={() => {
@@ -168,7 +168,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
 
             {errorMsg && (
               <div style={{
-                background: 'var(--ruby-bg)',
+                backgroundColor: 'var(--ruby-bg)',
                 border: '1px solid var(--ruby-primary)',
                 color: 'var(--ruby-primary)',
                 padding: '12px 14px',
@@ -194,7 +194,6 @@ export default function AdminLoginGate({ onLoginSuccess }) {
               <span>Unlock Dashboard & Billing</span>
             </button>
 
-            {/* SECONDARY FORGOT PASSWORD LINK AT BOTTOM */}
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
               <button
                 type="button"
@@ -219,7 +218,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
           /* FORGOT PASSWORD RESET FORM */
           <form onSubmit={handleResetSubmit} style={{ textAlign: 'left' }}>
             <div style={{
-              background: 'var(--yellow-bg)',
+              backgroundColor: 'var(--yellow-bg)',
               border: '1px solid rgba(250, 204, 21, 0.4)',
               borderRadius: 'var(--radius-md)',
               padding: '12px',
@@ -268,7 +267,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
 
             {errorMsg && (
               <div style={{
-                background: 'var(--ruby-bg)',
+                backgroundColor: 'var(--ruby-bg)',
                 border: '1px solid var(--ruby-primary)',
                 color: 'var(--ruby-primary)',
                 padding: '12px 14px',
