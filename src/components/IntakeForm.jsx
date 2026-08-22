@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, Car, Gauge, Search, Sparkles } from 'lucide-react';
+import { User, Phone, Car, Gauge, Search, Sparkles, Hash } from 'lucide-react';
 import { searchCustomerByMobile } from '../utils/storage';
 
 export default function IntakeForm({ customerData, setCustomerData, paymentMethod, setPaymentMethod }) {
@@ -14,6 +14,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           name: found.customerName,
           mobile: found.mobile,
           vehicle: found.vehicleName,
+          vehicleNumber: found.vehicleNumber || '',
           year: found.year,
           odometer: found.odometer
         });
@@ -72,8 +73,20 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           />
         </div>
 
+        {/* NEW VEHICLE REGISTRATION NUMBER FIELD */}
         <div className="form-group">
-          <label>Year / Reg</label>
+          <label><Hash size={14} /> Vehicle Reg. Number *</label>
+          <input
+            type="text"
+            placeholder="e.g. MH-12-AB-1234"
+            value={customerData.vehicleNumber || ''}
+            onChange={(e) => setCustomerData({ ...customerData, vehicleNumber: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Year / Model</label>
           <input
             type="text"
             placeholder="e.g. 2023"
@@ -92,7 +105,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
           <label>Payment Method</label>
           <div className="radio-group-segmented">
             <button

@@ -39,6 +39,7 @@ export default function App() {
     name: '',
     mobile: '',
     vehicle: '',
+    vehicleNumber: '',
     year: '',
     odometer: ''
   });
@@ -89,82 +90,68 @@ export default function App() {
   };
 
   const handleGenerateInvoice = (mode = 'bill') => {
-    if (!customerData.name || !customerData.mobile || !customerData.vehicle) {
-      alert('Please fill in Customer Name, Mobile Number, and Vehicle details before generating.');
+    if (!customerData.name || !customerData.mobile || !customerData.vehicle || !customerData.vehicleNumber) {
+      alert('Please fill in Customer Name, Mobile Number, Vehicle Model, and Vehicle Reg. Number before generating.');
       return;
     }
 
-    // Build selected services list according to client rate rules
+    // Build selected services list including standard + custom dynamically added services
     const selectedList = [];
 
-    if (services.wheelAlignment?.enabled) {
-      selectedList.push({ name: 'Wheel Alignment', amount: services.wheelAlignment.price || 350 });
-    }
-    if (services.wheelBalancing?.enabled) {
-      const count = parseInt(services.wheelBalancing.tyresCount, 10) || 4;
-      const rate = services.wheelBalancing.pricePerTyre || 50;
-      selectedList.push({ name: `Wheel Balancing (${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
-    }
-    if (services.weight?.enabled) {
-      const g = parseInt(services.weight.grams, 10) || 0;
-      const typeLabel = services.weight.weightType === 'sticker' ? 'Sticker Weight (₹4/g)' : 'Brass Weight (₹2/g)';
-      const rate = services.weight.weightType === 'sticker' ? (services.weight.stickerRate || 4) : (services.weight.brassRate || 2);
-      selectedList.push({ name: `Wheel Weight (${typeLabel} - ${g}g)`, amount: g * rate });
-    }
-    if (services.tyreFitting?.enabled) {
-      const fQty = parseInt(services.tyreFitting.fittingQty, 10) || 1;
-      const fRate = services.tyreFitting.rimSize === 'large' ? (services.tyreFitting.largeRimRate || 125) : (services.tyreFitting.smallRimRate || 100);
-      const rimLabel = services.tyreFitting.rimSize === 'large' ? 'Rim 16-18' : 'Rim 12-15';
-      let label = `Tyre Fitting (${rimLabel} - ${fQty} Tyres @ ₹${fRate}/tyre)`;
-      let totalAmt = fQty * fRate;
-      
-      if (services.tyreFitting.newValve) {
-        const vQty = parseInt(services.tyreFitting.valveQty, 10) || 0;
-        const vRate = parseInt(services.tyreFitting.valveRate, 10) || 60;
-        const vAmt = vQty * vRate;
-        label += ` + ${vQty} New Valves (₹${vAmt})`;
-        totalAmt += vAmt;
+    Object.entries(services).forEach(([key, serv]) => {
+      if (!serv?.enabled) return;
+
+      if (key === 'wheelAlignment') {
+        selectedList.push({ name: 'Wheel Alignment', amount: serv.price || 350 });
+      } else if (key === 'wheelBalancing') {
+        const count = parseInt(serv.tyresCount, 10) || 4;
+        const rate = serv.pricePerTyre || 50;
+        selectedList.push({ name: `Wheel Balancing (${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
+      } else if (key === 'weight') {
+        const g = parseInt(serv.grams, 10) || 0;
+        const typeLabel = serv.weightType === 'sticker' ? 'Sticker Weight (₹4/g)' : 'Brass Weight (₹2/g)';
+        const rate = serv.weightType === 'sticker' ? (serv.stickerRate || 4) : (serv.brassRate || 2);
+        selectedList.push({ name: `Wheel Weight (${typeLabel} - ${g}g)`, amount: g * rate });
+      } else if (key === 'tyreFitting') {
+        const fQty = parseInt(serv.fittingQty, 10) || 1;
+        const fRate = serv.rimSize === 'large' ? (serv.largeRimRate || 125) : (serv.smallRimRate || 100);
+        const rimLabel = serv.rimSize === 'large' ? 'Rim 16-18' : 'Rim 12-15';
+        let label = `Tyre Fitting (${rimLabel} - ${fQty} Tyres @ ₹${fRate}/tyre)`;
+        let totalAmt = fQty * fRate;
+        
+        if (serv.newValve) {
+          const vQty = parseInt(serv.valveQty, 10) || 0;
+          const vRate = parseInt(serv.valveRate, 10) || 60;
+          const vAmt = vQty * vRate;
+          label += ` + ${vQty} New Valves (₹${vAmt})`;
+          totalAmt += vAmt;
+        }
+        selectedList.push({ name: label, amount: totalAmt });
+      } else if (key === 'tyreRotation') {
+        const count = parseInt(serv.tyresCount, 10) || 4;
+        const rate = serv.ratePerTyre || 50;
+        const pattern = serv.rotationPattern || 'Cross Pattern';
+        selectedList.push({ name: `Tyre Rotation (${pattern} - ${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
+      } else if (key === 'airFilling') {
+        let label = 'Normal Air Filling';
+        let amt = serv.normalPrice || 20;
+        if (serv.airType === 'nitrogen_full') {
+          label = 'Nitrogen Air Full Fill';
+          amt = serv.nitrogenFullPrice || 150;
+        } else if (serv.airType === 'nitrogen_topup') {
+          label = 'Nitrogen Air Top-Up';
+          amt = serv.nitrogenTopupPrice || 50;
+        }
+        selectedList.push({ name: label, amount: amt });
+      } else if (key === 'tubelessPuncher') {
+        const qty = parseInt(serv.qty, 10) || 0;
+        const rate = serv.pricePerPuncher || 100;
+        selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
+      } else {
+        // Standard / Custom dynamically added service
+        selectedList.push({ name: serv.name, amount: serv.price || 0 });
       }
-      selectedList.push({ name: label, amount: totalAmt });
-    }
-    if (services.tyreRotation?.enabled) {
-      const count = parseInt(services.tyreRotation.tyresCount, 10) || 4;
-      const rate = services.tyreRotation.ratePerTyre || 50;
-      const pattern = services.tyreRotation.rotationPattern || 'Cross Pattern';
-      selectedList.push({ name: `Tyre Rotation (${pattern} - ${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
-    }
-    if (services.headlightBuffing?.enabled) {
-      selectedList.push({ name: 'Head Light Buffing (Cleaning)', amount: services.headlightBuffing.price || 700 });
-    }
-    if (services.airFilling?.enabled) {
-      let label = 'Normal Air Filling';
-      let amt = services.airFilling.normalPrice || 20;
-      if (services.airFilling.airType === 'nitrogen_full') {
-        label = 'Nitrogen Air Full Fill';
-        amt = services.airFilling.nitrogenFullPrice || 150;
-      } else if (services.airFilling.airType === 'nitrogen_topup') {
-        label = 'Nitrogen Air Top-Up';
-        amt = services.airFilling.nitrogenTopupPrice || 50;
-      }
-      selectedList.push({ name: label, amount: amt });
-    }
-    if (services.tubelessPuncher?.enabled) {
-      const qty = parseInt(services.tubelessPuncher.qty, 10) || 0;
-      const rate = services.tubelessPuncher.pricePerPuncher || 100;
-      selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
-    }
-    if (services.camberSetting?.enabled) {
-      selectedList.push({ name: 'Camber Setting (Bolt & Sims Add/Remove)', amount: services.camberSetting.price || 1200 });
-    }
-    if (services.carWashing?.enabled) {
-      selectedList.push({ name: 'Car Washing (Future Service)', amount: services.carWashing.price || 350 });
-    }
-    if (services.internalCleaning?.enabled) {
-      selectedList.push({ name: 'Internal Cleaning (Future Service)', amount: services.internalCleaning.price || 800 });
-    }
-    if (services.oilChange?.enabled) {
-      selectedList.push({ name: 'Engine Oil Change (Future Service)', amount: services.oilChange.price || 1500 });
-    }
+    });
 
     const subtotal = selectedList.reduce((sum, s) => sum + s.amount, 0);
     const discNum = parseInt(discount, 10) || 0;
@@ -178,6 +165,7 @@ export default function App() {
       customerName: customerData.name,
       mobile: customerData.mobile,
       vehicleName: customerData.vehicle,
+      vehicleNumber: customerData.vehicleNumber,
       year: customerData.year || '2024',
       odometer: customerData.odometer || 'N/A',
       services: selectedList,
@@ -197,7 +185,7 @@ export default function App() {
 
   const handleCloseReceiptModal = () => {
     setActiveReceipt(null);
-    setCustomerData({ name: '', mobile: '', vehicle: '', year: '', odometer: '' });
+    setCustomerData({ name: '', mobile: '', vehicle: '', vehicleNumber: '', year: '', odometer: '' });
     setDiscount(0);
     setServices(getServicePrices());
   };

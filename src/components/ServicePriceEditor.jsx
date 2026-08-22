@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Settings, Save, CheckCircle2, Key, ShieldCheck } from 'lucide-react';
-import { saveServicePrices, getAdminPassword, saveAdminPassword } from '../utils/storage';
+import { Settings, Save, CheckCircle2, Key, ShieldCheck, Plus, Sparkles } from 'lucide-react';
+import { saveServicePrices, getAdminPassword, saveAdminPassword, addCustomService } from '../utils/storage';
 
 export default function ServicePriceEditor({ services, setServices }) {
   const [editedServices, setEditedServices] = useState({ ...services });
@@ -9,6 +9,11 @@ export default function ServicePriceEditor({ services, setServices }) {
   // Custom Password State
   const [adminPwd, setAdminPwd] = useState(getAdminPassword());
   const [pwdSuccess, setPwdSuccess] = useState('');
+
+  // Add New Custom Service Form State
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServicePrice, setNewServicePrice] = useState('');
+  const [customSuccess, setCustomSuccess] = useState('');
 
   const handlePriceChange = (serviceKey, field, val) => {
     const num = parseFloat(val) || 0;
@@ -40,13 +45,29 @@ export default function ServicePriceEditor({ services, setServices }) {
     setTimeout(() => setPwdSuccess(''), 3000);
   };
 
+  const handleAddCustomService = (e) => {
+    e.preventDefault();
+    if (!newServiceName || !newServicePrice) return;
+
+    const updatedMaster = addCustomService(newServiceName, newServicePrice);
+    setServices(updatedMaster);
+    setEditedServices(updatedMaster);
+    setNewServiceName('');
+    setNewServicePrice('');
+    setCustomSuccess(`Custom Service "${newServiceName}" added successfully!`);
+    setTimeout(() => setCustomSuccess(''), 3000);
+  };
+
+  // Separate standard vs custom services for rendering
+  const serviceEntries = Object.entries(editedServices);
+
   return (
     <div className="tab-content-container">
       
       <div className="section-header-row">
         <div>
           <h2 className="section-title">⚙️ Master Service Price & Security Settings</h2>
-          <p className="section-desc">Edit base pricing and rates for all 9 Tyre Care services, and set custom Admin password.</p>
+          <p className="section-desc">Configure rates for all 12 services, add new custom services, and set Admin password.</p>
         </div>
 
         {savedSuccess && (
@@ -90,188 +111,188 @@ export default function ServicePriceEditor({ services, setServices }) {
         </form>
       </div>
 
-      {/* Master Service Prices Editor Form */}
+      {/* ➕ ADD NEW CUSTOM SERVICE CARD */}
+      <div className="card-container" style={{ border: '1px dashed var(--yellow-primary)', marginBottom: '24px' }}>
+        <div className="card-header">
+          <Plus className="card-icon" size={22} />
+          <h2>➕ Add New Custom Garage Service</h2>
+          {customSuccess && (
+            <span className="badge-chip success" style={{ marginLeft: 'auto' }}>
+              <Sparkles size={14} /> {customSuccess}
+            </span>
+          )}
+        </div>
+
+        <form onSubmit={handleAddCustomService} className="grid-form">
+          <div className="form-group">
+            <label>Custom Service Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. Brake Pad Replacement, 3D Wheel Alignment"
+              value={newServiceName}
+              onChange={(e) => setNewServiceName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Base Price / Rate (₹) *</label>
+            <input
+              type="number"
+              placeholder="e.g. 850"
+              value={newServicePrice}
+              onChange={(e) => setNewServicePrice(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
+              <Plus size={18} />
+              <span>Create & Save Custom Service</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Master Service Prices Editor Form (All 12 Services + Custom Services) */}
       <form onSubmit={handleSavePrices} className="card-container">
         
+        <div className="card-header">
+          <Settings className="card-icon" size={22} />
+          <h2>All Master Service Rates ({serviceEntries.length} Total Services)</h2>
+        </div>
+
         <div className="services-grid" style={{ marginBottom: '24px' }}>
 
-          {/* 1. Wheel Alignment */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              1. Wheel Alignment Price
-            </h3>
-            <div className="form-group">
-              <label>Standard Alignment Rate (₹)</label>
-              <input
-                type="number"
-                value={editedServices.wheelAlignment?.price || ''}
-                onChange={(e) => handlePriceChange('wheelAlignment', 'price', e.target.value)}
-                required
-              />
-            </div>
-          </div>
+          {serviceEntries.map(([key, item]) => {
+            if (key === 'wheelBalancing') {
+              return (
+                <div key={key} className="service-item-card active">
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
+                    2. Wheel Balancing Rate (Per Tyre)
+                  </h3>
+                  <div className="form-group">
+                    <label>Fees Per Tyre (₹)</label>
+                    <input
+                      type="number"
+                      value={item.pricePerTyre || 50}
+                      onChange={(e) => handlePriceChange('wheelBalancing', 'pricePerTyre', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              );
+            }
 
-          {/* 2. Wheel Balancing */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              2. Wheel Balancing Rates
-            </h3>
-            <div className="grid-form">
-              <div className="form-group">
-                <label>Two Tyre Rate (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.wheelBalancing?.priceTwo || ''}
-                  onChange={(e) => handlePriceChange('wheelBalancing', 'priceTwo', e.target.value)}
-                  required
-                />
+            if (key === 'weight') {
+              return (
+                <div key={key} className="service-item-card active">
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
+                    3. Wheel Weight Pricing (Per Gram)
+                  </h3>
+                  <div className="grid-form">
+                    <div className="form-group">
+                      <label>Sticker Weight (₹/g)</label>
+                      <input
+                        type="number"
+                        value={item.stickerRate || 4}
+                        onChange={(e) => handlePriceChange('weight', 'stickerRate', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Brass Weight (₹/g)</label>
+                      <input
+                        type="number"
+                        value={item.brassRate || 2}
+                        onChange={(e) => handlePriceChange('weight', 'brassRate', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            if (key === 'tyreFitting') {
+              return (
+                <div key={key} className="service-item-card active">
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
+                    4. Tyre Fitting & Valve Rates
+                  </h3>
+                  <div className="grid-form">
+                    <div className="form-group">
+                      <label>Rim 12, 13, 14, 15 Rate (₹)</label>
+                      <input
+                        type="number"
+                        value={item.smallRimRate || 100}
+                        onChange={(e) => handlePriceChange('tyreFitting', 'smallRimRate', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Rim 16, 17, 18 Rate (₹)</label>
+                      <input
+                        type="number"
+                        value={item.largeRimRate || 125}
+                        onChange={(e) => handlePriceChange('tyreFitting', 'largeRimRate', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            if (key === 'airFilling') {
+              return (
+                <div key={key} className="service-item-card active">
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
+                    7. Air Filling Rates
+                  </h3>
+                  <div className="grid-form">
+                    <div className="form-group">
+                      <label>Nitrogen Full Fill (₹)</label>
+                      <input
+                        type="number"
+                        value={item.nitrogenFullPrice || 150}
+                        onChange={(e) => handlePriceChange('airFilling', 'nitrogenFullPrice', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Nitrogen Top-Up (₹)</label>
+                      <input
+                        type="number"
+                        value={item.nitrogenTopupPrice || 50}
+                        onChange={(e) => handlePriceChange('airFilling', 'nitrogenTopupPrice', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Standard / Custom Services
+            return (
+              <div key={key} className="service-item-card active">
+                <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
+                  {item.name} {item.isCustom ? '⭐ (Custom Service)' : ''}
+                </h3>
+                <div className="form-group">
+                  <label>Base Price Rate (₹)</label>
+                  <input
+                    type="number"
+                    value={item.price || 0}
+                    onChange={(e) => handlePriceChange(key, 'price', e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Four Tyre Rate (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.wheelBalancing?.priceFour || ''}
-                  onChange={(e) => handlePriceChange('wheelBalancing', 'priceFour', e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 3. Weight */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              3. Wheel Weight Pricing
-            </h3>
-            <div className="form-group">
-              <label>Rate Per Gram (₹/g)</label>
-              <input
-                type="number"
-                step="0.5"
-                value={editedServices.weight?.pricePerGram || ''}
-                onChange={(e) => handlePriceChange('weight', 'pricePerGram', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* 4. Tyre Fitting & Valves */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              4. Fitting & Valve Rates
-            </h3>
-            <div className="grid-form">
-              <div className="form-group">
-                <label>Fitting Rate Per Tyre (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.tyreFitting?.fittingRate || ''}
-                  onChange={(e) => handlePriceChange('tyreFitting', 'fittingRate', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>New Tubeless Valve Rate (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.tyreFitting?.valveRate || ''}
-                  onChange={(e) => handlePriceChange('tyreFitting', 'valveRate', e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 5. Tyre Rotation */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              5. Tyre Rotation Rate
-            </h3>
-            <div className="form-group">
-              <label>Rotation Price (₹)</label>
-              <input
-                type="number"
-                value={editedServices.tyreRotation?.price || ''}
-                onChange={(e) => handlePriceChange('tyreRotation', 'price', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* 6. Head Light Buffing */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              6. Head Light Buffing Rate
-            </h3>
-            <div className="form-group">
-              <label>Buffing & Cleaning Price (₹)</label>
-              <input
-                type="number"
-                value={editedServices.headlightBuffing?.price || ''}
-                onChange={(e) => handlePriceChange('headlightBuffing', 'price', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* 7. Air Filling */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              7. Air Filling Rates
-            </h3>
-            <div className="form-group">
-              <label>Nitrogen Air Rate (₹)</label>
-              <input
-                type="number"
-                value={editedServices.airFilling?.price || ''}
-                onChange={(e) => handlePriceChange('airFilling', 'price', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* 8. Tubeless Puncher */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              8. Tubeless Puncher Repair
-            </h3>
-            <div className="form-group">
-              <label>Rate Per Puncture (₹)</label>
-              <input
-                type="number"
-                value={editedServices.tubelessPuncher?.pricePerPuncher || ''}
-                onChange={(e) => handlePriceChange('tubelessPuncher', 'pricePerPuncher', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* 9. Camber Setting */}
-          <div className="service-item-card active">
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
-              9. Camber Setting Rates
-            </h3>
-            <div className="grid-form">
-              <div className="form-group">
-                <label>Front R/L Rate (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.camberSetting?.priceFront || ''}
-                  onChange={(e) => handlePriceChange('camberSetting', 'priceFront', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Both Front & Rear Rate (₹)</label>
-                <input
-                  type="number"
-                  value={editedServices.camberSetting?.priceBoth || ''}
-                  onChange={(e) => handlePriceChange('camberSetting', 'priceBoth', e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
+            );
+          })}
 
         </div>
 

@@ -12,6 +12,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
     customerName,
     mobile,
     vehicleName,
+    vehicleNumber = 'N/A',
     year,
     odometer,
     services = [],
@@ -35,6 +36,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
       `👤 *Customer:* ${customerName}%0A` +
       `📱 *Mobile:* ${mobile}%0A` +
       `🚘 *Vehicle:* ${vehicleName} (${year})%0A` +
+      `🔢 *Reg No:* ${vehicleNumber}%0A` +
       `📟 *Odometer:* ${odometer} KM%0A` +
       `📅 *Date:* ${date} ${time}%0A` +
       `------------------------------------%0A` +
@@ -80,7 +82,8 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
             <div className="meta-row"><span>Bill No: <strong>{id}</strong></span><span>Date: {date}</span></div>
             <div className="meta-row"><span>Time: {time}</span><span>Pay Mode: {paymentMethod}</span></div>
             <div className="meta-row"><span>Customer: <strong>{customerName}</strong></span><span>Mob: {mobile}</span></div>
-            <div className="meta-row"><span>Vehicle: {vehicleName}</span><span>KM: {odometer}</span></div>
+            <div className="meta-row"><span>Vehicle: {vehicleName}</span><span>Reg No: <strong>{vehicleNumber}</strong></span></div>
+            <div className="meta-row"><span>KM: {odometer}</span><span>Year: {year}</span></div>
           </div>
 
           <div className="receipt-divider">---------------------------------------------</div>

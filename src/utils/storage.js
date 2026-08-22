@@ -3,7 +3,7 @@ import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY, INITIAL_BOOKING
 const KEYS = {
   JOB_CARDS: 'stop_go_job_cards_v3',
   INVENTORY: 'stop_go_inventory_v3',
-  SERVICE_PRICES: 'stop_go_service_prices_v3',
+  SERVICE_PRICES: 'stop_go_service_prices_v4',
   ADMIN_PASSWORD: 'stop_go_admin_password',
   BOOKINGS: 'stop_go_bookings',
   EXPENSES: 'stop_go_expenses',
@@ -102,6 +102,23 @@ export const saveServicePrices = (newPrices) => {
   return newPrices;
 };
 
+export const addCustomService = (serviceName, defaultPrice) => {
+  const current = getServicePrices();
+  const key = `custom_${Date.now()}`;
+  const updated = {
+    ...current,
+    [key]: {
+      id: key,
+      name: serviceName,
+      price: parseFloat(defaultPrice) || 0,
+      enabled: false,
+      isCustom: true
+    }
+  };
+  saveServicePrices(updated);
+  return updated;
+};
+
 // Bookings
 export const getBookings = () => {
   const data = localStorage.getItem(KEYS.BOOKINGS);
@@ -167,6 +184,7 @@ export const searchCustomerByMobile = (mobile) => {
       customerName: match.customerName,
       mobile: match.mobile,
       vehicleName: match.vehicleName,
+      vehicleNumber: match.vehicleNumber || 'MH-12-AB-1234',
       year: match.year,
       odometer: match.odometer
     };
