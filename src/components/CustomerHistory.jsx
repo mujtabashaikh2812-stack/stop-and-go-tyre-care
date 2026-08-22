@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Phone, Car, Calendar, History, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Phone, Car, Calendar, History, MessageSquare, ChevronDown, ChevronUp, Users } from 'lucide-react';
 
 export default function CustomerHistory({ jobCards }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,10 +85,18 @@ export default function CustomerHistory({ jobCards }) {
 
       {/* Customer Directory List */}
       <div className="customer-list-container">
-        {customersList.length === 0 ? (
-          <div className="empty-state">
-            <History size={48} className="empty-icon" />
-            <p>No customer records found matching "{searchTerm}"</p>
+        {jobCards.length === 0 ? (
+          <div className="card-container" style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <Users size={48} className="card-icon" style={{ marginBottom: '12px' }} />
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--text-white)', marginBottom: '8px' }}>No Customer Records Yet</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '420px', margin: '0 auto' }}>
+              Your customer directory is clean and ready. As customers visit the shop and job cards are saved, their profiles and service histories will automatically appear here in real-time.
+            </p>
+          </div>
+        ) : customersList.length === 0 ? (
+          <div className="card-container" style={{ textAlign: 'center', padding: '36px 24px' }}>
+            <History size={40} className="card-icon" style={{ marginBottom: '12px' }} />
+            <p style={{ color: 'var(--text-secondary)' }}>No customer records found matching "{searchTerm}"</p>
           </div>
         ) : (
           customersList.map((customer) => {

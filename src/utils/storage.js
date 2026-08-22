@@ -1,8 +1,10 @@
-import { INITIAL_JOB_CARDS, INITIAL_INVENTORY } from '../data/mockData';
+import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY } from '../data/mockData';
 
 const KEYS = {
-  JOB_CARDS: 'stop_go_job_cards',
-  INVENTORY: 'stop_go_inventory'
+  JOB_CARDS: 'stop_go_job_cards_v2',
+  INVENTORY: 'stop_go_inventory_v2',
+  SERVICE_PRICES: 'stop_go_service_prices',
+  ADMIN_AUTH: 'stop_go_admin_auth'
 };
 
 export const getJobCards = () => {
@@ -14,7 +16,6 @@ export const getJobCards = () => {
   try {
     return JSON.parse(data);
   } catch (e) {
-    console.error('Failed to parse job cards', e);
     return INITIAL_JOB_CARDS;
   }
 };
@@ -73,6 +74,24 @@ const deductInventoryForJobCard = (jobCard) => {
   });
 
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+};
+
+export const getServicePrices = () => {
+  const data = localStorage.getItem(KEYS.SERVICE_PRICES);
+  if (!data) {
+    localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(DEFAULT_SERVICES));
+    return DEFAULT_SERVICES;
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return DEFAULT_SERVICES;
+  }
+};
+
+export const saveServicePrices = (newPrices) => {
+  localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(newPrices));
+  return newPrices;
 };
 
 export const searchCustomerByMobile = (mobile) => {

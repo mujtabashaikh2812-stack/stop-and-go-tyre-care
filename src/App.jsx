@@ -6,14 +6,20 @@ import ReceiptModal from './components/ReceiptModal';
 import CustomerHistory from './components/CustomerHistory';
 import Analytics from './components/Analytics';
 import Inventory from './components/Inventory';
+import AdminLoginModal from './components/AdminLoginModal';
+import ServicePriceEditor from './components/ServicePriceEditor';
 
-import { DEFAULT_SERVICES } from './data/mockData';
-import { getJobCards, saveJobCard, getInventory } from './utils/storage';
+import { getJobCards, saveJobCard, getInventory, getServicePrices } from './utils/storage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('billing');
   const [jobCards, setJobCards] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [services, setServices] = useState({});
+
+  // Admin Auth State
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   // Form State
   const [customerData, setCustomerData] = useState({
@@ -24,7 +30,6 @@ export default function App() {
     odometer: ''
   });
   const [paymentMethod, setPaymentMethod] = useState('UPI / QR Code');
-  const [services, setServices] = useState(DEFAULT_SERVICES);
   const [discount, setDiscount] = useState(0);
 
   // Modal State
@@ -34,6 +39,7 @@ export default function App() {
   useEffect(() => {
     setJobCards(getJobCards());
     setInventory(getInventory());
+    setServices(getServicePrices());
   }, []);
 
   // Compute Today Stats
@@ -53,21 +59,21 @@ export default function App() {
     // Build selected services list
     const selectedList = [];
 
-    if (services.wheelAlignment.enabled) {
+    if (services.wheelAlignment?.enabled) {
       selectedList.push({ name: 'Wheel Alignment', amount: services.wheelAlignment.price });
     }
-    if (services.wheelBalancing.enabled) {
+    if (services.wheelBalancing?.enabled) {
       const typeLabel = services.wheelBalancing.type === 'two' ? '2 Tyres' : '4 Tyres';
       const amt = services.wheelBalancing.type === 'two' ? services.wheelBalancing.priceTwo : services.wheelBalancing.priceFour;
       selectedList.push({ name: `Wheel Balancing (${typeLabel})`, amount: amt });
     }
-    if (services.weight.enabled) {
+    if (services.weight?.enabled) {
       const g = parseInt(services.weight.grams, 10) || 0;
       const label = services.weight.weightType === 'brass' ? 'Brass Weight' : 'Sticker Weight';
       const amt = g * services.weight.pricePerGram;
       selectedList.push({ name: `Wheel Weight (${label} - ${g}g)`, amount: amt });
     }
-    if (services.tyreFitting.enabled) {
+    if (services.tyreFitting?.enabled) {
       const fQty = parseInt(services.tyreFitting.fittingQty, 10) || 0;
       const fitAmt = fQty * services.tyreFitting.fittingRate;
       let label = `Tyre Fitting (${fQty} Tyres)`;
@@ -82,23 +88,23 @@ export default function App() {
       }
       selectedList.push({ name: label, amount: totalAmt });
     }
-    if (services.tyreRotation.enabled) {
+    if (services.tyreRotation?.enabled) {
       selectedList.push({ name: 'Tyre Rotation', amount: services.tyreRotation.price });
     }
-    if (services.headlightBuffing.enabled) {
+    if (services.headlightBuffing?.enabled) {
       selectedList.push({ name: 'Head Light Buffing (Cleaning)', amount: services.headlightBuffing.price });
     }
-    if (services.airFilling.enabled) {
+    if (services.airFilling?.enabled) {
       const label = services.airFilling.airType === 'nitrogen' ? 'Nitrogen Air Filling' : 'Normal Air Filling';
-      const amt = services.airFilling.airType === 'nitrogen' ? 80 : 40;
+      const amt = services.airFilling.airType === 'nitrogen' ? services.airFilling.price : 40;
       selectedList.push({ name: label, amount: amt });
     }
-    if (services.tubelessPuncher.enabled) {
+    if (services.tubelessPuncher?.enabled) {
       const qty = parseInt(services.tubelessPuncher.qty, 10) || 0;
       const amt = qty * services.tubelessPuncher.pricePerPuncher;
       selectedList.push({ name: `Tubeless Puncher (${qty} Repairs)`, amount: amt });
     }
-    if (services.camberSetting.enabled) {
+    if (services.camberSetting?.enabled) {
       let label = 'Camber Setting (Front R/L)';
       let amt = services.camberSetting.priceFront;
       if (services.camberSetting.position === 'rear') {
@@ -145,7 +151,7 @@ export default function App() {
     // Reset Form
     setCustomerData({ name: '', mobile: '', vehicle: '', year: '', odometer: '' });
     setDiscount(0);
-    setServices(DEFAULT_SERVICES);
+    setServices(getServicePrices());
   };
 
   return (
@@ -154,6 +160,12 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         todayStats={todayStats}
+        isAdminLoggedIn={isAdminLoggedIn}
+        onOpenAdminLogin={() => setIsAdminModalOpen(true)}
+        onAdminLogout={() => {
+          setIsAdminLoggedIn(false);
+          if (activeTab === 'price_settings') setActiveTab('billing');
+        }}
       />
 
       <main className="app-main-body">
@@ -165,13 +177,15 @@ export default function App() {
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
             />
-            <ServiceChecklist
-              services={services}
-              setServices={setServices}
-              discount={discount}
-              setDiscount={setDiscount}
-              onGenerateInvoice={handleGenerateInvoice}
-            />
+            {Object.keys(services).length > 0 && (
+              <ServiceChecklist
+                services={services}
+                setServices={setServices}
+                discount={discount}
+                setDiscount={setDiscount}
+                onGenerateInvoice={handleGenerateInvoice}
+              />
+            )}
           </>
         )}
 
@@ -186,12 +200,28 @@ export default function App() {
         {activeTab === 'inventory' && (
           <Inventory inventory={inventory} setInventory={setInventory} />
         )}
+
+        {activeTab === 'price_settings' && isAdminLoggedIn && (
+          <ServicePriceEditor
+            services={services}
+            setServices={setServices}
+          />
+        )}
       </main>
 
       <ReceiptModal
         activeReceipt={activeReceipt}
         mode={billingMode}
         onClose={handleCloseReceiptModal}
+      />
+
+      <AdminLoginModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onLoginSuccess={() => {
+          setIsAdminLoggedIn(true);
+          setActiveTab('price_settings');
+        }}
       />
     </div>
   );
