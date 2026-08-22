@@ -23,7 +23,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
       setPassword('');
       setErrorMsg('');
     } else {
-      setErrorMsg('Incorrect Admin Password! Try default: admin123');
+      setErrorMsg('Incorrect Admin Password! Please try again.');
     }
   };
 
@@ -137,9 +137,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                <span className="input-hint">Default password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
-                
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '8px' }}>
                 {/* PROMINENT YELLOW FORGOT PASSWORD LINK */}
                 <button
                   type="button"
