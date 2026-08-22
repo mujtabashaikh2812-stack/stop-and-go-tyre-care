@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, Send, CheckCircle, RefreshCw } from 'lucide-react';
+import { X, Printer, Send, CheckCircle } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 
 export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) {
@@ -81,13 +81,13 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
           </button>
         </div>
 
-        {/* Printable 80mm Thermal Receipt Area */}
+        {/* Printable 80mm Thermal & A4/A5 Paper Receipt Area */}
         <div className="printable-receipt-area" id="printable-receipt">
           
           <div className="receipt-header" style={{ textAlign: 'center', marginBottom: '12px' }}>
-            <LogoBanner height="40px" useVector={true} />
-            <div className="receipt-address" style={{ marginTop: '6px' }}>Shop #4, Tyre Care Hub, Main Highway Road</div>
-            <div className="receipt-address">Ph: +91 98765 43210</div>
+            <LogoBanner height="50px" useVector={false} forPrint={true} />
+            <div className="receipt-address" style={{ marginTop: '8px', fontWeight: '600' }}>Shop #4, Tyre Care Hub, Main Highway Road</div>
+            <div className="receipt-address" style={{ fontWeight: '600' }}>Ph: +91 98765 43210</div>
           </div>
 
           <div className="receipt-divider">---------------------------------------------</div>
@@ -99,7 +99,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
             <div className="meta-row"><span>Vehicle: {vehicleName}</span><span>Reg No: <strong>{vehicleNumber}</strong></span></div>
             <div className="meta-row">
               <span>Current KM: {odometer}</span>
-              {nextAlignmentKm && <span style={{ color: '#0F172A', fontWeight: '800' }}>Next Align: {nextAlignmentKm} KM</span>}
+              {nextAlignmentKm && <span style={{ fontWeight: '800' }}>Next Align: {nextAlignmentKm} KM</span>}
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
 
           <button className="btn-print-large" onClick={handlePrint}>
             <Printer size={18} />
-            <span>Print 80mm Thermal Receipt Slip</span>
+            <span>Print Official Receipt Slip</span>
           </button>
         </div>
 
