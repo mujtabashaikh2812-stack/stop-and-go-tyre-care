@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare, Trash2 } from 'lucide-react';
+import { deleteJobCard, deleteCustomerByMobile } from '../utils/storage';
 
-export default function CustomerHistory({ jobCards }) {
+export default function CustomerHistory({ jobCards, setJobCards }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Group job cards by mobile number to build unique customer profiles
@@ -12,6 +13,7 @@ export default function CustomerHistory({ jobCards }) {
         mobile: card.mobile,
         customerName: card.customerName,
         vehicleName: card.vehicleName,
+        vehicleNumber: card.vehicleNumber || 'N/A',
         year: card.year,
         odometer: card.odometer,
         lastVisitDate: card.date,
@@ -28,6 +30,7 @@ export default function CustomerHistory({ jobCards }) {
     if (new Date(card.date) > new Date(customerMap[card.mobile].lastVisitDate)) {
       customerMap[card.mobile].lastVisitDate = card.date;
       customerMap[card.mobile].odometer = card.odometer;
+      customerMap[card.mobile].vehicleNumber = card.vehicleNumber || customerMap[card.mobile].vehicleNumber;
     }
   });
 
@@ -36,13 +39,28 @@ export default function CustomerHistory({ jobCards }) {
   const filteredCustomers = customersList.filter(c => 
     c.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.mobile.includes(searchTerm) ||
-    c.vehicleName.toLowerCase().includes(searchTerm.toLowerCase())
+    c.vehicleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteEntireCustomer = (mobile, name) => {
+    if (window.confirm(`Are you sure you want to delete customer "${name}" (${mobile}) and ALL their visit records?`)) {
+      const updated = deleteCustomerByMobile(mobile);
+      setJobCards(updated);
+    }
+  };
+
+  const handleDeleteSingleBill = (id, billNo) => {
+    if (window.confirm(`Are you sure you want to delete bill #${billNo}?`)) {
+      const updated = deleteJobCard(id);
+      setJobCards(updated);
+    }
+  };
 
   const sendServiceDueWhatsApp = (c) => {
     const msg = 
       `Hi *${c.customerName}*! 🚗%0A` +
-      `Your *${c.vehicleName}* is due for its 5,000 KM routine Tyre Care %26 Wheel Alignment Service at *STOP %26 GO Total Tyre Care Centre*.%0A%0A` +
+      `Your *${c.vehicleName}* (${c.vehicleNumber}) is due for its 5,000 KM routine Tyre Care %26 Wheel Alignment Service at *STOP %26 GO Total Tyre Care Centre*.%0A%0A` +
       `Regular alignment %26 balancing increases tyre life by up to 30%!%0A%0A` +
       `Visit us today or reply to book your slot. Thank you!`;
 
@@ -63,7 +81,7 @@ export default function CustomerHistory({ jobCards }) {
           <Search className="search-icon" size={18} />
           <input
             type="text"
-            placeholder="Search by Customer Name, Mobile, or Car Model..."
+            placeholder="Search by Customer Name, Mobile, Reg No, or Car..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -100,6 +118,7 @@ export default function CustomerHistory({ jobCards }) {
                       <div className="customer-sub-meta">
                         <span><Phone size={12} /> {customer.mobile}</span>
                         <span><Car size={12} /> {customer.vehicleName} ({customer.year})</span>
+                        <span>Reg No: <strong>{customer.vehicleNumber}</strong></span>
                         <span><Gauge size={12} /> {customer.odometer} KM</span>
                       </div>
                     </div>
@@ -130,6 +149,28 @@ export default function CustomerHistory({ jobCards }) {
                       <MessageSquare size={14} />
                       <span>Send 5,000 KM Reminder</span>
                     </button>
+
+                    {/* OPTION A: DELETE ENTIRE CUSTOMER RECORD */}
+                    <button
+                      onClick={() => handleDeleteEntireCustomer(customer.mobile, customer.customerName)}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        color: 'var(--ruby-primary)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        padding: '8px 12px',
+                        borderRadius: '20px',
+                        fontSize: '0.78rem',
+                        fontWeight: '700',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer'
+                      }}
+                      title="Delete Customer & All History"
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete Customer</span>
+                    </button>
                   </div>
                 </div>
 
@@ -150,9 +191,28 @@ export default function CustomerHistory({ jobCards }) {
                           <span key={idx} className="service-tag">{s.name}</span>
                         ))}
                       </div>
-                      <div>
-                        <span className="log-amount">₹{item.total.toLocaleString('en-IN')}</span>
-                        <span className="payment-tag">({item.paymentMethod})</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div>
+                          <span className="log-amount">₹{item.total.toLocaleString('en-IN')}</span>
+                          <span className="payment-tag">({item.paymentMethod})</span>
+                        </div>
+
+                        {/* OPTION B: DELETE SPECIFIC VISIT ENTRY */}
+                        <button
+                          onClick={() => handleDeleteSingleBill(item.id, item.id)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--ruby-primary)',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                          title="Delete this bill entry"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   ))}

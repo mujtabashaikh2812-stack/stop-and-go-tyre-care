@@ -47,6 +47,22 @@ export const saveJobCard = (newCard) => {
   return updated;
 };
 
+// DELETE INDIVIDUAL JOB CARD (OPTION B)
+export const deleteJobCard = (id) => {
+  const current = getJobCards();
+  const updated = current.filter(c => c.id !== id);
+  localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  return updated;
+};
+
+// DELETE ENTIRE CUSTOMER PROFILE (OPTION A)
+export const deleteCustomerByMobile = (mobile) => {
+  const current = getJobCards();
+  const updated = current.filter(c => c.mobile !== mobile);
+  localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  return updated;
+};
+
 export const getInventory = () => {
   const data = localStorage.getItem(KEYS.INVENTORY);
   if (!data) {

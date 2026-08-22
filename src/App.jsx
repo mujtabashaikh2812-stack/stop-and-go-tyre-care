@@ -148,7 +148,6 @@ export default function App() {
         const rate = serv.pricePerPuncher || 100;
         selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
       } else {
-        // Standard / Custom dynamically added service
         selectedList.push({ name: serv.name, amount: serv.price || 0 });
       }
     });
@@ -229,7 +228,7 @@ export default function App() {
         )}
 
         {activeTab === 'customers' && (
-          <CustomerHistory jobCards={jobCards} />
+          <CustomerHistory jobCards={jobCards} setJobCards={setJobCards} />
         )}
 
         {activeTab === 'analytics' && (
