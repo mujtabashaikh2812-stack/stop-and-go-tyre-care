@@ -103,12 +103,14 @@ export default function Bookings({ bookings, setBookings }) {
 
           <div className="form-group">
             <label><Calendar size={14} /> Appointment Date *</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
+            <div className="input-with-icon">
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">

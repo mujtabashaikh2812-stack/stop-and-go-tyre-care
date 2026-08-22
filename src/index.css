@@ -340,22 +340,35 @@ body {
   color: var(--text-muted);
 }
 
+/* CUSTOM STYLING FOR DATE INPUTS & FORM CONTROLS */
 input[type="text"], input[type="tel"], input[type="number"], input[type="password"], input[type="date"], select {
-  background: var(--bg-app);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  color: var(--text-white);
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  width: 100%;
-  transition: all 0.2s ease;
+  background-color: var(--bg-app) !important;
+  border: 1px solid var(--border-medium) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 12px 16px !important;
+  color: var(--text-white) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.95rem !important;
+  width: 100% !important;
+  transition: all 0.2s ease !important;
+  color-scheme: dark !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(5deg) !important;
+  cursor: pointer !important;
+  opacity: 0.8 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1 !important;
+  transform: scale(1.1);
 }
 
 input:focus, select:focus {
   outline: none;
-  border-color: var(--yellow-primary);
-  box-shadow: 0 0 0 3px var(--yellow-glow);
+  border-color: var(--yellow-primary) !important;
+  box-shadow: 0 0 0 3px var(--yellow-glow) !important;
 }
 
 .input-hint {
