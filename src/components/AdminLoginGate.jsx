@@ -45,7 +45,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
     }
 
     saveAdminPassword(newPassword);
-    setResetSuccessMsg('Admin password updated successfully! You can now log in.');
+    setResetSuccessMsg('Admin password updated successfully! Log in with your new password.');
     setErrorMsg('');
     setIsResetMode(false);
     setRecoveryPin('');
@@ -120,30 +120,9 @@ export default function AdminLoginGate({ onLoginSuccess }) {
               Please enter Admin password to access billing, customer records, and inventory.
             </div>
 
-            <div className="form-group" style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label><Key size={14} /> Admin Password / PIN</label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsResetMode(true);
-                    setErrorMsg('');
-                  }}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--yellow-primary)',
-                    fontSize: '0.78rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  Forgot Password?
-                </button>
-              </div>
-
-              <div className="input-with-icon" style={{ marginTop: '6px' }}>
+            <div className="form-group" style={{ marginBottom: '14px' }}>
+              <label><Key size={14} /> Admin Password / PIN</label>
+              <div className="input-with-icon">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter Admin Password"
@@ -162,7 +141,29 @@ export default function AdminLoginGate({ onLoginSuccess }) {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <span className="input-hint">Current Admin password: <strong style={{ color: 'var(--yellow-primary)' }}>{getAdminPassword()}</strong></span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                <span className="input-hint">Default password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
+                
+                {/* CLEAR PROMINENT FORGOT PASSWORD BUTTON */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsResetMode(true);
+                    setErrorMsg('');
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--yellow-primary)',
+                    fontSize: '0.82rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
             </div>
 
             {errorMsg && (
@@ -187,11 +188,32 @@ export default function AdminLoginGate({ onLoginSuccess }) {
             <button
               type="submit"
               className="btn-generate-bill"
-              style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1rem' }}
+              style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1rem', marginTop: '10px' }}
             >
               <ShieldCheck size={20} />
               <span>Unlock Dashboard & Billing</span>
             </button>
+
+            {/* SECONDARY FORGOT PASSWORD LINK AT BOTTOM */}
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsResetMode(true);
+                  setErrorMsg('');
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                🔑 Forgot Password? Click here to reset
+              </button>
+            </div>
           </form>
         ) : (
           /* FORGOT PASSWORD RESET FORM */
