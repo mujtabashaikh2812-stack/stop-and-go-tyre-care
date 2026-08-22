@@ -158,21 +158,21 @@ body {
 /* UNIQUE AUTOMOTIVE CONTROL HUB (INTERACTIVE NAVIGATION TILES) */
 .nav-control-hub {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
 }
 
 .nav-hub-tile {
   background: var(--bg-app);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-lg);
-  padding: 14px 18px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.25 cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -192,8 +192,8 @@ body {
 }
 
 .tile-icon-box {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
@@ -217,7 +217,7 @@ body {
 }
 
 .tile-title {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
@@ -231,7 +231,7 @@ body {
 }
 
 .tile-sub {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   color: var(--text-muted);
   margin-top: 2px;
   white-space: nowrap;
@@ -240,13 +240,14 @@ body {
 }
 
 .nav-hub-tile.active .tile-sub {
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.75);
   font-weight: 600;
 }
 
 .tile-arrow {
   color: var(--text-muted);
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .nav-hub-tile:hover .tile-arrow {
@@ -1202,10 +1203,10 @@ input:focus, select:focus {
 
 .margin-top { margin-top: 24px; }
 
-/* 📱 SMALL MOBILE SCREEN RESPONSIVE OVERRIDES (< 640px) */
+/* 📱 MOBILE RESPONSIVE 2X2 GRID OVERRIDES FOR NAVIGATION HUB (< 640px) */
 @media (max-width: 640px) {
   .app-wrapper {
-    padding: 12px;
+    padding: 10px;
   }
 
   .header-container {
@@ -1223,8 +1224,38 @@ input:focus, select:focus {
     justify-content: space-between;
   }
 
+  /* 2X2 GRID - ALL 4 BUTTONS FULLY VISIBLE AT ONCE (ZERO SIDE SCROLLING!) */
   .nav-control-hub {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .nav-hub-tile {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .tile-icon-box {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .tile-icon-box svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .tile-title {
+    font-size: 0.78rem !important;
+  }
+
+  .tile-sub {
+    display: none !important; /* Hide subtext on phone screens for clean fit */
+  }
+
+  .tile-arrow {
+    display: none !important;
   }
 
   .card-container {
