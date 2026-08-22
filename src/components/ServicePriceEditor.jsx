@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Settings, Save, CheckCircle2, DollarSign } from 'lucide-react';
-import { saveServicePrices } from '../utils/storage';
+import { Settings, Save, CheckCircle2, Key, ShieldCheck } from 'lucide-react';
+import { saveServicePrices, getAdminPassword, saveAdminPassword } from '../utils/storage';
 
 export default function ServicePriceEditor({ services, setServices }) {
   const [editedServices, setEditedServices] = useState({ ...services });
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Custom Password State
+  const [adminPwd, setAdminPwd] = useState(getAdminPassword());
+  const [pwdSuccess, setPwdSuccess] = useState('');
 
   const handlePriceChange = (serviceKey, field, val) => {
     const num = parseFloat(val) || 0;
@@ -25,13 +29,24 @@ export default function ServicePriceEditor({ services, setServices }) {
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 
+  const handleSavePassword = (e) => {
+    e.preventDefault();
+    if (!adminPwd || adminPwd.length < 4) {
+      alert('Admin password must be at least 4 characters long.');
+      return;
+    }
+    saveAdminPassword(adminPwd);
+    setPwdSuccess('Admin Password updated successfully!');
+    setTimeout(() => setPwdSuccess(''), 3000);
+  };
+
   return (
     <div className="tab-content-container">
       
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">⚙️ Master Service Price Settings (Admin Control)</h2>
-          <p className="section-desc">Edit base pricing and rates for all 9 Tyre Care services. Changes apply immediately to new bills.</p>
+          <h2 className="section-title">⚙️ Master Service Price & Security Settings</h2>
+          <p className="section-desc">Edit base pricing and rates for all 9 Tyre Care services, and set custom Admin password.</p>
         </div>
 
         {savedSuccess && (
@@ -41,6 +56,41 @@ export default function ServicePriceEditor({ services, setServices }) {
         )}
       </div>
 
+      {/* 🔐 Admin Password Customization Card */}
+      <div className="card-container" style={{ border: '1px solid var(--yellow-primary)', marginBottom: '24px' }}>
+        <div className="card-header">
+          <Key className="card-icon" size={22} style={{ color: 'var(--yellow-primary)' }} />
+          <h2>Change Admin Password / PIN</h2>
+          {pwdSuccess && (
+            <span className="badge-chip success" style={{ marginLeft: 'auto' }}>
+              <CheckCircle2 size={14} /> Password Saved
+            </span>
+          )}
+        </div>
+
+        <form onSubmit={handleSavePassword} className="restock-form">
+          <div className="form-group">
+            <label><Key size={14} /> New Admin Password</label>
+            <input
+              type="text"
+              placeholder="Enter new admin password"
+              value={adminPwd}
+              onChange={(e) => setAdminPwd(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label style={{ visibility: 'hidden' }}>Save Password</label>
+            <button type="submit" className="btn-generate-bill" style={{ padding: '12px 20px' }}>
+              <ShieldCheck size={18} />
+              <span>Update Admin Password</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Master Service Prices Editor Form */}
       <form onSubmit={handleSavePrices} className="card-container">
         
         <div className="services-grid" style={{ marginBottom: '24px' }}>

@@ -4,7 +4,17 @@ const KEYS = {
   JOB_CARDS: 'stop_go_job_cards_v2',
   INVENTORY: 'stop_go_inventory_v2',
   SERVICE_PRICES: 'stop_go_service_prices',
-  ADMIN_AUTH: 'stop_go_admin_auth'
+  ADMIN_PASSWORD: 'stop_go_admin_password'
+};
+
+export const getAdminPassword = () => {
+  const pwd = localStorage.getItem(KEYS.ADMIN_PASSWORD);
+  return pwd || 'admin123';
+};
+
+export const saveAdminPassword = (newPassword) => {
+  localStorage.setItem(KEYS.ADMIN_PASSWORD, newPassword);
+  return newPassword;
 };
 
 export const getJobCards = () => {
