@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Printer, Send, CheckCircle } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
+import LogoBanner from './LogoBanner';
 
 export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) {
   if (!activeReceipt) return null;
@@ -26,7 +26,6 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
   };
 
   const handleSendWhatsApp = () => {
-    // Generate WhatsApp deep-link message
     const itemLines = services.map(s => `• ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
     
     const messageText = 
@@ -70,12 +69,8 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
         <div className="printable-receipt-area" id="printable-receipt">
           
           <div className="receipt-header" style={{ textAlign: 'center', marginBottom: '12px' }}>
-            <img
-              src={logoImg}
-              alt="STOP & GO Total Tyre Care Centre"
-              style={{ height: '54px', maxWidth: '280px', objectFit: 'contain', margin: '0 auto 6px display: block' }}
-            />
-            <div className="receipt-address">Shop #4, Tyre Care Hub, Main Highway Road</div>
+            <LogoBanner height="40px" useVector={true} />
+            <div className="receipt-address" style={{ marginTop: '6px' }}>Shop #4, Tyre Care Hub, Main Highway Road</div>
             <div className="receipt-address">Ph: +91 98765 43210</div>
           </div>
 

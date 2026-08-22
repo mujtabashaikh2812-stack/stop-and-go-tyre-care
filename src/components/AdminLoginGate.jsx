@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Key, ShieldCheck, Eye, EyeOff, AlertCircle, RefreshCw, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { getAdminPassword, saveAdminPassword } from '../utils/storage';
-import logoImg from '../assets/logo.jpg';
+import LogoBanner from './LogoBanner';
 
 export default function AdminLoginGate({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
@@ -75,13 +75,9 @@ export default function AdminLoginGate({ onLoginSuccess }) {
         textAlign: 'center'
       }}>
         
-        {/* Official Client Logo Header */}
+        {/* Crisp Vector Client Logo Banner */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-          <img
-            src={logoImg}
-            alt="STOP & GO Total Tyre Care Centre"
-            style={{ height: '65px', maxWidth: '340px', objectFit: 'contain', borderRadius: '8px' }}
-          />
+          <LogoBanner height="54px" useVector={true} />
         </div>
 
         {resetSuccessMsg && (
