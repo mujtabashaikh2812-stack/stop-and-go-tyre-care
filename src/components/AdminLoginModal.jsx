@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Lock, Key, ShieldCheck, X } from 'lucide-react';
+import { Lock, Key, ShieldCheck, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   if (!isOpen) return null;
@@ -16,16 +17,16 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
       setErrorMsg('');
       onClose();
     } else {
-      setErrorMsg('Incorrect Admin Password! (Default: admin123)');
+      setErrorMsg('Incorrect Admin Password! Default password is: admin123');
     }
   };
 
   return (
     <div className="modal-backdrop">
-      <div className="modal-content" style={{ maxWidth: '400px' }}>
+      <div className="modal-content" style={{ maxWidth: '420px', border: '1px solid var(--border-active)' }}>
         
         <div className="modal-header-bar">
-          <div className="modal-title">
+          <div className="modal-title" style={{ color: 'var(--yellow-primary)' }}>
             <Lock className="card-icon" size={22} />
             <span>Admin Authentication</span>
           </div>
@@ -35,32 +36,56 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
         </div>
 
         <form onSubmit={handleSubmit} className="admin-login-form">
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-            Log in as Admin to edit master service prices, change rates, and manage garage configurations.
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '18px', lineHeight: '1.5' }}>
+            Enter your secure Admin PIN to edit master service pricing, manage shop configurations, and access admin tools.
           </p>
 
-          <div className="form-group" style={{ marginBottom: '16px' }}>
+          <div className="form-group" style={{ marginBottom: '18px' }}>
             <label><Key size={14} /> Admin Password / PIN</label>
-            <input
-              type="password"
-              placeholder="Enter Password (admin123)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoFocus
-              required
-            />
+            <div className="input-with-icon">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter password (admin123)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoFocus
+                required
+              />
+              <button
+                type="button"
+                className="input-icon"
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0' }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <span className="input-hint">Default shop admin password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
           </div>
 
           {errorMsg && (
-            <div style={{ color: 'var(--ruby-primary)', fontSize: '0.82rem', marginBottom: '14px', fontWeight: '600' }}>
-              ⚠️ {errorMsg}
+            <div style={{
+              background: 'var(--ruby-bg)',
+              border: '1px solid var(--ruby-primary)',
+              color: 'var(--ruby-primary)',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.84rem',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontWeight: '600'
+            }}>
+              <AlertCircle size={16} />
+              <span>{errorMsg}</span>
             </div>
           )}
 
           <div className="modal-actions-bar">
-            <button type="submit" className="btn-action-primary" style={{ width: '100%', justifyContent: 'center' }}>
+            <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center', padding: '14px' }}>
               <ShieldCheck size={18} />
-              <span>Log In as Admin</span>
+              <span>Unlock Admin Controls</span>
             </button>
           </div>
         </form>

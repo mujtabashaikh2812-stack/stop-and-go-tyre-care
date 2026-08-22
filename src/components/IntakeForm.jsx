@@ -24,8 +24,8 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
   return (
     <div className="card-container">
       <div className="card-header">
-        <User className="card-icon" size={20} />
-        <h2>Customer & Vehicle Details</h2>
+        <User className="card-icon" size={22} />
+        <h2>01. Customer & Vehicle Details</h2>
         {customerData.mobile.length === 10 && searchCustomerByMobile(customerData.mobile) && (
           <span className="badge-chip success">
             <Sparkles size={12} /> Auto-Fetched Returning Customer
