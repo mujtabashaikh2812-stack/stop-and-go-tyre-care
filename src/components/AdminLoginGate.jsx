@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Wrench, Key, ShieldCheck, Eye, EyeOff, AlertCircle, RefreshCw, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Key, ShieldCheck, Eye, EyeOff, AlertCircle, RefreshCw, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { getAdminPassword, saveAdminPassword } from '../utils/storage';
+import logoImg from '../assets/logo.jpg';
 
 export default function AdminLoginGate({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
@@ -74,15 +75,14 @@ export default function AdminLoginGate({ onLoginSuccess }) {
         textAlign: 'center'
       }}>
         
-        {/* Brand Header */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-          <div className="logo-icon-bg" style={{ width: '64px', height: '64px', borderRadius: '16px' }}>
-            <Wrench size={32} />
-          </div>
+        {/* Official Client Logo Header */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+          <img
+            src={logoImg}
+            alt="STOP & GO Total Tyre Care Centre"
+            style={{ height: '65px', maxWidth: '340px', objectFit: 'contain', borderRadius: '8px' }}
+          />
         </div>
-
-        <h1 className="brand-title" style={{ fontSize: '1.8rem', marginBottom: '4px' }}>STOP & GO</h1>
-        <p className="brand-subtitle" style={{ fontSize: '0.78rem', marginBottom: '24px' }}>TOTAL TYRE CARE CENTRE</p>
 
         {resetSuccessMsg && (
           <div style={{

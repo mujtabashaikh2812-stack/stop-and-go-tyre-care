@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight, Globe, Coffee } from 'lucide-react';
+import { ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight, Globe, Coffee } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/i18n';
+import logoImg from '../assets/logo.jpg';
 
 export default function Header({ activeTab, setActiveTab, todayStats, onLogout, currentLang, setLanguage }) {
   const [time, setTime] = useState(new Date());
@@ -60,14 +61,12 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout, 
     <header className="header-container">
       {/* Top Garage Brand & Action Bar */}
       <div className="header-top">
-        <div className="brand-badge">
-          <div className="logo-icon-bg">
-            <Wrench className="brand-icon" size={26} />
-          </div>
-          <div>
-            <h1 className="brand-title">STOP & GO</h1>
-            <p className="brand-subtitle">{t.brandSubtitle}</p>
-          </div>
+        <div className="brand-badge" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('billing')}>
+          <img
+            src={logoImg}
+            alt="STOP & GO Total Tyre Care Centre"
+            style={{ height: '56px', maxWidth: '320px', objectFit: 'contain', borderRadius: '8px' }}
+          />
         </div>
 
         <div className="header-right-info">
