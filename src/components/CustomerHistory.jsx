@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare, Trash2, Users } from 'lucide-react';
 import { deleteJobCard, deleteCustomerByMobile } from '../utils/storage';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function CustomerHistory({ jobCards, setJobCards }) {
+export default function CustomerHistory({ jobCards, setJobCards, currentLang = 'en' }) {
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
   const [searchTerm, setSearchTerm] = useState('');
 
   // Group job cards by mobile number to build unique customer profiles
@@ -75,17 +77,16 @@ export default function CustomerHistory({ jobCards, setJobCards }) {
         <div>
           <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Users size={24} style={{ color: 'var(--yellow-primary)' }} />
-            Customer Directory & 5,000 KM Reminders
+            {t.customerDirectory}
           </h2>
-          <p className="section-desc">Track customer visit history, vehicle odometers, and automatic 30 km/day service alerts</p>
+          <p className="section-desc">{t.customerDirectoryDesc}</p>
         </div>
 
-        {/* ULTRA-POLISHED SEARCH BAR WITH PERFECT PADDING & ICON POSITIONING */}
         <div className="search-box-wide">
           <Search className="search-icon" size={18} />
           <input
             type="text"
-            placeholder="Search by Customer Name, Mobile, Reg No, or Car..."
+            placeholder={t.searchPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -173,7 +174,7 @@ export default function CustomerHistory({ jobCards, setJobCards }) {
                       title="Delete Customer & All History"
                     >
                       <Trash2 size={14} />
-                      <span>Delete Customer</span>
+                      <span>{t.deleteCustomer}</span>
                     </button>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 export const TRANSLATIONS = {
   en: {
-    brandSubtitle: 'TOTAL TYRE CARE CENTRE',
+    // Header & Navigation
     newJobCard: 'New Job Card',
     newJobCardSub: 'Create Billing Slip',
     customers: 'Customers & History',
@@ -15,51 +15,80 @@ export const TRANSLATIONS = {
     expensesSub: 'Tea, Snacks & Staff',
     priceSettings: 'Master Prices',
     priceSettingsSub: 'Admin Configurator',
-    
-    // Form & Customer
-    customerDetails: '01. Customer & Vehicle Details',
-    mobileNumber: 'Mobile Number',
-    customerName: 'Customer Name',
-    vehicleModel: 'Vehicle Model / Name',
-    yearReg: 'Year / Reg',
+    todayRevenue: "TODAY'S NET PROFIT",
+    adminLogout: 'Lock & Logout',
+    brandSubtitle: 'TOTAL TYRE CARE CENTRE',
+
+    // Customer & Vehicle Intake Form
+    intakeHeader: '01. Customer & Vehicle Details',
+    returningCustomer: 'Auto-Fetched Returning Customer',
+    mobileNumber: 'Mobile Number *',
+    mobileHint: 'Type 10 digits to search past customer records',
+    customerName: 'Customer Name *',
+    vehicleModel: 'Vehicle Model / Name *',
+    vehicleRegNo: 'Vehicle Reg. Number *',
+    yearModel: 'Year / Model',
     odometer: 'Kilometer (Odometer)',
+    nextAlignDue: 'Next Alignment Due at',
     paymentMethod: 'Payment Method',
-    
-    // Services Checklist
-    serviceChecklist: '02. Tyre Care Service Selection',
+    upiQr: '📱 UPI / QR Code',
+    cash: '💵 Cash',
+
+    // Service Checklist
+    serviceChecklist: '02. Service Checklist & Itemized Rates',
     wheelAlignment: '1. Wheel Alignment',
-    wheelBalancing: '2. Wheel Balancing (Tyre Testing)',
-    wheelWeight: '3. Wheel Weight',
+    wheelBalancing: '2. Wheel Balancing Fees',
+    wheelWeight: '3. Wheel Weight (Sticker / Brass)',
     tyreFitting: '4. Tyre Fitting & Valves',
     tyreRotation: '5. Tyre Rotation',
-    headlightBuffing: '6. Head Light Buffing (Cleaning)',
-    airFilling: '7. Air Filling',
-    tubelessPuncher: '8. Tubeless Puncher (Repair)',
-    camberSetting: '9. Camber Setting (Bolt & Sims)',
+    headlightBuffing: '6. Head Light Buffing',
+    airFilling: '7. Nitrogen & Air Filling',
+    tubelessPuncher: '8. Tubeless Puncher Repair',
+    camberSetting: '9. Camber Setting',
     carWashing: '10. Car Washing (Future Service)',
-    internalCleaning: '11. Internal Cleaning',
-    oilChange: '12. Engine Oil Change',
-    
-    // Actions
-    generateBill: 'Generate Bill',
-    generateWhatsApp: 'Generate Digital Receipt & WhatsApp',
+    internalCleaning: '11. Internal Cleaning (Future Service)',
+    oilChange: '12. Engine Oil Change (Future Service)',
+
+    // Checklist Options
+    tyres2: '2 Tyres',
+    tyres4: '4 Tyres',
+    stickerWeight: 'Sticker Weight (₹4/g)',
+    brassWeight: 'Brass Weight (₹2/g)',
+    rim1215: 'Rim Size 12, 13, 14, 15 (₹100/tyre)',
+    rim1618: 'Rim Size 16, 17, 18 (₹125/tyre)',
+    newValve: 'New Tubeless Valve',
+    nitrogenFull: 'Nitrogen Full (₹150)',
+    nitrogenTopup: 'Nitrogen Top-Up (₹50)',
+    normalAir: 'Normal Air (₹20)',
+
+    // Summary & Actions
     subtotal: 'Subtotal',
     discount: 'Discount',
-    grandTotal: 'Grand Total',
-    todayRevenue: "Today's Net Profit",
-    adminLogin: 'Admin Login',
-    adminLogout: 'Lock & Logout'
-  },
+    grandTotal: 'GRAND TOTAL',
+    generateBill: 'Generate Printed Bill',
+    generateWhatsApp: 'Send WhatsApp Digital Bill',
 
+    // Customer History
+    customerDirectory: '👥 Customer Directory & 5,000 KM Auto-Reminders',
+    customerDirectoryDesc: 'Track customer visit history, vehicle odometers, and automatic 30 km/day service alerts',
+    searchPlaceholder: 'Search by Customer Name, Mobile, Reg No, or Car...',
+    deleteCustomer: 'Delete Customer',
+
+    // Modal
+    digitalReceiptTitle: 'Digital Receipt & WhatsApp Share',
+    officialInvoiceTitle: 'Official Garage Invoice',
+    printReceiptBtn: 'Print Official Receipt Slip',
+    sendWhatsAppBtn: 'Send Receipt to Customer WhatsApp'
+  },
   mr: {
-    brandSubtitle: 'टोटल टायर केअर सेंटर',
+    // Header & Navigation
     newJobCard: 'नवीन जॉब कार्ड',
     newJobCardSub: 'बिलिंग स्लिप तयार करा',
     customers: 'ग्राहक आणि इतिहास',
     customersSub: 'ग्राहक नोंदणी',
     analytics: 'नफा आणि विश्लेषण',
     analyticsSub: 'दैनिक/मासिक उत्पन्न',
-    inventory: 'स्टॉक आणि इन्व्हेंटरी',
+    inventory: 'स्टॉक आणि इनव्हेंटरी',
     inventorySub: 'साहित्य आणि स्क्रॅप',
     bookings: 'सर्व्हिस बुकिंग',
     bookingsSub: 'अपॉइंटमेंट',
@@ -67,91 +96,150 @@ export const TRANSLATIONS = {
     expensesSub: 'चहा, नाश्ता आणि पगार',
     priceSettings: 'मास्टर दर ठरवा',
     priceSettingsSub: 'ॲडमिन दर सेटिंग्ज',
-    
-    // Form & Customer
-    customerDetails: '०१. ग्राहक आणि वाहन तपशील',
-    mobileNumber: 'मोबाईल नंबर',
-    customerName: 'ग्राहकाचे नाव',
-    vehicleModel: 'वाहन मॉडेल / नाव',
-    yearReg: 'वर्ष / पासिंग',
-    odometer: 'किलोमीटर (ओडोमीटर)',
-    paymentMethod: 'पेमेंट पद्धत',
-    
-    // Services Checklist
-    serviceChecklist: '०२. टायर सर्व्हिस निवड',
-    wheelAlignment: '१. व्हील अलाइनमेंट (Alignment)',
-    wheelBalancing: '२. व्हील बॅलन्सिंग (₹५०/टायर)',
-    wheelWeight: '३. व्हील वेट (Sticker/Brass)',
-    tyreFitting: '४. टायर फिटिंग आणि व्हॉल्व्ह',
-    tyreRotation: '५. टायर रोटेशन (₹५०/टायर)',
-    headlightBuffing: '६. हेडलाईट बफिंग (₹७००)',
-    airFilling: '७. हवा भरणे (Nitrogen/Normal)',
-    tubelessPuncher: '८. ट्युबलेस पंक्चर (₹१००/पंक्चर)',
-    camberSetting: '९. कॅम्बर सेटिंग (₹१२००)',
-    carWashing: '१०. कार वॉशिंग सर्व्हिस',
-    internalCleaning: '११. इंटीरियर क्लिनिंग',
-    oilChange: '१२. इंजिन ऑइल चेंज',
-    
-    // Actions
-    generateBill: 'बिल तयार करा',
-    generateWhatsApp: 'डिजिटल पावती आणि व्हॉट्सॲप',
-    subtotal: 'एकूण',
-    discount: 'सूट (Discount)',
-    grandTotal: 'एकूण देय रक्कम',
     todayRevenue: 'आजचा निव्वळ नफा',
-    adminLogin: 'ॲडमिन लॉगिन',
-    adminLogout: 'लॉक आणि लॉगआउट'
-  },
+    adminLogout: 'लॉक आणि लॉगआउट',
+    brandSubtitle: 'टोटल टायर केअर सेंटर',
 
+    // Customer & Vehicle Intake Form
+    intakeHeader: '०१. ग्राहक आणि वाहन तपशील',
+    returningCustomer: 'पुन्हा आलेले ग्राहक (ऑटो-फेट्च)',
+    mobileNumber: 'मोबाईल नंबर *',
+    mobileHint: 'मागील ग्राहक रेकॉर्ड शोधण्यासाठी १० अंक टाईप करा',
+    customerName: 'ग्राहकाचे नाव *',
+    vehicleModel: 'वाहन मॉडेल / नाव *',
+    vehicleRegNo: 'वाहन नोंदणी क्रमांक *',
+    yearModel: 'वर्ष / मॉडेल',
+    odometer: 'किलोमीटर (ओडोमीटर)',
+    nextAlignDue: 'पुढील अलाईनमेंट आवश्यक:',
+    paymentMethod: 'पेमेंट पद्धत',
+    upiQr: '📱 युपीआय / क्यूआर कोड',
+    cash: '💵 नगद (कॅश)',
+
+    // Service Checklist
+    serviceChecklist: '०२. सर्व्हिस चेकलिस्ट आणि दर',
+    wheelAlignment: '१. व्हील अलाईनमेंट',
+    wheelBalancing: '२. व्हील बॅलन्सिंग',
+    wheelWeight: '३. व्हील वेट (स्टिकर / ब्रास)',
+    tyreFitting: '४. टायर फिटिंग आणि व्हाल्व्ह',
+    tyreRotation: '५. टायर रोटेशन',
+    headlightBuffing: '६. हेडलाईट बफिंग',
+    airFilling: '७. नायट्रोजन व हवा भरणे',
+    tubelessPuncher: '८. ट्युबलेस पंक्चर दुरुस्ती',
+    camberSetting: '९. कॅम्बर सेटिंग',
+    carWashing: '१०. कार वॉशिंग (भविष्यातील सर्व्हिस)',
+    internalCleaning: '११. इंटरनल क्लिनिंग (भविष्यातील सर्व्हिस)',
+    oilChange: '१२. इंजिन ऑईल चेंज (भविष्यातील सर्व्हिस)',
+
+    // Checklist Options
+    tyres2: '२ टायर',
+    tyres4: '४ टायर',
+    stickerWeight: 'स्टिकर वेट (₹४/ग्रॅम)',
+    brassWeight: 'ब्रास वेट (₹२/ग्रॅम)',
+    rim1215: 'रिम साईज १२, १३, १४, १५ (₹१००/टायर)',
+    rim1618: 'रिम साईज १६, १७, १८ (₹१२५/टायर)',
+    newValve: 'नवीन ट्युबलेस व्हाल्व्ह',
+    nitrogenFull: 'नायट्रोजन फुल (₹१५०)',
+    nitrogenTopup: 'नायट्रोजन टॉप-अप (₹५०)',
+    normalAir: 'सामान्य हवा (₹२०)',
+
+    // Summary & Actions
+    subtotal: 'एकूण रक्कम',
+    discount: 'सवलत (डिस्काउंट)',
+    grandTotal: 'अंतिम एकूण रक्कम',
+    generateBill: 'प्रिंटेड बिल तयार करा',
+    generateWhatsApp: 'व्हॉट्सॲप बिल पाठवा',
+
+    // Customer History
+    customerDirectory: '👥 ग्राहक निर्देशिका आणि ५,००० किमी ऑटो-रिमाइंडर',
+    customerDirectoryDesc: 'ग्राहक इतिहास, ओडोमीटर रीडिंग आणि ३० किमी/दिवस सर्व्हिस अलर्ट',
+    searchPlaceholder: 'ग्राहकाचे नाव, मोबाईल, नंबर प्लेटने शोधा...',
+    deleteCustomer: 'ग्राहक हटवा',
+
+    // Modal
+    digitalReceiptTitle: 'डिजिटल पावती आणि व्हॉट्सॲप शेअर',
+    officialInvoiceTitle: 'अधिकृत गॅरेज बिल',
+    printReceiptBtn: 'पावती प्रिंट करा',
+    sendWhatsAppBtn: 'ग्राहकाच्या व्हॉट्सॲपवर पाठवा'
+  },
   hi: {
-    brandSubtitle: 'टोटल टायर केयर सेंटर',
+    // Header & Navigation
     newJobCard: 'नया जॉब कार्ड',
     newJobCardSub: 'बिलिंग स्लिप बनाएं',
     customers: 'ग्राहक और इतिहास',
     customersSub: 'ग्राहक रिकॉर्ड्स',
-    analytics: 'लाभ और विश्लेषण',
+    analytics: 'मुनाफा और विश्लेषण',
     analyticsSub: 'दैनिक/मासिक आय',
-    inventory: 'स्टॉक और इन्वेंटरी',
-    inventorySub: 'सामग्री और स्क्रैप',
+    inventory: 'स्टॉक और इन्वेंट्री',
+    inventorySub: 'सामान और स्क्रैप',
     bookings: 'सर्विस बुकिंग',
     bookingsSub: 'अपॉइंटमेंट',
     expenses: 'खर्च और वेतन',
-    expensesSub: 'चाय, नाश्ता और वेतन',
-    priceSettings: 'मास्टर दर तय करें',
-    priceSettingsSub: 'एडमिन दर सेटिंग्स',
-    
-    // Form & Customer
-    customerDetails: '01. ग्राहक और वाहन विवरण',
-    mobileNumber: 'मोबाइल नंबर',
-    customerName: 'ग्राहक का नाम',
-    vehicleModel: 'वाहन मॉडल / नाम',
-    yearReg: 'वर्ष / पासिंग',
-    odometer: 'किलोमीटर (ओडोमीटर)',
-    paymentMethod: 'भुगतान का तरीका',
-    
-    // Services Checklist
-    serviceChecklist: '02. टायर सर्विस चयन',
-    wheelAlignment: '1. व्हील अलाइनमेंट (Alignment)',
-    wheelBalancing: '2. व्हील बैलेंसिंग (₹50/टायर)',
-    wheelWeight: '3. व्हील वेट (Sticker/Brass)',
-    tyreFitting: '4. टायर फिटिंग और वॉल्व',
-    tyreRotation: '5. टायर रोटेशन (₹50/टायर)',
-    headlightBuffing: '6. हेडलाइट बफिंग (₹700)',
-    airFilling: '7. हवा भरना (Nitrogen/Normal)',
-    tubelessPuncher: '8. ट्यूबलेस पंचर (₹100/पंचर)',
-    camberSetting: '9. कैंबर सेटिंग (₹1200)',
-    carWashing: '10. कार वाशिंग सर्विस',
-    internalCleaning: '11. इंटीरियर क्लीनिंग',
-    oilChange: '12. इंजन ऑयल चेंज',
-    
-    // Actions
-    generateBill: 'बिल बनाएं',
-    generateWhatsApp: 'डिजिटल रसीद और व्हाट्सएप',
-    subtotal: 'उप-योग',
-    discount: 'छूट (Discount)',
-    grandTotal: 'कुल देय राशि',
+    expensesSub: 'चाय, नाश्ता और स्टाफ',
+    priceSettings: 'मास्टर दर सेटिंग्स',
+    priceSettingsSub: 'एडमिन दर कॉन्फिगरेशन',
     todayRevenue: 'आज का शुद्ध लाभ',
-    adminLogin: 'एडमिन लॉगिन',
-    adminLogout: 'लॉक और लॉगआउट'
+    adminLogout: 'लॉक और लॉगआउट',
+    brandSubtitle: 'टोटल टायर केयर सेंटर',
+
+    // Customer & Vehicle Intake Form
+    intakeHeader: '01. ग्राहक और वाहन विवरण',
+    returningCustomer: 'पुराने ग्राहक (ऑटो-फेच)',
+    mobileNumber: 'मोबाइल नंबर *',
+    mobileHint: 'पुराने ग्राहक रिकॉर्ड खोजने के लिए 10 अंक टाइप करें',
+    customerName: 'ग्राहक का नाम *',
+    vehicleModel: 'वाहन मॉडल / नाम *',
+    vehicleRegNo: 'वाहन पंजीकरण संख्या *',
+    yearModel: 'वर्ष / मॉडल',
+    odometer: 'किलोमीटर (ओडोमीटर)',
+    nextAlignDue: 'अगला अलाइनमेंट देय:',
+    paymentMethod: 'भुगतान का तरीका',
+    upiQr: '📱 यूपीआई / क्यूआर कोड',
+    cash: '💵 नकद (कैश)',
+
+    // Service Checklist
+    serviceChecklist: '02. सर्विस चेकलिस्ट और दरें',
+    wheelAlignment: '1. व्हील अलाइनमेंट',
+    wheelBalancing: '2. व्हील बैलेंसिंग',
+    wheelWeight: '3. व्हील वेट (स्टीकर / ब्रास)',
+    tyreFitting: '4. टायर फिटिंग और वॉल्व',
+    tyreRotation: '5. टायर रोटेशन',
+    headlightBuffing: '6. हेडलाइट बफिंग',
+    airFilling: '7. नाइट्रोजन व हवा भरना',
+    tubelessPuncher: '8. ट्यूबलेस पंचर मरम्मत',
+    camberSetting: '9. कैंबर सेटिंग',
+    carWashing: '10. कार वॉशिंग (भावी सेवा)',
+    internalCleaning: '11. इंटरनल क्लीनिंग (भावी सेवा)',
+    oilChange: '12. इंजन ऑयल चेंज (भावी सेवा)',
+
+    // Checklist Options
+    tyres2: '2 टायर',
+    tyres4: '4 टायर',
+    stickerWeight: 'स्टीकर वेट (₹4/ग्राम)',
+    brassWeight: 'ब्रास वेट (₹2/ग्राम)',
+    rim1215: 'रिम साइज 12, 13, 14, 15 (₹100/टायर)',
+    rim1618: 'रिम साइज 16, 17, 18 (₹125/टायर)',
+    newValve: 'नया ट्यूबलेस वॉल्व',
+    nitrogenFull: 'नाइट्रोजन फुल (₹150)',
+    nitrogenTopup: 'नाइट्रोजन टॉप-अप (₹50)',
+    normalAir: 'सामान्य हवा (₹20)',
+
+    // Summary & Actions
+    subtotal: 'उप-कुल',
+    discount: 'छूट (डिस्काउंट)',
+    grandTotal: 'कुल योग',
+    generateBill: 'प्रिंटेड बिल बनाएं',
+    generateWhatsApp: 'व्हाट्सएप डिजिटल बिल भेजें',
+
+    // Customer History
+    customerDirectory: '👥 ग्राहक निर्देशिका और 5,000 किमी ऑटो-रिमाइंडर',
+    customerDirectoryDesc: 'ग्राहक इतिहास, ओडोमीटर रीडिंग और 30 किमी/दिन सर्विस अलर्ट',
+    searchPlaceholder: 'ग्राहक का नाम, मोबाइल, नंबर प्लेट से खोजें...',
+    deleteCustomer: 'ग्राहक हटाएं',
+
+    // Modal
+    digitalReceiptTitle: 'डिजिटल रसीद और व्हाट्सएप शेयर',
+    officialInvoiceTitle: 'आधिकारिक गैराज बिल',
+    printReceiptBtn: 'रसीद प्रिंट करें',
+    sendWhatsAppBtn: 'ग्राहक के व्हाट्सएप पर भेजें'
   }
 };

@@ -1,8 +1,11 @@
 import React from 'react';
-import { User, Phone, Car, Gauge, Search, Sparkles, Hash, RefreshCw } from 'lucide-react';
+import { User, Phone, Car, Gauge, Search, Sparkles, Hash } from 'lucide-react';
 import { searchCustomerByMobile } from '../utils/storage';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function IntakeForm({ customerData, setCustomerData, paymentMethod, setPaymentMethod }) {
+export default function IntakeForm({ customerData, setCustomerData, paymentMethod, setPaymentMethod, currentLang = 'en' }) {
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+
   const handleMobileChange = (e) => {
     const val = e.target.value;
     setCustomerData(prev => ({ ...prev, mobile: val }));
@@ -37,17 +40,17 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
     <div className="card-container">
       <div className="card-header">
         <User className="card-icon" size={22} />
-        <h2>01. Customer & Vehicle Details</h2>
+        <h2>{t.intakeHeader}</h2>
         {customerData.mobile.length === 10 && searchCustomerByMobile(customerData.mobile) && (
           <span className="badge-chip success">
-            <Sparkles size={12} /> Auto-Fetched Returning Customer
+            <Sparkles size={12} /> {t.returningCustomer}
           </span>
         )}
       </div>
 
       <div className="grid-form">
         <div className="form-group">
-          <label><Phone size={14} /> Mobile Number *</label>
+          <label><Phone size={14} /> {t.mobileNumber}</label>
           <div className="input-with-icon">
             <input
               type="tel"
@@ -59,11 +62,11 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
             />
             <Search className="input-icon" size={16} />
           </div>
-          <span className="input-hint">Type 10 digits to search past customer records</span>
+          <span className="input-hint">{t.mobileHint}</span>
         </div>
 
         <div className="form-group">
-          <label><User size={14} /> Customer Name *</label>
+          <label><User size={14} /> {t.customerName}</label>
           <input
             type="text"
             placeholder="e.g. Rajesh Kumar"
@@ -74,7 +77,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
         </div>
 
         <div className="form-group">
-          <label><Car size={14} /> Vehicle Model / Name *</label>
+          <label><Car size={14} /> {t.vehicleModel}</label>
           <input
             type="text"
             placeholder="e.g. Hyundai Creta (White)"
@@ -85,7 +88,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
         </div>
 
         <div className="form-group">
-          <label><Hash size={14} /> Vehicle Reg. Number *</label>
+          <label><Hash size={14} /> {t.vehicleRegNo}</label>
           <input
             type="text"
             placeholder="e.g. MH-12-AB-1234"
@@ -96,7 +99,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
         </div>
 
         <div className="form-group">
-          <label>Year / Model</label>
+          <label>{t.yearModel}</label>
           <input
             type="text"
             placeholder="e.g. 2023"
@@ -106,7 +109,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
         </div>
 
         <div className="form-group">
-          <label><Gauge size={14} /> Kilometer (Odometer)</label>
+          <label><Gauge size={14} /> {t.odometer}</label>
           <input
             type="text"
             placeholder="e.g. 106000 KM"
@@ -115,27 +118,27 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
           />
           {nextKmVal && (
             <span className="input-hint" style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>
-              🔄 Next Alignment Due at: {nextKmVal} KM (+5,000 KM)
+              🔄 {t.nextAlignDue}: {nextKmVal} KM (+5,000 KM)
             </span>
           )}
         </div>
 
         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-          <label>Payment Method</label>
+          <label>{t.paymentMethod}</label>
           <div className="radio-group-segmented">
             <button
               type="button"
               className={`segmented-btn ${paymentMethod === 'UPI / QR Code' ? 'active' : ''}`}
               onClick={() => setPaymentMethod('UPI / QR Code')}
             >
-              📱 UPI / QR Code
+              {t.upiQr}
             </button>
             <button
               type="button"
               className={`segmented-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
               onClick={() => setPaymentMethod('Cash')}
             >
-              💵 Cash
+              {t.cash}
             </button>
           </div>
         </div>
