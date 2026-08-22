@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, Lock, LogOut, Settings } from 'lucide-react';
+import { Wrench, ClipboardList, Users, BarChart3, Package, Calendar, Clock, Lock, LogOut, Settings, ChevronRight } from 'lucide-react';
 
 export default function Header({ activeTab, setActiveTab, todayStats, isAdminLoggedIn, onOpenAdminLogin, onAdminLogout }) {
   const [time, setTime] = useState(new Date());
@@ -10,22 +10,48 @@ export default function Header({ activeTab, setActiveTab, todayStats, isAdminLog
   }, []);
 
   const navItems = [
-    { id: 'billing', label: 'New Job Card', icon: ClipboardList },
-    { id: 'customers', label: 'Customers & History', icon: Users },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'inventory', label: 'Stock & Inventory', icon: Package }
+    {
+      id: 'billing',
+      label: 'New Job Card',
+      subtitle: 'Create Billing Slip',
+      icon: ClipboardList
+    },
+    {
+      id: 'customers',
+      label: 'Customers & History',
+      subtitle: 'CRM & Visit Logs',
+      icon: Users
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      subtitle: 'Sales & Revenue Insights',
+      icon: BarChart3
+    },
+    {
+      id: 'inventory',
+      label: 'Stock & Inventory',
+      subtitle: 'Consumables Tracker',
+      icon: Package
+    }
   ];
 
   if (isAdminLoggedIn) {
-    navItems.push({ id: 'price_settings', label: 'Master Price Settings', icon: Settings });
+    navItems.push({
+      id: 'price_settings',
+      label: 'Master Price Settings',
+      subtitle: 'Admin Rate Configurator',
+      icon: Settings
+    });
   }
 
   return (
     <header className="header-container">
+      {/* Top Garage Brand & Action Bar */}
       <div className="header-top">
         <div className="brand-badge">
           <div className="logo-icon-bg">
-            <Wrench className="brand-icon" size={24} />
+            <Wrench className="brand-icon" size={26} />
           </div>
           <div>
             <h1 className="brand-title">STOP & GO</h1>
@@ -72,22 +98,29 @@ export default function Header({ activeTab, setActiveTab, todayStats, isAdminLog
         </div>
       </div>
 
-      <nav className="nav-tabs">
+      {/* Unique Automotive Dashboard Control Hub (Interactive Tiles) */}
+      <div className="nav-control-hub">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
-            <button
+            <div
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`nav-tab-btn ${isActive ? 'active' : ''}`}
+              className={`nav-hub-tile ${isActive ? 'active' : ''}`}
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </button>
+              <div className="tile-icon-box">
+                <Icon size={22} />
+              </div>
+              <div className="tile-content">
+                <h3 className="tile-title">{item.label}</h3>
+                <p className="tile-sub">{item.subtitle}</p>
+              </div>
+              <ChevronRight size={16} className="tile-arrow" />
+            </div>
           );
         })}
-      </nav>
+      </div>
     </header>
   );
 }

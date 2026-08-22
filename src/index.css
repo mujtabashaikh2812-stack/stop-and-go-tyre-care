@@ -155,51 +155,108 @@ body {
 .chip-value { font-weight: 800; color: var(--yellow-primary); font-family: var(--font-mono); }
 .chip-count { font-size: 0.78rem; color: var(--text-secondary); }
 
-/* Navigation Tabs */
-.nav-tabs {
-  display: flex;
-  gap: 8px;
+/* UNIQUE AUTOMOTIVE CONTROL HUB (INTERACTIVE NAVIGATION TILES) */
+.nav-control-hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.nav-hub-tile {
   background: var(--bg-app);
-  padding: 6px;
-  border-radius: var(--radius-lg);
   border: 1px solid var(--border-medium);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.nav-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.nav-tab-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  padding: 12px 20px;
-  border-radius: var(--radius-md);
-  font-size: 0.92rem;
-  font-weight: 600;
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   cursor: pointer;
+  user-select: none;
+  transition: all 0.25 cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-hub-tile:hover {
+  border-color: var(--yellow-primary);
+  background: var(--bg-surface-elevated);
+  transform: translateY(-2px);
+}
+
+.nav-hub-tile.active {
+  background: linear-gradient(135deg, #FACC15 0%, #CA8A04 100%);
+  border-color: #FACC15;
+  color: #000000;
+  box-shadow: 0 8px 25px var(--yellow-glow);
+  transform: translateY(-2px);
+}
+
+.tile-icon-box {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
+  color: var(--yellow-primary);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
-.nav-tab-btn:hover {
-  color: var(--text-white);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.nav-tab-btn.active {
-  background: var(--yellow-primary);
+.nav-hub-tile.active .tile-icon-box {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.2);
   color: #000000;
-  border: 1px solid var(--yellow-primary);
+}
+
+.tile-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tile-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-hub-tile.active .tile-title {
+  color: #000000;
   font-weight: 800;
-  box-shadow: 0 4px 20px var(--yellow-glow);
+}
+
+.tile-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-hub-tile.active .tile-sub {
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+}
+
+.tile-arrow {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.nav-hub-tile:hover .tile-arrow {
+  color: var(--yellow-primary);
+  transform: translateX(3px);
+}
+
+.nav-hub-tile.active .tile-arrow {
+  color: #000000;
+  transform: translateX(3px);
 }
 
 /* Card Containers */
@@ -1164,6 +1221,10 @@ input:focus, select:focus {
   .header-right-info {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .nav-control-hub {
+    grid-template-columns: 1fr 1fr;
   }
 
   .card-container {
