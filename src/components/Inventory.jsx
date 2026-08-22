@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Package, AlertTriangle, Plus, RefreshCw } from 'lucide-react';
+import { Package, Plus, RefreshCw } from 'lucide-react';
 import { updateInventoryItem } from '../utils/storage';
 
 export default function Inventory({ inventory, setInventory }) {
-  const [selectedItem, setSelectedItem] = useState(inventory[0]?.id || '');
+  const [selectedItem, setSelectedItem] = useState(inventory[0]?.id || 'sticker_weights');
   const [addQty, setAddQty] = useState('');
 
   const handleRestock = (e) => {
@@ -11,7 +11,7 @@ export default function Inventory({ inventory, setInventory }) {
     if (!selectedItem || !addQty || parseInt(addQty, 10) <= 0) return;
 
     const currentItem = inventory.find(i => i.id === selectedItem);
-    const newStock = currentItem.inStock + parseInt(addQty, 10);
+    const newStock = (currentItem?.inStock || 0) + parseInt(addQty, 10);
     
     const updated = updateInventoryItem(selectedItem, newStock);
     setInventory(updated);
@@ -24,39 +24,30 @@ export default function Inventory({ inventory, setInventory }) {
       <div className="section-header-row">
         <div>
           <h2 className="section-title">Consumables & Tyre Shop Inventory</h2>
-          <p className="section-desc">Track wheel weights, valves, and nitrogen gas levels. Stock auto-deducts when bills are saved.</p>
+          <p className="section-desc">Track wheel weights, valves, and nitrogen gas levels in real-time. Stock auto-deducts as job cards are saved.</p>
         </div>
       </div>
 
-      {/* Stock Cards Grid */}
+      {/* Clean Inventory Stock Cards Grid */}
       <div className="inventory-cards-grid">
-        {inventory.map(item => {
-          const isLow = item.inStock <= item.minAlert;
-          return (
-            <div key={item.id} className={`inventory-card ${isLow ? 'low-stock' : ''}`}>
-              <div className="inventory-card-top">
-                <Package size={22} className="inv-icon" />
-                {isLow && (
-                  <span className="low-badge">
-                    <AlertTriangle size={12} /> Low Stock Alert
-                  </span>
-                )}
-              </div>
-              <h3 className="inv-name">{item.name}</h3>
-              <div className="inv-qty-row">
-                <span className="inv-qty">{item.inStock.toLocaleString('en-IN')}</span>
-                <span className="inv-unit">{item.unit}</span>
-              </div>
-              <p className="inv-alert-info">Minimum Alert Level: {item.minAlert} {item.unit}</p>
+        {inventory.map(item => (
+          <div key={item.id} className="inventory-card">
+            <div className="inventory-card-top">
+              <Package size={24} className="inv-icon" />
             </div>
-          );
-        })}
+            <h3 className="inv-name">{item.name}</h3>
+            <div className="inv-qty-row">
+              <span className="inv-qty">{item.inStock.toLocaleString('en-IN')}</span>
+              <span className="inv-unit">{item.unit}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Quick Restock Form */}
+      {/* Sleek Restock Form */}
       <div className="card-container margin-top">
         <div className="card-header">
-          <RefreshCw className="card-icon" size={20} />
+          <RefreshCw className="card-icon" size={22} />
           <h2>Restock Consumable Inventory</h2>
         </div>
 
@@ -87,10 +78,13 @@ export default function Inventory({ inventory, setInventory }) {
             />
           </div>
 
-          <button type="submit" className="btn-action-primary glow inline-btn">
-            <Plus size={18} />
-            <span>Update Stock Level</span>
-          </button>
+          <div className="form-group">
+            <label style={{ visibility: 'hidden' }}>Submit</label>
+            <button type="submit" className="btn-generate-bill" style={{ width: '100%', padding: '13px 20px' }}>
+              <Plus size={18} />
+              <span>Update Stock Level</span>
+            </button>
+          </div>
         </form>
       </div>
 
