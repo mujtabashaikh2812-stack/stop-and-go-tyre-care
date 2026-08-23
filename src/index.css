@@ -885,22 +885,28 @@ input:focus, select:focus {
 .section-title { font-size: 1.35rem; font-weight: 800; color: var(--text-white); }
 .section-desc { font-size: 0.88rem; color: var(--text-secondary); }
 
+/* PERFECT SEARCH BOX STYLING WITH NO OVERLAPPING ICON */
 .search-box-wide {
   position: relative;
-  max-width: 400px;
+  max-width: 440px;
   width: 100%;
 }
 
 .search-box-wide input {
-  padding-left: 44px;
+  padding-left: 48px !important;
+  padding-right: 18px !important;
+  font-size: 0.92rem !important;
+  border-radius: var(--radius-md) !important;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: var(--yellow-primary);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .stats-cards-grid {
@@ -1329,11 +1335,20 @@ input:focus, select:focus {
   }
 }
 
-/* Thermal Print Overrides */
+/* 🖨️ PERFECT 1-PAGE CENTERED PRINT MEDIA OVERRIDES */
 @media print {
-  body {
-    background: #FFF !important;
-    color: #000 !important;
+  @page {
+    size: auto;
+    margin: 5mm;
+  }
+
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   .app-wrapper > *:not(.modal-backdrop) {
@@ -1341,16 +1356,27 @@ input:focus, select:focus {
   }
 
   .modal-backdrop {
-    position: static;
-    background: transparent;
-    padding: 0;
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
   }
 
   .modal-content {
-    border: none;
-    padding: 0;
-    max-width: 100%;
-    box-shadow: none;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible !important;
   }
 
   .modal-header-bar, .modal-actions-bar {
@@ -1358,8 +1384,33 @@ input:focus, select:focus {
   }
 
   .printable-receipt-area {
-    box-shadow: none;
-    padding: 0;
-    width: 80mm;
+    box-shadow: none !important;
+    padding: 16px 20px !important;
+    width: 88mm !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 6px !important;
+  }
+
+  .printable-receipt-area * {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .printable-receipt-area img {
+    display: block !important;
+    margin: 0 auto 8px auto !important;
+    max-height: 48px !important;
+    width: auto !important;
   }
 }

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Settings, Save, CheckCircle2, Key, ShieldCheck, Plus, Sparkles } from 'lucide-react';
 import { saveServicePrices, getAdminPassword, saveAdminPassword, addCustomService } from '../utils/storage';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function ServicePriceEditor({ services, setServices }) {
+export default function ServicePriceEditor({ services, setServices, currentLang = 'en' }) {
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  
   const [editedServices, setEditedServices] = useState({ ...services });
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -58,7 +61,6 @@ export default function ServicePriceEditor({ services, setServices }) {
     setTimeout(() => setCustomSuccess(''), 3000);
   };
 
-  // Separate standard vs custom services for rendering
   const serviceEntries = Object.entries(editedServices);
 
   return (
@@ -66,8 +68,8 @@ export default function ServicePriceEditor({ services, setServices }) {
       
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">⚙️ Master Service Price & Security Settings</h2>
-          <p className="section-desc">Configure rates for all 12 services, add new custom services, and set Admin password.</p>
+          <h2 className="section-title">{t.masterPricesTitle}</h2>
+          <p className="section-desc">{t.masterPricesDesc}</p>
         </div>
 
         {savedSuccess && (
@@ -81,7 +83,7 @@ export default function ServicePriceEditor({ services, setServices }) {
       <div className="card-container" style={{ border: '1px solid var(--yellow-primary)', marginBottom: '24px' }}>
         <div className="card-header">
           <Key className="card-icon" size={22} style={{ color: 'var(--yellow-primary)' }} />
-          <h2>Change Admin Password / PIN</h2>
+          <h2>{t.changePassword}</h2>
           {pwdSuccess && (
             <span className="badge-chip success" style={{ marginLeft: 'auto' }}>
               <CheckCircle2 size={14} /> Password Saved
@@ -115,7 +117,7 @@ export default function ServicePriceEditor({ services, setServices }) {
       <div className="card-container" style={{ border: '1px dashed var(--yellow-primary)', marginBottom: '24px' }}>
         <div className="card-header">
           <Plus className="card-icon" size={22} />
-          <h2>➕ Add New Custom Garage Service</h2>
+          <h2>{t.addCustomServiceTitle}</h2>
           {customSuccess && (
             <span className="badge-chip success" style={{ marginLeft: 'auto' }}>
               <Sparkles size={14} /> {customSuccess}
@@ -275,7 +277,6 @@ export default function ServicePriceEditor({ services, setServices }) {
               );
             }
 
-            // Standard / Custom Services
             return (
               <div key={key} className="service-item-card active">
                 <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '12px', color: 'var(--yellow-primary)' }}>
@@ -299,7 +300,7 @@ export default function ServicePriceEditor({ services, setServices }) {
         <div className="billing-summary-footer" style={{ justifyContent: 'flex-end' }}>
           <button type="submit" className="btn-generate-bill" style={{ fontSize: '1rem', padding: '14px 28px' }}>
             <Save size={20} />
-            <span>Save All Service Prices</span>
+            <span>{t.saveAllPricesBtn}</span>
           </button>
         </div>
 

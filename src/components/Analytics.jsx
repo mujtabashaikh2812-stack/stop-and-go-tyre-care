@@ -1,188 +1,193 @@
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, DollarSign, Calendar, Coffee, Users, Award, ShieldAlert } from 'lucide-react';
+import { TrendingUp, DollarSign, Calendar, Wrench, BarChart2, ArrowUpRight, ArrowDownRight, Award, Coffee, RefreshCw } from 'lucide-react';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function Analytics({ jobCards, expenses = [], scrapSales = [] }) {
-  const [timeFilter, setTimeFilter] = useState('month'); // 'today' | 'month' | 'year' | 'all'
+export default function Analytics({ jobCards, expenses, scrapSales, currentLang = 'en' }) {
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  const [timeFilter, setTimeFilter] = useState('all'); // 'today', 'month', 'year', 'all'
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const currentMonthStr = new Date().toISOString().slice(0, 7); // YYYY-MM
-  const currentYearStr = new Date().toISOString().slice(0, 4); // YYYY
+  // Helper date filters
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentYearStr = `${now.getFullYear()}`;
 
-  // Filter job cards, expenses, and scrap sales by time filter
-  const filterByTime = (items, dateField = 'date') => {
-    return items.filter(item => {
-      const itemDate = item[dateField] || todayStr;
-      if (timeFilter === 'today') return itemDate === todayStr;
-      if (timeFilter === 'month') return itemDate.startsWith(currentMonthStr);
-      if (timeFilter === 'year') return itemDate.startsWith(currentYearStr);
-      return true;
-    });
+  const filterItemByTime = (dateStr) => {
+    if (!dateStr) return false;
+    if (timeFilter === 'today') return dateStr === todayStr;
+    if (timeFilter === 'month') return dateStr.startsWith(currentMonthStr);
+    if (timeFilter === 'year') return dateStr.startsWith(currentYearStr);
+    return true; // 'all'
   };
 
-  const filteredCards = filterByTime(jobCards, 'date');
-  const filteredExpenses = filterByTime(expenses, 'date');
-  const filteredScrap = filterByTime(scrapSales, 'date');
+  const filteredCards = jobCards.filter(c => filterItemByTime(c.date));
+  const filteredExp = expenses.filter(e => filterItemByTime(e.date));
+  const filteredScrap = scrapSales.filter(s => filterItemByTime(s.date));
 
-  // Financial Calculations
-  const grossBillingRevenue = filteredCards.reduce((sum, c) => sum + c.total, 0);
-  const scrapIncome = filteredScrap.reduce((sum, s) => sum + s.totalAmount, 0);
-  const totalGrossRevenue = grossBillingRevenue + scrapIncome;
+  // Computations
+  const grossRevenue = filteredCards.reduce((sum, c) => sum + c.total, 0) + filteredScrap.reduce((sum, s) => sum + s.totalAmount, 0);
+  const totalShopExpenses = filteredExp.reduce((sum, e) => sum + e.amount, 0);
+  const netProfit = Math.max(0, grossRevenue - totalShopExpenses);
+  const totalCarsServiced = filteredCards.length;
 
-  const totalShopExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const netGarageProfit = totalGrossRevenue - totalShopExpenses;
-
-  // Payment Breakdown
-  const upiTotal = filteredCards.filter(c => c.paymentMethod === 'UPI / QR Code').reduce((sum, c) => sum + c.total, 0);
-  const cashTotal = filteredCards.filter(c => c.paymentMethod === 'Cash').reduce((sum, c) => sum + c.total, 0);
-
-  // Top Performing Services
-  const serviceFrequencyMap = {};
+  // Compute Service Popularity
+  const serviceCountMap = {};
   filteredCards.forEach(card => {
     card.services.forEach(serv => {
-      serviceFrequencyMap[serv.name] = (serviceFrequencyMap[serv.name] || 0) + 1;
+      // Group by base service title
+      const baseName = serv.name.split('(')[0].trim();
+      serviceCountMap[baseName] = (serviceCountMap[baseName] || 0) + 1;
     });
   });
 
-  const sortedServices = Object.entries(serviceFrequencyMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  const sortedServices = Object.entries(serviceCountMap)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 
   return (
     <div className="tab-content-container">
       
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">📊 Revenue & Profit Analytics</h2>
-          <p className="section-desc">Track Gross Billing, Daily Shop Expenses, Scrap Sales, and Net Garage Profit</p>
+          <h2 className="section-title">{t.analyticsTitle}</h2>
+          <p className="section-desc">{t.analyticsDesc}</p>
         </div>
 
         {/* Time Period Filter Pills */}
-        <div className="pill-selector">
+        <div className="radio-group-segmented" style={{ maxWidth: '380px' }}>
           <button
-            className={`sub-pill ${timeFilter === 'today' ? 'active' : ''}`}
+            type="button"
+            className={`segmented-btn ${timeFilter === 'today' ? 'active' : ''}`}
             onClick={() => setTimeFilter('today')}
           >
-            Today
+            {t.filterToday}
           </button>
           <button
-            className={`sub-pill ${timeFilter === 'month' ? 'active' : ''}`}
+            type="button"
+            className={`segmented-btn ${timeFilter === 'month' ? 'active' : ''}`}
             onClick={() => setTimeFilter('month')}
           >
-            This Month
+            {t.filterMonth}
           </button>
           <button
-            className={`sub-pill ${timeFilter === 'year' ? 'active' : ''}`}
+            type="button"
+            className={`segmented-btn ${timeFilter === 'year' ? 'active' : ''}`}
             onClick={() => setTimeFilter('year')}
           >
-            This Year
+            {t.filterYear}
           </button>
           <button
-            className={`sub-pill ${timeFilter === 'all' ? 'active' : ''}`}
+            type="button"
+            className={`segmented-btn ${timeFilter === 'all' ? 'active' : ''}`}
             onClick={() => setTimeFilter('all')}
           >
-            All Time
+            {t.filterAll}
           </button>
         </div>
       </div>
 
-      {/* Primary KPI Stats Grid */}
+      {/* Primary Financial Metric Cards */}
       <div className="stats-cards-grid">
         
         <div className="stat-card featured">
           <div className="stat-card-header">
-            <span>Net Garage Profit</span>
-            <TrendingUp size={20} className="text-gold" />
+            <span>{t.netProfit}</span>
+            <TrendingUp size={18} className="text-gold" />
           </div>
-          <div className="stat-value text-gold">₹{netGarageProfit.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">Gross Revenue minus Shop Expenses</div>
+          <div className="stat-value text-gold">₹{netProfit.toLocaleString('en-IN')}</div>
+          <div className="stat-sub">({t.grossRevenue} - {t.shopExpenses})</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-header">
-            <span>Gross Revenue</span>
-            <DollarSign size={20} className="text-emerald" />
+            <span>{t.grossRevenue}</span>
+            <ArrowUpRight size={18} className="text-emerald" />
           </div>
-          <div className="stat-value text-emerald">₹{totalGrossRevenue.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">Bills: ₹{grossBillingRevenue} | Scrap: ₹{scrapIncome}</div>
+          <div className="stat-value text-emerald">₹{grossRevenue.toLocaleString('en-IN')}</div>
+          <div className="stat-sub">Bills & Scrap Sales</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-header">
-            <span>Shop Expenditures</span>
-            <Coffee size={20} style={{ color: 'var(--ruby-primary)' }} />
+            <span>{t.shopExpenses}</span>
+            <ArrowDownRight size={18} style={{ color: 'var(--ruby-primary)' }} />
           </div>
           <div className="stat-value" style={{ color: 'var(--ruby-primary)' }}>₹{totalShopExpenses.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">Tea, snacks, spares & maintenance</div>
+          <div className="stat-sub">Tea, Spares & Maintenance</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-header">
-            <span>Cars Serviced</span>
-            <BarChart3 size={20} className="chip-icon" />
+            <span>{t.totalJobs}</span>
+            <Wrench size={18} className="text-gold" />
           </div>
-          <div className="stat-value">{filteredCards.length}</div>
-          <div className="stat-sub">Total completed job cards</div>
+          <div className="stat-value">{totalCarsServiced}</div>
+          <div className="stat-sub">Completed Job Cards</div>
         </div>
 
       </div>
 
-      {/* Two Column Section */}
-      <div className="analytics-two-col margin-top">
+      {/* Two-Column Analytics Layout */}
+      <div className="analytics-two-col">
         
-        {/* Payment Methods Split */}
+        {/* Left: Financial Breakdown */}
         <div className="card-container">
           <div className="card-header">
             <DollarSign className="card-icon" size={22} />
-            <h2>Payment Method Split</h2>
+            <h2>Revenue vs Expense Split</h2>
           </div>
 
           <div className="split-row">
             <div className="split-meta">
-              <span>📱 UPI / QR Code</span>
-              <span className="split-val">₹{upiTotal.toLocaleString('en-IN')} ({totalGrossRevenue ? Math.round((upiTotal / totalGrossRevenue) * 100) : 0}%)</span>
+              <span>{t.grossRevenue}</span>
+              <span className="split-val">₹{grossRevenue.toLocaleString('en-IN')}</span>
             </div>
             <div className="progress-bar-bg">
-              <div
-                className="progress-bar-fill cyan"
-                style={{ width: `${totalGrossRevenue ? (upiTotal / totalGrossRevenue) * 100 : 0}%` }}
-              ></div>
+              <div className="progress-bar-fill cyan" style={{ width: '100%' }} />
             </div>
           </div>
 
           <div className="split-row">
             <div className="split-meta">
-              <span>💵 Cash Payment</span>
-              <span className="split-val">₹{cashTotal.toLocaleString('en-IN')} ({totalGrossRevenue ? Math.round((cashTotal / totalGrossRevenue) * 100) : 0}%)</span>
+              <span>{t.shopExpenses}</span>
+              <span className="split-val" style={{ color: 'var(--ruby-primary)' }}>₹{totalShopExpenses.toLocaleString('en-IN')}</span>
             </div>
             <div className="progress-bar-bg">
-              <div
-                className="progress-bar-fill emerald"
-                style={{ width: `${totalGrossRevenue ? (cashTotal / totalGrossRevenue) * 100 : 0}%` }}
-              ></div>
+              <div className="progress-bar-fill" style={{ width: `${grossRevenue > 0 ? Math.min(100, (totalShopExpenses / grossRevenue) * 100) : 0}%`, background: 'var(--ruby-primary)' }} />
+            </div>
+          </div>
+
+          <div className="split-row">
+            <div className="split-meta">
+              <span>{t.netProfit}</span>
+              <span className="split-val text-gold">₹{netProfit.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="progress-bar-bg">
+              <div className="progress-bar-fill emerald" style={{ width: `${grossRevenue > 0 ? Math.min(100, (netProfit / grossRevenue) * 100) : 0}%` }} />
             </div>
           </div>
         </div>
 
-        {/* Top Services Leaderboard */}
+        {/* Right: Service Popularity Leaderboard */}
         <div className="card-container">
           <div className="card-header">
             <Award className="card-icon" size={22} />
-            <h2>Top Services Leaderboard</h2>
+            <h2>{t.topServices}</h2>
           </div>
 
-          {sortedServices.length === 0 ? (
-            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>No service data available for selected period.</p>
-          ) : (
-            <div className="leaderboard-list">
-              {sortedServices.map(([sName, count], index) => (
-                <div key={sName} className="leaderboard-item">
+          <div className="leaderboard-list">
+            {sortedServices.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>No services performed in this time period.</p>
+            ) : (
+              sortedServices.slice(0, 5).map((serv, index) => (
+                <div key={serv.name} className="leaderboard-item">
                   <span className="item-rank">#{index + 1}</span>
-                  <span className="item-name">{sName}</span>
-                  <span className="item-count-badge">{count} Times</span>
+                  <span className="item-name">{serv.name}</span>
+                  <span className="item-count-badge">{serv.count} Jobs</span>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
 
       </div>

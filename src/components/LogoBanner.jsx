@@ -1,8 +1,8 @@
 import React from 'react';
 import logoImg from '../assets/logo.jpg';
 
-export default function LogoBanner({ height = '48px', useVector = true }) {
-  if (!useVector) {
+export default function LogoBanner({ height = '48px', useVector = true, forPrint = false }) {
+  if (forPrint || !useVector) {
     return (
       <img
         src={logoImg}
@@ -11,7 +11,8 @@ export default function LogoBanner({ height = '48px', useVector = true }) {
           height,
           maxWidth: '100%',
           objectFit: 'contain',
-          filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8))',
+          display: 'block',
+          margin: '0 auto',
           borderRadius: '4px'
         }}
       />
@@ -19,7 +20,7 @@ export default function LogoBanner({ height = '48px', useVector = true }) {
   }
 
   return (
-    <div style={{
+    <div className="logo-banner-wrapper" style={{
       display: 'inline-flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -49,7 +50,7 @@ export default function LogoBanner({ height = '48px', useVector = true }) {
           letterSpacing: '1px',
           color: '#FFFFFF'
         }}>
-          <span>ST</span>
+          <span style={{ color: 'var(--text-white)' }}>ST</span>
           
           {/* O with Hexagon Nut */}
           <div style={{
@@ -71,7 +72,7 @@ export default function LogoBanner({ height = '48px', useVector = true }) {
             }} />
           </div>
 
-          <span>P</span>
+          <span style={{ color: 'var(--text-white)' }}>P</span>
 
           {/* Yellow & Sign Badge */}
           <div style={{
@@ -84,7 +85,7 @@ export default function LogoBanner({ height = '48px', useVector = true }) {
             <div style={{ width: '14px', height: '3px', backgroundColor: '#FACC15', marginTop: '2px' }} />
           </div>
 
-          <span>GO</span>
+          <span style={{ color: 'var(--text-white)' }}>GO</span>
         </div>
 
         {/* Right Industrial Chevron Bracket */}

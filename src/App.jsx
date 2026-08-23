@@ -148,7 +148,6 @@ export default function App() {
         const rate = serv.pricePerPuncher || 100;
         selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
       } else {
-        // Standard / Custom dynamically added service
         selectedList.push({ name: serv.name, amount: serv.price || 0 });
       }
     });
@@ -214,6 +213,7 @@ export default function App() {
               setCustomerData={setCustomerData}
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
+              currentLang={currentLang}
             />
             {Object.keys(services).length > 0 && (
               <ServiceChecklist
@@ -229,19 +229,19 @@ export default function App() {
         )}
 
         {activeTab === 'customers' && (
-          <CustomerHistory jobCards={jobCards} />
+          <CustomerHistory jobCards={jobCards} setJobCards={setJobCards} currentLang={currentLang} />
         )}
 
         {activeTab === 'analytics' && (
-          <Analytics jobCards={jobCards} expenses={expenses} scrapSales={scrapSales} />
+          <Analytics jobCards={jobCards} expenses={expenses} scrapSales={scrapSales} currentLang={currentLang} />
         )}
 
         {activeTab === 'inventory' && (
-          <Inventory inventory={inventory} setInventory={setInventory} />
+          <Inventory inventory={inventory} setInventory={setInventory} currentLang={currentLang} />
         )}
 
         {activeTab === 'bookings' && (
-          <Bookings bookings={bookings} setBookings={setBookings} />
+          <Bookings bookings={bookings} setBookings={setBookings} currentLang={currentLang} />
         )}
 
         {activeTab === 'expenses' && (
@@ -252,6 +252,7 @@ export default function App() {
             setSalaries={setSalaries}
             scrapSales={scrapSales}
             setScrapSales={setScrapSales}
+            currentLang={currentLang}
           />
         )}
 
@@ -259,6 +260,7 @@ export default function App() {
           <ServicePriceEditor
             services={services}
             setServices={setServices}
+            currentLang={currentLang}
           />
         )}
       </main>
@@ -267,6 +269,7 @@ export default function App() {
         activeReceipt={activeReceipt}
         mode={billingMode}
         onClose={handleCloseReceiptModal}
+        currentLang={currentLang}
       />
     </div>
   );
