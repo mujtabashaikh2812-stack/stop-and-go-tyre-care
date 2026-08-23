@@ -16,6 +16,7 @@ import {
   getBookings, getExpenses, getSalaries, getScrapSales,
   getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
+import { triggerCloudSync, fetchCloudData } from './utils/syncService';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -58,6 +59,17 @@ export default function App() {
     setExpenses(getExpenses());
     setSalaries(getSalaries());
     setScrapSales(getScrapSales());
+
+    // Trigger MongoDB Cloud Sync on startup & listen for online connection
+    triggerCloudSync();
+
+    const handleOnline = () => {
+      console.log('🌐 Device is online. Initiating MongoDB Atlas Cloud Sync...');
+      triggerCloudSync();
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
   }, []);
 
   const handleLanguageChange = (lang) => {
@@ -95,7 +107,6 @@ export default function App() {
       return;
     }
 
-    // Build selected services list including standard + custom dynamically added services
     const selectedList = [];
 
     Object.entries(services).forEach(([key, serv]) => {
@@ -180,6 +191,9 @@ export default function App() {
     setInventory(getInventory());
     setBillingMode(mode);
     setActiveReceipt(newCard);
+
+    // Auto-trigger background MongoDB Atlas sync
+    triggerCloudSync();
   };
 
   const handleCloseReceiptModal = () => {
