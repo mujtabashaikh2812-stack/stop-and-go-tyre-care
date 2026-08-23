@@ -1,5 +1,19 @@
 # React + Vite
 
+## Android development
+
+After changing the React app, use this command before running the Android build:
+
+```bash
+npm run android:sync
+```
+
+To rebuild, sync Android, and open Android Studio in one step:
+
+```bash
+npm run android:open
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
