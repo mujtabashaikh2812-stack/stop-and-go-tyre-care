@@ -1,9 +1,11 @@
 import React from 'react';
 import { X, Printer, Send, CheckCircle } from 'lucide-react';
 import LogoBanner from './LogoBanner';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) {
+export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, currentLang = 'en' }) {
   if (!activeReceipt) return null;
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   const {
     id,
@@ -74,7 +76,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
         <div className="modal-header-bar">
           <div className="modal-title">
             <CheckCircle style={{ color: 'var(--emerald-primary)' }} size={22} />
-            <span>{mode === 'whatsapp' ? 'Digital Receipt & WhatsApp Share' : 'Official Garage Invoice'}</span>
+            <span>{mode === 'whatsapp' ? t.digitalReceiptTitle : t.officialInvoiceTitle}</span>
           </div>
           <button className="close-modal-btn" onClick={onClose}>
             <X size={20} />
@@ -149,12 +151,12 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose }) 
         <div className="modal-actions-bar">
           <button className="btn-whatsapp-large" onClick={handleSendWhatsApp}>
             <Send size={18} />
-            <span>Send Receipt to Customer WhatsApp (+91 {mobile})</span>
+            <span>{t.sendWhatsAppBtn} (+91 {mobile})</span>
           </button>
 
           <button className="btn-print-large" onClick={handlePrint}>
             <Printer size={18} />
-            <span>Print Official Receipt Slip</span>
+            <span>{t.printReceiptBtn}</span>
           </button>
         </div>
 

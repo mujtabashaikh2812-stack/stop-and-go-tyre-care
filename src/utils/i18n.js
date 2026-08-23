@@ -49,18 +49,6 @@ export const TRANSLATIONS = {
     internalCleaning: '11. Internal Cleaning (Future Service)',
     oilChange: '12. Engine Oil Change (Future Service)',
 
-    // Checklist Options
-    tyres2: '2 Tyres',
-    tyres4: '4 Tyres',
-    stickerWeight: 'Sticker Weight (₹4/g)',
-    brassWeight: 'Brass Weight (₹2/g)',
-    rim1215: 'Rim Size 12, 13, 14, 15 (₹100/tyre)',
-    rim1618: 'Rim Size 16, 17, 18 (₹125/tyre)',
-    newValve: 'New Tubeless Valve',
-    nitrogenFull: 'Nitrogen Full (₹150)',
-    nitrogenTopup: 'Nitrogen Top-Up (₹50)',
-    normalAir: 'Normal Air (₹20)',
-
     // Summary & Actions
     subtotal: 'Subtotal',
     discount: 'Discount',
@@ -73,6 +61,53 @@ export const TRANSLATIONS = {
     customerDirectoryDesc: 'Track customer visit history, vehicle odometers, and automatic 30 km/day service alerts',
     searchPlaceholder: 'Search by Customer Name, Mobile, Reg No, or Car...',
     deleteCustomer: 'Delete Customer',
+
+    // Analytics Tab
+    analyticsTitle: '📊 Financial Analytics & Net Profit Reports',
+    analyticsDesc: 'Calculate gross income, deduct daily shop expenses, and track net garage profit',
+    filterToday: 'Today',
+    filterMonth: 'This Month',
+    filterYear: 'This Year',
+    filterAll: 'All Time',
+    grossRevenue: 'Gross Revenue',
+    shopExpenses: 'Shop Expenses',
+    netProfit: 'Net Garage Profit',
+    totalJobs: 'Total Cars Serviced',
+    topServices: 'Top Garage Services',
+
+    // Inventory Tab
+    inventoryTitle: '📦 Consumables & Stock Inventory',
+    inventoryDesc: 'Track stock levels for weights, valves, and consumables',
+    itemInStock: 'In Stock',
+    restockItem: 'Restock Item',
+    updateStockBtn: 'Update Stock Level',
+
+    // Bookings Tab
+    bookingsTitle: '📅 Service Appointments & Bookings',
+    bookingsDesc: 'Manage advance appointment slots and send 1-tap WhatsApp confirmations',
+    newBooking: 'New Service Booking',
+    bookingDate: 'Appointment Date',
+    bookingTime: 'Time Slot',
+    confirmBookingBtn: 'Confirm & Save Booking',
+
+    // Expenses & Salaries Tab
+    expensesTitle: '☕ Daily Shop Expenses & Staff Salaries',
+    expensesDesc: 'Log tea/snacks expenses, track staff monthly advances, and record scrap sales',
+    logExpense: 'Log Daily Expense',
+    categoryTea: 'Tea & Snacks',
+    categoryMaintenance: 'Shop Maintenance',
+    categorySpares: 'Tools & Spares',
+    expenseAmount: 'Expense Amount (₹)',
+    addExpenseBtn: 'Record Expense',
+    staffSalaries: 'Staff Salary Manager',
+    scrapSales: 'Scrap Rubber & Tyre Resale',
+
+    // Master Price Editor Tab
+    masterPricesTitle: '⚙️ Master Service Price & Security Settings',
+    masterPricesDesc: 'Configure rates for all 12 services, add new custom services, and set Admin password',
+    changePassword: 'Change Admin Password / PIN',
+    addCustomServiceTitle: '➕ Add New Custom Garage Service',
+    saveAllPricesBtn: 'Save All Service Prices',
 
     // Modal
     digitalReceiptTitle: 'Digital Receipt & WhatsApp Share',
@@ -130,18 +165,6 @@ export const TRANSLATIONS = {
     internalCleaning: '११. इंटरनल क्लिनिंग (भविष्यातील सर्व्हिस)',
     oilChange: '१२. इंजिन ऑईल चेंज (भविष्यातील सर्व्हिस)',
 
-    // Checklist Options
-    tyres2: '२ टायर',
-    tyres4: '४ टायर',
-    stickerWeight: 'स्टिकर वेट (₹४/ग्रॅम)',
-    brassWeight: 'ब्रास वेट (₹२/ग्रॅम)',
-    rim1215: 'रिम साईज १२, १३, १४, १५ (₹१००/टायर)',
-    rim1618: 'रिम साईज १६, १७, १८ (₹१२५/टायर)',
-    newValve: 'नवीन ट्युबलेस व्हाल्व्ह',
-    nitrogenFull: 'नायट्रोजन फुल (₹१५०)',
-    nitrogenTopup: 'नायट्रोजन टॉप-अप (₹५०)',
-    normalAir: 'सामान्य हवा (₹२०)',
-
     // Summary & Actions
     subtotal: 'एकूण रक्कम',
     discount: 'सवलत (डिस्काउंट)',
@@ -154,6 +177,53 @@ export const TRANSLATIONS = {
     customerDirectoryDesc: 'ग्राहक इतिहास, ओडोमीटर रीडिंग आणि ३० किमी/दिवस सर्व्हिस अलर्ट',
     searchPlaceholder: 'ग्राहकाचे नाव, मोबाईल, नंबर प्लेटने शोधा...',
     deleteCustomer: 'ग्राहक हटवा',
+
+    // Analytics Tab
+    analyticsTitle: '📊 आर्थिक विश्लेषण आणि निव्वळ नफा अहवाल',
+    analyticsDesc: 'एकूण उत्पन्न मोजा, दैनिक खर्च वजा करा आणि गॅरेजचा निव्वळ नफा पहा',
+    filterToday: 'आज',
+    filterMonth: 'या महिन्यात',
+    filterYear: 'या वर्षी',
+    filterAll: 'सर्व वेळ',
+    grossRevenue: 'एकूण उत्पन्न',
+    shopExpenses: 'दुकानातील खर्च',
+    netProfit: 'निव्वळ नफा',
+    totalJobs: 'सर्व्हिस केलेल्या एकूण गाड्या',
+    topServices: 'प्रमुख गॅरेज सर्व्हिसेस',
+
+    // Inventory Tab
+    inventoryTitle: '📦 स्टॉक आणि इनव्हेंटरी मॅनेजमेंट',
+    inventoryDesc: 'वेट, व्हाल्व्ह आणि साहित्याचा स्टॉक तपासा',
+    itemInStock: 'शिल्लक स्टॉक',
+    restockItem: 'स्टॉक वाढवा',
+    updateStockBtn: 'स्टॉक अपडेट करा',
+
+    // Bookings Tab
+    bookingsTitle: '📅 सर्व्हिस अपॉइंटमेंट आणि बुकिंग',
+    bookingsDesc: 'ॲडव्हान्स बुकिंग स्लॉट व्यवस्थापित करा आणि व्हॉट्सॲप कन्फर्मेशन पाठवा',
+    newBooking: 'नवीन सर्व्हिस बुकिंग',
+    bookingDate: 'अपॉइंटमेंट तारीख',
+    bookingTime: 'वेळ स्लॉट',
+    confirmBookingBtn: 'बुकिंग निश्चित करा',
+
+    // Expenses & Salaries Tab
+    expensesTitle: '☕ दैनिक खर्च आणि कर्मचाऱ्यांचे पगार',
+    expensesDesc: 'चहा/नाश्ता खर्च नोंदवा, कर्मचाऱ्यांचे ॲडव्हान्स आणि स्क्रॅप विक्रीची नोंद ठेवा',
+    logExpense: 'दैनिक खर्च नोंदवा',
+    categoryTea: 'चहा आणि नाश्ता',
+    categoryMaintenance: 'दुकान देखभाल',
+    categorySpares: 'टूल्स आणि स्पेअर्स',
+    expenseAmount: 'खर्च रक्कम (₹)',
+    addExpenseBtn: 'खर्च नोंदवा',
+    staffSalaries: 'कर्मचारी पगार व्यवस्थापक',
+    scrapSales: 'स्क्रॅप टायर विक्री नोंद',
+
+    // Master Price Editor Tab
+    masterPricesTitle: '⚙️ मास्टर सर्व्हिस दर आणि सुरक्षा सेटिंग्ज',
+    masterPricesDesc: 'सर्व १२ सर्व्हिसेसचे दर ठरवा, नवीन कस्टम सर्व्हिस जोडा आणि ॲडमिन पासवर्ड बदला',
+    changePassword: 'ॲडमिन पासवर्ड बदला',
+    addCustomServiceTitle: '➕ नवीन कस्टम सर्व्हिस जोडा',
+    saveAllPricesBtn: 'सर्व दर सेव्ह करा',
 
     // Modal
     digitalReceiptTitle: 'डिजिटल पावती आणि व्हॉट्सॲप शेअर',
@@ -211,18 +281,6 @@ export const TRANSLATIONS = {
     internalCleaning: '11. इंटरनल क्लीनिंग (भावी सेवा)',
     oilChange: '12. इंजन ऑयल चेंज (भावी सेवा)',
 
-    // Checklist Options
-    tyres2: '2 टायर',
-    tyres4: '4 टायर',
-    stickerWeight: 'स्टीकर वेट (₹4/ग्राम)',
-    brassWeight: 'ब्रास वेट (₹2/ग्राम)',
-    rim1215: 'रिम साइज 12, 13, 14, 15 (₹100/टायर)',
-    rim1618: 'रिम साइज 16, 17, 18 (₹125/टायर)',
-    newValve: 'नया ट्यूबलेस वॉल्व',
-    nitrogenFull: 'नाइट्रोजन फुल (₹150)',
-    nitrogenTopup: 'नाइट्रोजन टॉप-अप (₹50)',
-    normalAir: 'सामान्य हवा (₹20)',
-
     // Summary & Actions
     subtotal: 'उप-कुल',
     discount: 'छूट (डिस्काउंट)',
@@ -235,6 +293,53 @@ export const TRANSLATIONS = {
     customerDirectoryDesc: 'ग्राहक इतिहास, ओडोमीटर रीडिंग और 30 किमी/दिन सर्विस अलर्ट',
     searchPlaceholder: 'ग्राहक का नाम, मोबाइल, नंबर प्लेट से खोजें...',
     deleteCustomer: 'ग्राहक हटाएं',
+
+    // Analytics Tab
+    analyticsTitle: '📊 वित्तीय विश्लेषण और शुद्ध लाभ रिपोर्ट',
+    analyticsDesc: 'कुल आय की गणना करें, दैनिक खर्च घटाएं और शुद्ध गैराज लाभ देखें',
+    filterToday: 'आज',
+    filterMonth: 'इस महीने',
+    filterYear: 'इस वर्ष',
+    filterAll: 'सभी समय',
+    grossRevenue: 'कुल राजस्व',
+    shopExpenses: 'दुकान के खर्च',
+    netProfit: 'शुद्ध लाभ',
+    totalJobs: 'कुल सेवा की गई गाड़ियां',
+    topServices: 'प्रमुख गैराज सेवाएं',
+
+    // Inventory Tab
+    inventoryTitle: '📦 स्टॉक और इन्वेंट्री प्रबंधन',
+    inventoryDesc: 'वेट, वॉल्व और उपभोग्य सामग्रियों का स्टॉक जांचें',
+    itemInStock: 'उपलब्ध स्टॉक',
+    restockItem: 'स्टॉक बढ़ाएं',
+    updateStockBtn: 'स्टॉक अपडेट करें',
+
+    // Bookings Tab
+    bookingsTitle: '📅 सर्विस अपॉइंटमेंट और बुकिंग',
+    bookingsDesc: 'अग्रिम बुकिंग स्लॉट प्रबंधित करें और व्हाट्सएप पुष्टिकरण भेजें',
+    newBooking: 'नई सर्विस बुकिंग',
+    bookingDate: 'अपॉइंटमेंट तिथि',
+    bookingTime: 'समय स्लॉट',
+    confirmBookingBtn: 'बुकिंग की पुष्टि करें',
+
+    // Expenses & Salaries Tab
+    expensesTitle: '☕ दैनिक दुकान खर्च और स्टाफ वेतन',
+    expensesDesc: 'चाय/नाश्ता खर्च दर्ज करें, स्टाफ अग्रिम राशि और स्क्रैप बिक्री दर्ज करें',
+    logExpense: 'दैनिक खर्च दर्ज करें',
+    categoryTea: 'चाय और नाश्ता',
+    categoryMaintenance: 'दुकान रखरखाव',
+    categorySpares: 'टूल और स्पेयर',
+    expenseAmount: 'खर्च राशि (₹)',
+    addExpenseBtn: 'खर्च दर्ज करें',
+    staffSalaries: 'स्टाफ वेतन प्रबंधक',
+    scrapSales: 'स्क्रैप टायर बिक्री रिकॉर्ड',
+
+    // Master Price Editor Tab
+    masterPricesTitle: '⚙️ मास्टर सर्विस दरें और सुरक्षा सेटिंग्स',
+    masterPricesDesc: 'सभी 12 सेवाओं की दरें कॉन्फ़िगर करें, नई कस्टम सेवा जोड़ें और एडमिन पासवर्ड बदलें',
+    changePassword: 'एडमिन पासवर्ड बदलें',
+    addCustomServiceTitle: '➕ नई कस्टम सेवा जोड़ें',
+    saveAllPricesBtn: 'सभी दरें सहेजें',
 
     // Modal
     digitalReceiptTitle: 'डिजिटल रसीद और व्हाट्सएप शेयर',
