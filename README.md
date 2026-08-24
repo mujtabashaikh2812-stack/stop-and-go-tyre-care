@@ -1,30 +1,89 @@
-# React + Vite
+# STOP & GO — Total Tyre Care Centre
 
-## Android development
+Full-stack garage management system for STOP & GO tyre shop.
 
-After changing the React app, use this command before running the Android build:
+---
 
-```bash
-npm run android:sync
+## Project Structure
+
+```
+stop-and-go-tyre-care/
+├── frontend/          ← React + Vite web app
+└── backend/           ← Express + MongoDB Atlas API server
 ```
 
-To rebuild, sync Android, and open Android Studio in one step:
+---
+
+## Frontend
+
+React 19 + Vite 8 single-page app with offline-first localStorage and background MongoDB sync.
+
+### Setup & Run
 
 ```bash
-npm run android:open
+cd frontend
+npm install
+npm run dev          # http://localhost:5173
+npm run build        # production build → dist/
 ```
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+### Environment
 
-Currently, two official plugins are available:
+Copy `.env.example` to `.env` and set the backend URL:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+VITE_API_URL=http://localhost:5000/api
+```
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Backend
 
-## Expanding the Oxlint configuration
+Express 4 + Mongoose REST API connecting to MongoDB Atlas.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Setup & Run
+
+```bash
+cd backend
+npm install
+```
+
+Copy `.env.example` to `.env` and fill in your credentials:
+
+```
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/stop_and_go_tyre_care?retryWrites=true&w=majority
+PORT=5000
+CLIENT_ORIGIN=http://localhost:5173
+```
+
+```bash
+npm run dev          # development with --watch
+npm start            # production
+```
+
+### API Endpoints
+
+| Method | Path         | Description                        |
+|--------|--------------|------------------------------------|
+| GET    | /api/health  | Server & DB connection status      |
+| POST   | /api/sync    | Batch upsert all data to MongoDB   |
+| GET    | /api/data    | Fetch all records for multi-device |
+
+---
+
+## Database — MongoDB Atlas
+
+Collections: `jobcards`, `inventories`, `bookings`, `expenses`, `salaries`, `scrapsales`
+
+All collections use an `id` field (e.g. `SG-2026-1001`) as the unique business key.
+Mongoose handles upserts — safe to sync the same record multiple times.
+
+See `database_schema.md` for full field definitions.
+
+---
+
+## Deployment
+
+- **Frontend** → Vercel / Netlify (static build from `frontend/dist`)
+- **Backend** → Railway / Render / VPS (Node.js server from `backend/`)
+- **Vercel Serverless** → deploy `backend/api/` functions directly on Vercel
