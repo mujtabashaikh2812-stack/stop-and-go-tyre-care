@@ -14,7 +14,7 @@ import AdminLoginGate from './components/AdminLoginGate';
 import {
   getJobCards, saveJobCard, getInventory, getServicePrices,
   getBookings, getExpenses, getSalaries, getScrapSales,
-  getLanguage, setLanguage as saveLanguage
+  getLanguage, setLanguage as saveLanguage, saveCloudData
 } from './utils/storage';
 import { triggerCloudSync, fetchCloudData } from './utils/syncService';
 
@@ -52,16 +52,40 @@ export default function App() {
   const [billingMode, setBillingMode] = useState('bill');
 
   useEffect(() => {
-    setJobCards(getJobCards());
-    setInventory(getInventory());
-    setServices(getServicePrices());
-    setBookings(getBookings());
-    setExpenses(getExpenses());
-    setSalaries(getSalaries());
-    setScrapSales(getScrapSales());
+    const loadData = async () => {
+      const cloudData = await fetchCloudData();
+      const hasCloudData = cloudData && (
+        Object.values(cloudData).some(value => Array.isArray(value) && value.length > 0) ||
+        (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0)
+      );
 
-    // Trigger MongoDB Cloud Sync on startup & listen for online connection
-    triggerCloudSync();
+      if (hasCloudData) {
+        Object.entries(cloudData).forEach(([name, value]) => {
+          if (name === 'jobCards') setJobCards(value);
+          if (name === 'inventory') setInventory(value);
+          if (name === 'servicePrices') setServices(value);
+          if (name === 'bookings') setBookings(value);
+          if (name === 'expenses') setExpenses(value);
+          if (name === 'salaries') setSalaries(value);
+          if (name === 'scrapSales') setScrapSales(value);
+        });
+        saveCloudData(cloudData);
+      } else {
+        setJobCards(getJobCards());
+        setInventory(getInventory());
+        setServices(getServicePrices());
+        setBookings(getBookings());
+        setExpenses(getExpenses());
+        setSalaries(getSalaries());
+        setScrapSales(getScrapSales());
+        triggerCloudSync();
+      }
+    };
+
+    loadData();
+
+    const handleDataChanged = () => triggerCloudSync();
+    window.addEventListener('storage-data-changed', handleDataChanged);
 
     const handleOnline = () => {
       console.log('🌐 Device is online. Initiating MongoDB Atlas Cloud Sync...');
@@ -69,7 +93,10 @@ export default function App() {
     };
 
     window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
+    return () => {
+      window.removeEventListener('storage-data-changed', handleDataChanged);
+      window.removeEventListener('online', handleOnline);
+    };
   }, []);
 
   const handleLanguageChange = (lang) => {

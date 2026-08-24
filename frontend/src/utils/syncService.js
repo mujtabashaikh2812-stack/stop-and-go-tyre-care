@@ -1,4 +1,4 @@
-import { getJobCards, getInventory, getBookings, getExpenses, getSalaries, getScrapSales } from './storage';
+import { getJobCards, getInventory, getServicePrices, getBookings, getExpenses, getSalaries, getScrapSales } from './storage';
 
 // Configurable API endpoint (Vercel Serverless Function or Node.js backend)
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -13,6 +13,7 @@ export const triggerCloudSync = async () => {
   try {
     const jobCards = getJobCards();
     const inventory = getInventory();
+    const servicePrices = getServicePrices();
     const bookings = getBookings();
     const expenses = getExpenses();
     const salaries = getSalaries();
@@ -21,6 +22,7 @@ export const triggerCloudSync = async () => {
     const payload = {
       jobCards,
       inventory,
+      servicePrices,
       bookings,
       expenses,
       salaries,

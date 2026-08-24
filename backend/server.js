@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales'];
+const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices'];
 
 const recordSchema = new mongoose.Schema(
   {
@@ -41,7 +41,9 @@ app.get('/api/data', async (_req, res) => {
     const data = await Promise.all(
       collectionNames.map(async (collectionName) => [
         collectionName,
-        await models[collectionName].find().sort({ createdAt: -1 }).lean()
+        collectionName === 'servicePrices'
+          ? (await models[collectionName].findOne({ id: 'current' }).lean())?.value || {}
+          : await models[collectionName].find().sort({ createdAt: -1 }).lean()
       ])
     );
     res.json(Object.fromEntries(data));
@@ -62,7 +64,9 @@ app.post('/api/sync', async (req, res) => {
 
     await Promise.all(
       collectionNames.map(async (collectionName) => {
-        const records = payload[collectionName] || [];
+        const records = collectionName === 'servicePrices'
+          ? [{ id: 'current', value: payload[collectionName] || {} }]
+          : payload[collectionName] || [];
         if (!Array.isArray(records)) {
           throw new Error(`${collectionName} must be an array`);
         }
@@ -83,6 +87,8 @@ app.post('/api/sync', async (req, res) => {
         if (operations.length > 0) {
           await models[collectionName].bulkWrite(operations, { ordered: false });
         }
+        const ids = operations.map(({ updateOne }) => updateOne.filter.id);
+        await models[collectionName].deleteMany({ id: { $nin: ids } });
         counts[collectionName] = operations.length;
       })
     );
