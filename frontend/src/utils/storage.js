@@ -133,6 +133,15 @@ export const addCustomService = (serviceName, defaultPrice) => {
   return updated;
 };
 
+// DELETE SERVICE FROM MASTER PRICES
+export const deleteCustomService = (serviceKey) => {
+  const current = getServicePrices();
+  const updated = { ...current };
+  delete updated[serviceKey];
+  saveServicePrices(updated);
+  return updated;
+};
+
 // Bookings
 export const getBookings = () => {
   const data = localStorage.getItem(KEYS.BOOKINGS);
