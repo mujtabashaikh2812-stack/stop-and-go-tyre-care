@@ -47,7 +47,6 @@ export const saveJobCard = (newCard) => {
   return updated;
 };
 
-// DELETE INDIVIDUAL JOB CARD (OPTION B)
 export const deleteJobCard = (id) => {
   const current = getJobCards();
   const updated = current.filter(c => c.id !== id);
@@ -55,7 +54,6 @@ export const deleteJobCard = (id) => {
   return updated;
 };
 
-// DELETE ENTIRE CUSTOMER PROFILE (OPTION A)
 export const deleteCustomerByMobile = (mobile) => {
   const current = getJobCards();
   const updated = current.filter(c => c.mobile !== mobile);
@@ -163,6 +161,13 @@ export const addExpense = (exp) => {
   return updated;
 };
 
+export const deleteExpense = (id) => {
+  const current = getExpenses();
+  const updated = current.filter(e => e.id !== id);
+  localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
+  return updated;
+};
+
 // Staff Salaries
 export const getSalaries = () => {
   const data = localStorage.getItem(KEYS.SALARIES);
@@ -177,6 +182,13 @@ export const addSalaryRecord = (sal) => {
   return updated;
 };
 
+export const deleteSalaryRecord = (id) => {
+  const current = getSalaries();
+  const updated = current.filter(s => s.id !== id);
+  localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
+  return updated;
+};
+
 // Scrap Tyre Sales
 export const getScrapSales = () => {
   const data = localStorage.getItem(KEYS.SCRAP_SALES);
@@ -187,6 +199,13 @@ export const getScrapSales = () => {
 export const addScrapSale = (sale) => {
   const current = getScrapSales();
   const updated = [sale, ...current];
+  localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
+  return updated;
+};
+
+export const deleteScrapSale = (id) => {
+  const current = getScrapSales();
+  const updated = current.filter(s => s.id !== id);
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
   return updated;
 };

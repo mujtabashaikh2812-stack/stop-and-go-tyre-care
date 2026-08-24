@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Coffee, DollarSign, Users, RefreshCw, Plus, CheckCircle2, Trash2 } from 'lucide-react';
-import { addExpense, addSalaryRecord, addScrapSale } from '../utils/storage';
+import { addExpense, deleteExpense, addSalaryRecord, deleteSalaryRecord, addScrapSale, deleteScrapSale } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 
 export default function ExpensesAndScrap({
@@ -50,6 +50,13 @@ export default function ExpensesAndScrap({
     setTimeout(() => setExpSuccess(''), 3000);
   };
 
+  const handleDeleteExpenseItem = (id, category, amount) => {
+    if (window.confirm(`Are you sure you want to delete expense record "${category}" (₹${amount})?`)) {
+      const updated = deleteExpense(id);
+      setExpenses(updated);
+    }
+  };
+
   const handleAddSalary = (e) => {
     e.preventDefault();
     if (!staffName || !baseSalary) return;
@@ -76,6 +83,13 @@ export default function ExpensesAndScrap({
     setTimeout(() => setSalSuccess(''), 3000);
   };
 
+  const handleDeleteSalaryItem = (id, name) => {
+    if (window.confirm(`Are you sure you want to delete salary payout for "${name}"?`)) {
+      const updated = deleteSalaryRecord(id);
+      setSalaries(updated);
+    }
+  };
+
   const handleAddScrapSale = (e) => {
     e.preventDefault();
     const q = parseInt(scrapQty, 10);
@@ -98,6 +112,13 @@ export default function ExpensesAndScrap({
     setScrapRate('');
     setScrapSuccess('Scrap Sale Income Logged!');
     setTimeout(() => setScrapSuccess(''), 3000);
+  };
+
+  const handleDeleteScrapItem = (id, itemType, amount) => {
+    if (window.confirm(`Are you sure you want to delete scrap sale entry "${itemType}" (+₹${amount})?`)) {
+      const updated = deleteScrapSale(id);
+      setScrapSales(updated);
+    }
   };
 
   return (
@@ -176,7 +197,18 @@ export default function ExpensesAndScrap({
                   <span className="log-date">{e.date}</span>
                   {e.note && <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginLeft: '10px' }}>({e.note})</span>}
                 </div>
-                <span className="log-amount" style={{ color: 'var(--ruby-primary)' }}>-₹{e.amount.toLocaleString('en-IN')}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <span className="log-amount" style={{ color: 'var(--ruby-primary)' }}>-₹{e.amount.toLocaleString('en-IN')}</span>
+                  
+                  {/* DELETE EXPENSE BUTTON */}
+                  <button
+                    onClick={() => handleDeleteExpenseItem(e.id, e.category, e.amount)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--ruby-primary)', cursor: 'pointer', padding: '4px' }}
+                    title="Delete this expense entry"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -259,11 +291,20 @@ export default function ExpensesAndScrap({
                   <strong style={{ color: 'var(--text-white)', marginRight: '14px' }}>{s.staffName}</strong>
                   <span className="log-date">{s.date}</span>
                 </div>
-                <div>
-                  <span className="service-tag" style={{ marginRight: '10px' }}>Base: ₹{s.baseSalary.toLocaleString('en-IN')}</span>
-                  <span className="service-tag" style={{ marginRight: '10px', color: 'var(--ruby-primary)' }}>Adv: ₹{s.advance.toLocaleString('en-IN')}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <span className="service-tag" style={{ marginRight: '6px' }}>Base: ₹{s.baseSalary.toLocaleString('en-IN')}</span>
+                  <span className="service-tag" style={{ marginRight: '6px', color: 'var(--ruby-primary)' }}>Adv: ₹{s.advance.toLocaleString('en-IN')}</span>
+                  <span className="log-amount text-gold">Net Payout: ₹{s.netPayout.toLocaleString('en-IN')}</span>
+                  
+                  {/* DELETE SALARY BUTTON */}
+                  <button
+                    onClick={() => handleDeleteSalaryItem(s.id, s.staffName)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--ruby-primary)', cursor: 'pointer', padding: '4px' }}
+                    title="Delete this salary payout"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-                <span className="log-amount text-gold">Net Payout: ₹{s.netPayout.toLocaleString('en-IN')}</span>
               </div>
             ))}
           </div>
@@ -345,10 +386,19 @@ export default function ExpensesAndScrap({
                   <span className="service-tag" style={{ color: 'var(--emerald-primary)', fontWeight: '700', marginRight: '10px' }}>{s.itemType}</span>
                   <span className="log-date">{s.date}</span>
                 </div>
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span className="service-tag">{s.quantity} units @ ₹{s.ratePerUnit}/unit</span>
+                  <span className="log-amount" style={{ color: 'var(--emerald-primary)' }}>+₹{s.totalAmount.toLocaleString('en-IN')}</span>
+                  
+                  {/* DELETE SCRAP SALE BUTTON */}
+                  <button
+                    onClick={() => handleDeleteScrapItem(s.id, s.itemType, s.totalAmount)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--ruby-primary)', cursor: 'pointer', padding: '4px' }}
+                    title="Delete this scrap sale entry"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-                <span className="log-amount" style={{ color: 'var(--emerald-primary)' }}>+₹{s.totalAmount.toLocaleString('en-IN')}</span>
               </div>
             ))}
           </div>
