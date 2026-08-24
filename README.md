@@ -39,7 +39,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ## Backend
 
-Express 4 + Mongoose REST API connecting to MongoDB Atlas.
+Express + Mongoose REST API connecting to MongoDB Atlas.
 
 ### Setup & Run
 
@@ -48,7 +48,7 @@ cd backend
 npm install
 ```
 
-Copy `.env.example` to `.env` and fill in your credentials:
+Copy `backend/.env.example` to `backend/.env` and fill in your MongoDB URL:
 
 ```
 MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/stop_and_go_tyre_care?retryWrites=true&w=majority
@@ -60,6 +60,8 @@ CLIENT_ORIGIN=http://localhost:5173
 npm run dev          # development with --watch
 npm start            # production
 ```
+
+Copy `frontend/.env.example` to `frontend/.env` when the frontend needs an explicit API URL. During local development, the default `/api` URL uses the Vite proxy automatically.
 
 ### API Endpoints
 
@@ -79,6 +81,8 @@ All collections use an `id` field (e.g. `SG-2026-1001`) as the unique business k
 Mongoose handles upserts — safe to sync the same record multiple times.
 
 See `database_schema.md` for full field definitions.
+
+The backend starts only after it can connect to MongoDB. Keep `backend/.env` local; `.env` files are ignored by git.
 
 ---
 

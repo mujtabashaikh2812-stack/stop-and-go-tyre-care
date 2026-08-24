@@ -1,7 +1,7 @@
 import { getJobCards, getInventory, getBookings, getExpenses, getSalaries, getScrapSales } from './storage';
 
 // Configurable API endpoint (Vercel Serverless Function or Node.js backend)
-const API_URL = import.meta.env.VITE_API_URL || 'https://stop-and-go-tyre-care.vercel.app/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const triggerCloudSync = async () => {
   // Check if phone/device is online

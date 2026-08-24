@@ -1,0 +1,17 @@
+{
+  "name": "stop-and-go-backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "MongoDB API for STOP & GO Tyre Care",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  }
+}
