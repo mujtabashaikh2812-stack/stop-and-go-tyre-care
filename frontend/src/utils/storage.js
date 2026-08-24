@@ -116,6 +116,11 @@ export const saveServicePrices = (newPrices) => {
   return newPrices;
 };
 
+export const resetDefaultServicePrices = () => {
+  localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(DEFAULT_SERVICES));
+  return DEFAULT_SERVICES;
+};
+
 export const addCustomService = (serviceName, defaultPrice) => {
   const current = getServicePrices();
   const key = `custom_${Date.now()}`;
@@ -133,7 +138,6 @@ export const addCustomService = (serviceName, defaultPrice) => {
   return updated;
 };
 
-// DELETE SERVICE FROM MASTER PRICES
 export const deleteCustomService = (serviceKey) => {
   const current = getServicePrices();
   const updated = { ...current };
@@ -152,6 +156,13 @@ export const getBookings = () => {
 export const addBooking = (booking) => {
   const current = getBookings();
   const updated = [booking, ...current];
+  localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  return updated;
+};
+
+export const deleteBooking = (id) => {
+  const current = getBookings();
+  const updated = current.filter(b => b.id !== id);
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
   return updated;
 };
