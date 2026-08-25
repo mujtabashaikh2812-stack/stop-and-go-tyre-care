@@ -459,38 +459,43 @@ input:focus, select:focus {
 .inline-price-edit-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  padding: 3px 8px;
-  transition: all 0.2s ease;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: 20px;
+  padding: 4px 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: text;
 }
 
 .inline-price-edit-badge:hover, .inline-price-edit-badge:focus-within {
-  border-color: var(--yellow-primary);
-  background: var(--bg-surface-elevated);
-  box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+  border-color: #facc15;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 1) 0%, rgba(30, 41, 59, 0.95) 100%);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.45);
+  transform: translateY(-1px);
 }
 
 .inline-price-edit-badge .currency-symbol {
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--yellow-primary);
+  font-size: 0.9rem;
+  color: #facc15;
+  opacity: 0.9;
 }
 
 .inline-price-input {
-  width: 75px !important;
+  width: 78px !important;
   background: transparent !important;
   border: none !important;
-  color: var(--yellow-primary) !important;
-  font-family: var(--font-mono) !important;
+  color: #facc15 !important;
+  font-family: var(--font-mono), monospace !important;
   font-weight: 800 !important;
-  font-size: 1rem !important;
+  font-size: 1.05rem !important;
   text-align: right !important;
-  padding: 2px 0 !important;
+  padding: 1px 0 !important;
   outline: none !important;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.3);
 }
 
 .service-options-row {
