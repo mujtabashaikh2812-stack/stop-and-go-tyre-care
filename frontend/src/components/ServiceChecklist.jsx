@@ -163,6 +163,28 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                         Brass (₹{item.brassRate || 2}/g)
                       </button>
                     </div>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <div className="input-inline">
+                        <span>Sticker Rate (₹/g):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.stickerRate ?? 4}
+                          onChange={(e) => updateServiceDetail('weight', 'stickerRate', e.target.value)}
+                        />
+                      </div>
+                      <div className="input-inline">
+                        <span>Brass Rate (₹/g):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.brassRate ?? 2}
+                          onChange={(e) => updateServiceDetail('weight', 'brassRate', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
                     <div className="input-inline">
                       <span>Total Grams:</span>
                       <input
@@ -207,6 +229,28 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                         Rim 16-18 (₹{item.largeRimRate || 125}/tyre)
                       </button>
                     </div>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <div className="input-inline">
+                        <span>Rim 12-15 (₹):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.smallRimRate ?? 100}
+                          onChange={(e) => updateServiceDetail('tyreFitting', 'smallRimRate', e.target.value)}
+                        />
+                      </div>
+                      <div className="input-inline">
+                        <span>Rim 16-18 (₹):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.largeRimRate ?? 125}
+                          onChange={(e) => updateServiceDetail('tyreFitting', 'largeRimRate', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
                     <div className="input-inline">
                       <span>Fitting Qty:</span>
                       <input
@@ -218,7 +262,8 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                       />
                       <span className="unit-tag">tyres</span>
                     </div>
-                    <div className="checkbox-inline">
+
+                    <div className="checkbox-inline" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
                       <label className="toggle-checkbox">
                         <input
                           type="checkbox"
@@ -228,18 +273,32 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                         <span>New Tubeless Valve</span>
                       </label>
                       {item.newValve && (
-                        <div className="inline-valve-qty">
-                          <span>Qty:</span>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.valveQty || 1}
-                            onChange={(e) => updateServiceDetail('tyreFitting', 'valveQty', e.target.value)}
-                          />
-                          <span>Amt: ₹{(parseInt(item.valveQty, 10) || 0) * (item.valveRate || 60)}</span>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', width: '100%' }}>
+                          <div className="inline-valve-qty">
+                            <span>Qty:</span>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.valveQty || 1}
+                              onChange={(e) => updateServiceDetail('tyreFitting', 'valveQty', e.target.value)}
+                            />
+                          </div>
+                          <div className="input-inline">
+                            <span>Valve Rate (₹):</span>
+                            <input
+                              type="number"
+                              className="inline-price-input"
+                              value={item.valveRate ?? 60}
+                              onChange={(e) => updateServiceDetail('tyreFitting', 'valveRate', e.target.value)}
+                            />
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--yellow-primary)', fontWeight: '700', alignSelf: 'center' }}>
+                            Subtotal: ₹{(parseInt(item.valveQty, 10) || 0) * (parseFloat(item.valveRate) || 60)}
+                          </span>
                         </div>
                       )}
                     </div>
+
                   </div>
                 )}
               </div>
@@ -257,34 +316,68 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                   <span className="service-price">₹{getItemPrice('airFilling', item)}</span>
                 </div>
                 {isEnabled && (
-                  <div className="service-options-row">
-                    <label className={`option-pill ${item.airType === 'nitrogen_full' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="airType"
-                        checked={item.airType === 'nitrogen_full'}
-                        onChange={() => updateServiceDetail('airFilling', 'airType', 'nitrogen_full')}
-                      />
-                      Nitrogen Full (₹{item.nitrogenFullPrice || 150})
-                    </label>
-                    <label className={`option-pill ${item.airType === 'nitrogen_topup' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="airType"
-                        checked={item.airType === 'nitrogen_topup'}
-                        onChange={() => updateServiceDetail('airFilling', 'airType', 'nitrogen_topup')}
-                      />
-                      Nitrogen Top-Up (₹{item.nitrogenTopupPrice || 50})
-                    </label>
-                    <label className={`option-pill ${item.airType === 'normal' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="airType"
-                        checked={item.airType === 'normal'}
-                        onChange={() => updateServiceDetail('airFilling', 'airType', 'normal')}
-                      />
-                      Normal Air (₹{item.normalPrice || 20})
-                    </label>
+                  <div className="service-options-row vertical">
+                    <div className="service-options-row">
+                      <label className={`option-pill ${item.airType === 'nitrogen_full' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="airType"
+                          checked={item.airType === 'nitrogen_full'}
+                          onChange={() => updateServiceDetail('airFilling', 'airType', 'nitrogen_full')}
+                        />
+                        Nitrogen Full (₹{item.nitrogenFullPrice || 150})
+                      </label>
+                      <label className={`option-pill ${item.airType === 'nitrogen_topup' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="airType"
+                          checked={item.airType === 'nitrogen_topup'}
+                          onChange={() => updateServiceDetail('airFilling', 'airType', 'nitrogen_topup')}
+                        />
+                        Nitrogen Top-Up (₹{item.nitrogenTopupPrice || 50})
+                      </label>
+                      <label className={`option-pill ${item.airType === 'normal' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="airType"
+                          checked={item.airType === 'normal'}
+                          onChange={() => updateServiceDetail('airFilling', 'airType', 'normal')}
+                        />
+                        Normal Air (₹{item.normalPrice || 20})
+                      </label>
+                    </div>
+
+                    {/* LIVE INLINE PRICE EDIT FIELDS FOR ALL 3 AIR TYPES */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                      <div className="input-inline">
+                        <span>Nitrogen Full (₹):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.nitrogenFullPrice ?? 150}
+                          onChange={(e) => updateServiceDetail('airFilling', 'nitrogenFullPrice', e.target.value)}
+                        />
+                      </div>
+                      <div className="input-inline">
+                        <span>Nitrogen Topup (₹):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.nitrogenTopupPrice ?? 50}
+                          onChange={(e) => updateServiceDetail('airFilling', 'nitrogenTopupPrice', e.target.value)}
+                        />
+                      </div>
+                      <div className="input-inline">
+                        <span>Normal Air (₹):</span>
+                        <input
+                          type="number"
+                          className="inline-price-input"
+                          value={item.normalPrice ?? 20}
+                          onChange={(e) => updateServiceDetail('airFilling', 'normalPrice', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
                   </div>
                 )}
               </div>
