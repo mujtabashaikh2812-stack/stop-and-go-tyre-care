@@ -25,23 +25,8 @@ const models = Object.fromEntries(
   ])
 );
 
-<<<<<<< HEAD
+// Allow CORS from Vercel Web App, Localhost, and Android Capacitor App
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
-=======
-const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin) || origin === 'capacitor://localhost') {
-      return callback(null, true);
-    }
-    return callback(new Error(`Origin not allowed: ${origin}`));
-  }
-}));
->>>>>>> 69efe9f255b0ebf71b39cc9cf0ce815e75aa786e
 app.use(express.json({ limit: '2mb' }));
 
 // 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
