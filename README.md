@@ -173,7 +173,7 @@ npm run dev
 
 * **Name**: `< STOP & GO > TOTAL TYRE CARE CENTRE`
 * **Address**: `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`
-* **Official Phone Numbers**: `+91 95455 50087`, `+91 94031 36311`
+
 
 ---
 
