@@ -5,7 +5,14 @@ import { TRANSLATIONS } from '../utils/i18n';
 
 export default function Header({ activeTab, setActiveTab, todayStats, onLogout, currentLang = 'en', setLanguage }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-  const now = new Date();
+  
+  // Realtime Live Ticking Clock State (Updates every 1000ms)
+  const [now, setNow] = React.useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <header className="app-header-container">
@@ -28,10 +35,12 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout, 
             </select>
           </div>
 
-          {/* Realtime Date & Time Indicator */}
-          <div className="datetime-chip hide-mobile">
+          {/* Realtime Ticking Date & Time Indicator */}
+          <div className="datetime-chip">
             <span>📅 {now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-            <span>🕒 {now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+            <span style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>
+              🕒 {now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+            </span>
           </div>
 
           {/* Quick Metrics Badge */}
