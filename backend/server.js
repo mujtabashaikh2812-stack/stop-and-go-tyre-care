@@ -25,7 +25,19 @@ const models = Object.fromEntries(
   ])
 );
 
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin) || origin === 'capacitor://localhost') {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin not allowed: ${origin}`));
+  }
+}));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/api/health', (_req, res) => {

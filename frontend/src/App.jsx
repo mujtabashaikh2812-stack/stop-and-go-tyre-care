@@ -93,9 +93,13 @@ export default function App() {
     };
 
     window.addEventListener('online', handleOnline);
+    window.addEventListener('focus', handleOnline);
+    const retryTimer = window.setInterval(triggerCloudSync, 30000);
     return () => {
       window.removeEventListener('storage-data-changed', handleDataChanged);
       window.removeEventListener('online', handleOnline);
+      window.removeEventListener('focus', handleOnline);
+      window.clearInterval(retryTimer);
     };
   }, []);
 

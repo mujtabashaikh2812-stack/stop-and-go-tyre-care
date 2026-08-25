@@ -35,6 +35,10 @@ Copy `.env.example` to `.env` and set the backend URL:
 VITE_API_URL=http://localhost:5000/api
 ```
 
+For a phone or APK, this must be the public HTTPS URL of the deployed backend, for example
+`https://stop-and-go-api.example.com/api`. `localhost` and the Vite proxy work only on the
+development computer. Rebuild the APK after changing this value.
+
 ---
 
 ## Backend
@@ -53,8 +57,12 @@ Copy `backend/.env.example` to `backend/.env` and fill in your MongoDB URL:
 ```
 MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/stop_and_go_tyre_care?retryWrites=true&w=majority
 PORT=5000
-CLIENT_ORIGIN=http://localhost:5173
+CLIENT_ORIGIN=http://localhost:5173,https://your-frontend.example.com
 ```
+
+Capacitor requests from `capacitor://localhost` are accepted automatically. Deploy this backend
+to Railway, Render, or another Node.js host, confirm `GET /api/health` reports a connected database,
+then use that public `/api` URL in the frontend `.env` before building the APK.
 
 ```bash
 npm run dev          # development with --watch
