@@ -1819,3 +1819,122 @@ input:focus, select:focus {
   border-radius: 4px;
   transition: width 0.4s ease;
 }
+
+/* ==========================================
+   BUTTONS & ACTIONS SYSTEM (4K LUXURY DARK)
+   ========================================== */
+
+.btn-secondary-sm {
+  background: var(--bg-surface-elevated);
+  color: var(--text-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-sm:hover {
+  border-color: var(--yellow-primary);
+  color: var(--yellow-primary);
+  background: var(--bg-surface-hover);
+}
+
+.btn-secondary-large {
+  background: var(--bg-surface-elevated);
+  color: var(--text-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-large:hover {
+  border-color: var(--yellow-primary);
+  color: var(--yellow-primary);
+}
+
+.btn-generate-bill {
+  background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(250, 204, 21, 0.25);
+}
+
+.btn-generate-bill:hover {
+  background: linear-gradient(135deg, #ffe033 0%, #facc15 100%);
+  box-shadow: 0 6px 20px rgba(250, 204, 21, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-generate-whatsapp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);
+}
+
+.btn-generate-whatsapp:hover {
+  background: linear-gradient(135deg, #20bd5a 0%, #0e7266 100%);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-print-large {
+  background: var(--yellow-primary);
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 22px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-whatsapp-large {
+  background: #25d366;
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 22px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
