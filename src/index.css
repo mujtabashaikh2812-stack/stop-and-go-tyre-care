@@ -1938,3 +1938,162 @@ input:focus, select:focus {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+/* ==========================================
+   ULTRA-RESPONSIVE MOBILE DESIGN SYSTEM (TOUCH OPTIMIZED)
+   ========================================== */
+
+@media (max-width: 992px) {
+  .app-wrapper {
+    padding: 12px;
+  }
+
+  .header-tabs-nav {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+
+  .nav-tab-item {
+    flex: 0 0 auto;
+    min-width: 140px;
+    scroll-snap-align: start;
+  }
+
+  .analytics-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header-container {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .header-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .brand-logo-area {
+    justify-content: center;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .grid-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .inventory-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .customers-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .billing-summary-footer {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .summary-totals-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dual-billing-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .dual-billing-buttons button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-content {
+    width: 96% !important;
+    max-height: 92vh !important;
+    padding: 16px !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  .modal-actions-bar {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .modal-actions-bar button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .customer-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .card-actions-group {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .search-box-wide {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tab-item {
+    min-width: 125px;
+    padding: 8px 10px;
+  }
+
+  .tab-title {
+    font-size: 0.8rem;
+  }
+
+  .tab-sub {
+    font-size: 0.65rem;
+  }
+
+  .kpi-value {
+    font-size: 1.3rem;
+  }
+
+  .service-item-card {
+    padding: 14px;
+  }
+
+  .inline-price-input {
+    width: 65px !important;
+    font-size: 0.95rem !important;
+  }
+}
