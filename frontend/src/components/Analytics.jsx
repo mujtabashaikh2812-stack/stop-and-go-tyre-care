@@ -1,48 +1,65 @@
 import React, { useState } from 'react';
-import { TrendingUp, DollarSign, Calendar, Wrench, BarChart2, ArrowUpRight, ArrowDownRight, Award, Coffee, RefreshCw } from 'lucide-react';
+import { DollarSign, ShoppingBag, TrendingUp, Car, Coffee, Building2 } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/i18n';
 
-export default function Analytics({ jobCards, expenses, scrapSales, currentLang = 'en' }) {
+export default function Analytics({ jobCards, expenses = [], scrapSales = [], partnerBatches = [], currentLang = 'en' }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-  const [timeFilter, setTimeFilter] = useState('all'); // 'today', 'month', 'year', 'all'
+  
+  const [filterPeriod, setFilterPeriod] = useState('month'); // 'today' | 'month' | 'year' | 'all'
 
-  // Helper date filters
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const currentYearStr = `${now.getFullYear()}`;
+  const currentMonthStr = todayStr.substring(0, 7); // YYYY-MM
+  const currentYearStr = todayStr.substring(0, 4); // YYYY
 
-  const filterItemByTime = (dateStr) => {
+  // Filter Data by Time Period
+  const filterByDate = (dateStr) => {
     if (!dateStr) return false;
-    if (timeFilter === 'today') return dateStr === todayStr;
-    if (timeFilter === 'month') return dateStr.startsWith(currentMonthStr);
-    if (timeFilter === 'year') return dateStr.startsWith(currentYearStr);
-    return true; // 'all'
+    if (filterPeriod === 'today') return dateStr === todayStr;
+    if (filterPeriod === 'month') return dateStr.startsWith(currentMonthStr);
+    if (filterPeriod === 'year') return dateStr.startsWith(currentYearStr);
+    return true;
   };
 
-  const filteredCards = jobCards.filter(c => filterItemByTime(c.date));
-  const filteredExp = expenses.filter(e => filterItemByTime(e.date));
-  const filteredScrap = scrapSales.filter(s => filterItemByTime(s.date));
+  const filteredCards = jobCards.filter(c => filterByDate(c.date));
+  const filteredExpenses = expenses.filter(e => filterByDate(e.date));
+  const filteredScrap = scrapSales.filter(s => filterByDate(s.date));
 
-  // Computations
-  const grossRevenue = filteredCards.reduce((sum, c) => sum + c.total, 0) + filteredScrap.reduce((sum, s) => sum + s.totalAmount, 0);
-  const totalShopExpenses = filteredExp.reduce((sum, e) => sum + e.amount, 0);
-  const netProfit = Math.max(0, grossRevenue - totalShopExpenses);
-  const totalCarsServiced = filteredCards.length;
+  // Compute Partner Batch Payments in this period
+  let partnerPaymentsSum = 0;
+  let partnerPaymentsCount = 0;
 
-  // Compute Service Popularity
-  const serviceCountMap = {};
-  filteredCards.forEach(card => {
-    card.services.forEach(serv => {
-      // Group by base service title
-      const baseName = serv.name.split('(')[0].trim();
-      serviceCountMap[baseName] = (serviceCountMap[baseName] || 0) + 1;
+  partnerBatches.forEach(batch => {
+    (batch.payments || []).forEach(p => {
+      if (filterByDate(p.date)) {
+        partnerPaymentsSum += parseFloat(p.amount) || 0;
+        partnerPaymentsCount += 1;
+      }
     });
   });
 
-  const sortedServices = Object.entries(serviceCountMap)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
+  // Calculate Aggregates
+  const walkInRevenue = filteredCards.reduce((sum, c) => sum + (c.total || 0), 0);
+  const scrapRevenue = filteredScrap.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+  const grossRevenue = walkInRevenue + scrapRevenue + partnerPaymentsSum;
+
+  const totalShopExpenses = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const netGarageProfit = Math.max(0, grossRevenue - totalShopExpenses);
+
+  const totalCarsServiced = filteredCards.length;
+
+  // Calculate Service Frequency Breakdown
+  const serviceCounts = {};
+  filteredCards.forEach(c => {
+    (c.services || []).forEach(s => {
+      const name = s.name.split(' (')[0];
+      serviceCounts[name] = (serviceCounts[name] || 0) + 1;
+    });
+  });
+
+  const sortedServices = Object.entries(serviceCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
 
   return (
     <div className="tab-content-container">
@@ -53,141 +70,160 @@ export default function Analytics({ jobCards, expenses, scrapSales, currentLang 
           <p className="section-desc">{t.analyticsDesc}</p>
         </div>
 
-        {/* Time Period Filter Pills */}
-        <div className="radio-group-segmented" style={{ maxWidth: '380px' }}>
+        {/* Filter Period Buttons */}
+        <div className="filter-pill-group">
           <button
-            type="button"
-            className={`segmented-btn ${timeFilter === 'today' ? 'active' : ''}`}
-            onClick={() => setTimeFilter('today')}
+            className={`filter-pill ${filterPeriod === 'today' ? 'active' : ''}`}
+            onClick={() => setFilterPeriod('today')}
           >
             {t.filterToday}
           </button>
           <button
-            type="button"
-            className={`segmented-btn ${timeFilter === 'month' ? 'active' : ''}`}
-            onClick={() => setTimeFilter('month')}
+            className={`filter-pill ${filterPeriod === 'month' ? 'active' : ''}`}
+            onClick={() => setFilterPeriod('month')}
           >
             {t.filterMonth}
           </button>
           <button
-            type="button"
-            className={`segmented-btn ${timeFilter === 'year' ? 'active' : ''}`}
-            onClick={() => setTimeFilter('year')}
+            className={`filter-pill ${filterPeriod === 'year' ? 'active' : ''}`}
+            onClick={() => setFilterPeriod('year')}
           >
             {t.filterYear}
           </button>
           <button
-            type="button"
-            className={`segmented-btn ${timeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setTimeFilter('all')}
+            className={`filter-pill ${filterPeriod === 'all' ? 'active' : ''}`}
+            onClick={() => setFilterPeriod('all')}
           >
             {t.filterAll}
           </button>
         </div>
       </div>
 
-      {/* Primary Financial Metric Cards */}
-      <div className="stats-cards-grid">
+      {/* Analytics KPI Cards Grid */}
+      <div className="analytics-kpi-grid">
         
-        <div className="stat-card featured">
-          <div className="stat-card-header">
-            <span>{t.netProfit}</span>
-            <TrendingUp size={18} className="text-gold" />
+        {/* 1. Gross Revenue */}
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap yellow">
+            <DollarSign size={24} />
           </div>
-          <div className="stat-value text-gold">₹{netProfit.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">({t.grossRevenue} - {t.shopExpenses})</div>
+          <div className="kpi-data">
+            <span className="kpi-label">{t.grossRevenue}</span>
+            <span className="kpi-value text-gold">₹{grossRevenue.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Walk-in + B2B + Scrap Sales</span>
+          </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <span>{t.grossRevenue}</span>
-            <ArrowUpRight size={18} className="text-emerald" />
+        {/* 2. Shop Expenses */}
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap ruby">
+            <Coffee size={24} />
           </div>
-          <div className="stat-value text-emerald">₹{grossRevenue.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">Bills & Scrap Sales</div>
+          <div className="kpi-data">
+            <span className="kpi-label">{t.shopExpenses}</span>
+            <span className="kpi-value text-ruby">₹{totalShopExpenses.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Deducted Tea, Spares & Supplies</span>
+          </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <span>{t.shopExpenses}</span>
-            <ArrowDownRight size={18} style={{ color: 'var(--ruby-primary)' }} />
+        {/* 3. Net Garage Profit */}
+        <div className="kpi-card highlight">
+          <div className="kpi-icon-wrap emerald">
+            <TrendingUp size={24} />
           </div>
-          <div className="stat-value" style={{ color: 'var(--ruby-primary)' }}>₹{totalShopExpenses.toLocaleString('en-IN')}</div>
-          <div className="stat-sub">Tea, Spares & Maintenance</div>
+          <div className="kpi-data">
+            <span className="kpi-label">{t.netProfit}</span>
+            <span className="kpi-value text-emerald">₹{netGarageProfit.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Actual Bankable Revenue</span>
+          </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <span>{t.totalJobs}</span>
-            <Wrench size={18} className="text-gold" />
+        {/* 4. Total Cars Serviced */}
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap info">
+            <Car size={24} />
           </div>
-          <div className="stat-value">{totalCarsServiced}</div>
-          <div className="stat-sub">Completed Job Cards</div>
+          <div className="kpi-data">
+            <span className="kpi-label">{t.totalJobs}</span>
+            <span className="kpi-value">{totalCarsServiced}</span>
+            <span className="kpi-subtext">Completed Job Cards</span>
+          </div>
         </div>
 
       </div>
 
-      {/* Two-Column Analytics Layout */}
-      <div className="analytics-two-col">
+      {/* Two Column Layout: REVENUE BREAKDOWN & TOP SERVICES */}
+      <div className="analytics-two-col margin-top">
         
-        {/* Left: Financial Breakdown */}
+        {/* Left Column: Income Stream Breakdown */}
         <div className="card-container">
           <div className="card-header">
-            <DollarSign className="card-icon" size={22} />
-            <h2>Revenue vs Expense Split</h2>
+            <ShoppingBag className="card-icon" size={22} />
+            <h2>Income Stream Breakdown</h2>
           </div>
 
-          <div className="split-row">
-            <div className="split-meta">
-              <span>{t.grossRevenue}</span>
-              <span className="split-val">₹{grossRevenue.toLocaleString('en-IN')}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ background: 'var(--bg-app)', padding: '14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)' }}>🚗 Walk-In Job Cards Revenue</strong>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{filteredCards.length} Retail Customer Bills</div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '800', fontSize: '1.1rem', color: 'var(--yellow-primary)' }}>
+                ₹{walkInRevenue.toLocaleString('en-IN')}
+              </span>
             </div>
-            <div className="progress-bar-bg">
-              <div className="progress-bar-fill cyan" style={{ width: '100%' }} />
-            </div>
-          </div>
 
-          <div className="split-row">
-            <div className="split-meta">
-              <span>{t.shopExpenses}</span>
-              <span className="split-val" style={{ color: 'var(--ruby-primary)' }}>₹{totalShopExpenses.toLocaleString('en-IN')}</span>
+            <div style={{ background: 'var(--bg-app)', padding: '14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)' }}>🏢 B2B Partner Garage Payments</strong>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{partnerPaymentsCount} Installment Collections</div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '800', fontSize: '1.1rem', color: 'var(--emerald-primary)' }}>
+                ₹{partnerPaymentsSum.toLocaleString('en-IN')}
+              </span>
             </div>
-            <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${grossRevenue > 0 ? Math.min(100, (totalShopExpenses / grossRevenue) * 100) : 0}%`, background: 'var(--ruby-primary)' }} />
-            </div>
-          </div>
 
-          <div className="split-row">
-            <div className="split-meta">
-              <span>{t.netProfit}</span>
-              <span className="split-val text-gold">₹{netProfit.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="progress-bar-bg">
-              <div className="progress-bar-fill emerald" style={{ width: `${grossRevenue > 0 ? Math.min(100, (netProfit / grossRevenue) * 100) : 0}%` }} />
+            <div style={{ background: 'var(--bg-app)', padding: '14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)' }}>♻️ Scrap Rubber & Tyre Sales</strong>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{filteredScrap.length} Scrap Resale Log Entries</div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-white)' }}>
+                ₹{scrapRevenue.toLocaleString('en-IN')}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Right: Service Popularity Leaderboard */}
+        {/* Right Column: Top Garage Services */}
         <div className="card-container">
           <div className="card-header">
-            <Award className="card-icon" size={22} />
+            <TrendingUp className="card-icon" size={22} />
             <h2>{t.topServices}</h2>
           </div>
 
-          <div className="leaderboard-list">
-            {sortedServices.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>No services performed in this time period.</p>
-            ) : (
-              sortedServices.slice(0, 5).map((serv, index) => (
-                <div key={serv.name} className="leaderboard-item">
-                  <span className="item-rank">#{index + 1}</span>
-                  <span className="item-name">{serv.name}</span>
-                  <span className="item-count-badge">{serv.count} Jobs</span>
-                </div>
-              ))
-            )}
-          </div>
+          {sortedServices.length === 0 ? (
+            <p className="text-muted" style={{ padding: '20px', textAlign: 'center' }}>
+              No service job cards completed for the selected period.
+            </p>
+          ) : (
+            <div className="top-services-list">
+              {sortedServices.map(([sName, sCount], idx) => {
+                const percent = Math.min(100, Math.round((sCount / (totalCarsServiced || 1)) * 100));
+                return (
+                  <div key={idx} className="top-service-row">
+                    <div className="service-name-count">
+                      <span>{idx + 1}. {sName}</span>
+                      <strong>{sCount} times ({percent}%)</strong>
+                    </div>
+                    <div className="progress-bar-track">
+                      <div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </div>

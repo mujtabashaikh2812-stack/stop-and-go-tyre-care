@@ -9,7 +9,9 @@ const KEYS = {
   EXPENSES: 'stop_go_expenses',
   SALARIES: 'stop_go_salaries',
   SCRAP_SALES: 'stop_go_scrap_sales',
-  LANGUAGE: 'stop_go_language'
+  LANGUAGE: 'stop_go_language',
+  PARTNER_GARAGES: 'stop_go_partner_garages_v1',
+  PARTNER_BATCHES: 'stop_go_partner_batches_v1'
 };
 
 const CLEAN_INITIAL_INVENTORY = [
@@ -272,6 +274,76 @@ export const deleteScrapSale = (id) => {
   return updated;
 };
 
+// ==========================================
+// B2B PARTNER GARAGES & BATCHES MANAGEMENT
+// ==========================================
+
+export const getPartnerGarages = () => {
+  const data = localStorage.getItem(KEYS.PARTNER_GARAGES);
+  if (!data) {
+    const initialGarages = [
+      { id: 'pg_1', name: 'Sahara Motors', contactPerson: 'Aslam Khan', mobile: '9822011223', address: 'Hotgi Road Industrial Estate, Solapur', notes: 'Primary bulk drop-off garage client' }
+    ];
+    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(initialGarages));
+    return initialGarages;
+  }
+  try { return JSON.parse(data); } catch (e) { return []; }
+};
+
+export const savePartnerGarage = (garage) => {
+  const current = getPartnerGarages();
+  const newGarage = {
+    ...garage,
+    id: garage.id || `pg_${Date.now()}`,
+    createdAt: new Date().toISOString()
+  };
+  const updated = [newGarage, ...current];
+  localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
+  return updated;
+};
+
+export const deletePartnerGarage = (id) => {
+  const current = getPartnerGarages();
+  const updated = current.filter(g => g.id !== id);
+  localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
+  return updated;
+};
+
+export const getPartnerBatches = () => {
+  const data = localStorage.getItem(KEYS.PARTNER_BATCHES);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch (e) { return []; }
+};
+
+export const savePartnerBatch = (batch) => {
+  const current = getPartnerBatches();
+  const newBatch = {
+    ...batch,
+    id: batch.id || `SGB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+    status: batch.status || 'Active',
+    vehicles: batch.vehicles || [],
+    payments: batch.payments || [],
+    createdAt: new Date().toISOString()
+  };
+  const updated = [newBatch, ...current];
+  localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  return updated;
+};
+
+export const updatePartnerBatch = (updatedBatch) => {
+  const current = getPartnerBatches();
+  const updated = current.map(b => b.id === updatedBatch.id ? updatedBatch : b);
+  localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  return updated;
+};
+
+export const deletePartnerBatch = (id) => {
+  const current = getPartnerBatches();
+  const updated = current.filter(b => b.id !== id);
+  localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  return updated;
+};
+
 export const saveCloudData = (cloudData) => {
   if (!cloudData) return;
   if (Array.isArray(cloudData.jobCards)) localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
@@ -280,6 +352,8 @@ export const saveCloudData = (cloudData) => {
   if (Array.isArray(cloudData.expenses)) localStorage.setItem(KEYS.EXPENSES, JSON.stringify(cloudData.expenses));
   if (Array.isArray(cloudData.salaries)) localStorage.setItem(KEYS.SALARIES, JSON.stringify(cloudData.salaries));
   if (Array.isArray(cloudData.scrapSales)) localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
+  if (Array.isArray(cloudData.partnerGarages)) localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
+  if (Array.isArray(cloudData.partnerBatches)) localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
   if (cloudData.servicePrices) localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
 };
 

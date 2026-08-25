@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices'];
+const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices', 'partnerGarages', 'partnerBatches'];
 
 const recordSchema = new mongoose.Schema(
   {
@@ -50,7 +50,7 @@ app.get('/api/data', async (_req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(200).json({
-        jobCards: [], inventory: [], bookings: [], expenses: [], salaries: [], scrapSales: [], servicePrices: {}
+        jobCards: [], inventory: [], bookings: [], expenses: [], salaries: [], scrapSales: [], servicePrices: {}, partnerGarages: [], partnerBatches: []
       });
     }
     const data = await Promise.all(

@@ -9,11 +9,13 @@ import Inventory from './components/Inventory';
 import ServicePriceEditor from './components/ServicePriceEditor';
 import Bookings from './components/Bookings';
 import ExpensesAndScrap from './components/ExpensesAndScrap';
+import PartnerBatches from './components/PartnerBatches';
 import AdminLoginGate from './components/AdminLoginGate';
 
 import {
   getJobCards, saveJobCard, updateExistingJobCard, getInventory, getServicePrices,
   getBookings, getExpenses, getSalaries, getScrapSales,
+  getPartnerGarages, getPartnerBatches,
   getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
 import { triggerCloudSync } from './utils/syncService';
@@ -37,6 +39,8 @@ export default function App() {
   const [expenses, setExpenses] = useState([]);
   const [salaries, setSalaries] = useState([]);
   const [scrapSales, setScrapSales] = useState([]);
+  const [partnerGarages, setPartnerGarages] = useState([]);
+  const [partnerBatches, setPartnerBatches] = useState([]);
 
   // Form State
   const [customerData, setCustomerData] = useState({
@@ -62,6 +66,8 @@ export default function App() {
     setExpenses(getExpenses());
     setSalaries(getSalaries());
     setScrapSales(getScrapSales());
+    setPartnerGarages(getPartnerGarages());
+    setPartnerBatches(getPartnerBatches());
 
     triggerCloudSync();
 
@@ -78,12 +84,20 @@ export default function App() {
     setCurrentLang(lang);
   };
 
-  // Compute Today Stats
+  // Compute Today Stats (Including Partner Payments)
   const todayStr = new Date().toISOString().split('T')[0];
   const todayCards = jobCards.filter(c => c.date === todayStr);
   const todayExp = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + e.amount, 0);
   const todayScrap = scrapSales.filter(s => s.date === todayStr).reduce((sum, s) => sum + s.totalAmount, 0);
-  const todayGross = todayCards.reduce((sum, c) => sum + c.total, 0) + todayScrap;
+
+  let todayPartnerPayments = 0;
+  partnerBatches.forEach(b => {
+    (b.payments || []).forEach(p => {
+      if (p.date === todayStr) todayPartnerPayments += parseFloat(p.amount) || 0;
+    });
+  });
+
+  const todayGross = todayCards.reduce((sum, c) => sum + c.total, 0) + todayScrap + todayPartnerPayments;
   const todayNetProfit = Math.max(0, todayGross - todayExp);
 
   const todayStats = {
@@ -163,7 +177,6 @@ export default function App() {
       } else if (nameLower.includes('oil')) {
         activeServicesState.oilChange = { ...activeServicesState.oilChange, enabled: true, price: billServ.amount };
       } else {
-        // Custom Service matching
         const customKey = Object.keys(activeServicesState).find(k => activeServicesState[k].name === billServ.name);
         if (customKey) {
           activeServicesState[customKey] = { ...activeServicesState[customKey], enabled: true, price: billServ.amount };
@@ -250,8 +263,6 @@ export default function App() {
     const finalTotal = Math.max(0, subtotal - discNum);
 
     const now = new Date();
-    
-    // Check if updating an existing bill OR generating a new bill ID
     const cardId = editingBillId ? editingBillId : `SG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const newCard = {
@@ -336,6 +347,17 @@ export default function App() {
           </>
         )}
 
+        {activeTab === 'partner_batches' && (
+          <PartnerBatches
+            partnerGarages={partnerGarages}
+            setPartnerGarages={setPartnerGarages}
+            partnerBatches={partnerBatches}
+            setPartnerBatches={setPartnerBatches}
+            masterServices={services}
+            currentLang={currentLang}
+          />
+        )}
+
         {activeTab === 'customers' && (
           <CustomerHistory
             jobCards={jobCards}
@@ -346,7 +368,13 @@ export default function App() {
         )}
 
         {activeTab === 'analytics' && (
-          <Analytics jobCards={jobCards} expenses={expenses} scrapSales={scrapSales} currentLang={currentLang} />
+          <Analytics
+            jobCards={jobCards}
+            expenses={expenses}
+            scrapSales={scrapSales}
+            partnerBatches={partnerBatches}
+            currentLang={currentLang}
+          />
         )}
 
         {activeTab === 'inventory' && (

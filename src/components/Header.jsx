@@ -1,143 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import { ClipboardList, Users, BarChart3, Package, Calendar, Clock, LogOut, Settings, ChevronRight, Globe, Coffee } from 'lucide-react';
-import { TRANSLATIONS } from '../utils/i18n';
+import React from 'react';
+import { FileText, Users, BarChart3, Package, Calendar, Coffee, Settings, Lock, Building2 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
+import { TRANSLATIONS } from '../utils/i18n';
 
-export default function Header({ activeTab, setActiveTab, todayStats, onLogout, currentLang, setLanguage }) {
-  const [time, setTime] = useState(new Date());
+export default function Header({ activeTab, setActiveTab, todayStats, onLogout, currentLang = 'en', setLanguage }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const navItems = [
-    {
-      id: 'billing',
-      label: t.newJobCard,
-      subtitle: t.newJobCardSub,
-      icon: ClipboardList
-    },
-    {
-      id: 'customers',
-      label: t.customers,
-      subtitle: t.customersSub,
-      icon: Users
-    },
-    {
-      id: 'analytics',
-      label: t.analytics,
-      subtitle: t.analyticsSub,
-      icon: BarChart3
-    },
-    {
-      id: 'inventory',
-      label: t.inventory,
-      subtitle: t.inventorySub,
-      icon: Package
-    },
-    {
-      id: 'bookings',
-      label: t.bookings,
-      subtitle: t.bookingsSub,
-      icon: Calendar
-    },
-    {
-      id: 'expenses',
-      label: t.expenses,
-      subtitle: t.expensesSub,
-      icon: Coffee
-    },
-    {
-      id: 'price_settings',
-      label: t.priceSettings,
-      subtitle: t.priceSettingsSub,
-      icon: Settings
-    }
-  ];
+  const now = new Date();
 
   return (
-    <header className="header-container">
-      {/* Top Garage Brand & Action Bar */}
-      <div className="header-top">
-        <div className="brand-badge" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('billing')}>
-          <LogoBanner height="48px" useVector={true} />
+    <header className="app-header-container">
+      
+      {/* Top Utility & Brand Strip */}
+      <div className="header-top-bar">
+        <div className="brand-logo-area">
+          <LogoBanner height="46px" useVector={true} />
         </div>
 
-        <div className="header-right-info">
-          {/* Language Selector Dropdown */}
-          <div className="info-chip" style={{ border: '1px solid var(--yellow-primary)' }}>
-            <Globe size={15} style={{ color: 'var(--yellow-primary)' }} />
-            <select
-              value={currentLang}
-              onChange={(e) => setLanguage(e.target.value)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--yellow-primary)',
-                fontWeight: '700',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                padding: '0'
-              }}
-            >
-              <option value="en" style={{ background: '#000', color: '#fff' }}>English 🇬🇧</option>
-              <option value="mr" style={{ background: '#000', color: '#fff' }}>मराठी 🇮🇳</option>
-              <option value="hi" style={{ background: '#000', color: '#fff' }}>हिंदी 🇮🇳</option>
+        {/* Global Controls & Metrics Header */}
+        <div className="header-actions">
+          
+          {/* Language Switcher Dropdown */}
+          <div className="lang-switcher">
+            <select value={currentLang} onChange={(e) => setLanguage(e.target.value)}>
+              <option value="en">🌐 English (GB)</option>
+              <option value="mr">🇮🇳 मराठी (MR)</option>
+              <option value="hi">🇮🇳 हिंदी (HI)</option>
             </select>
           </div>
 
-          <div className="info-chip">
-            <Calendar size={15} className="chip-icon" />
-            <span>{time.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-          </div>
-          <div className="info-chip">
-            <Clock size={15} className="chip-icon" />
-            <span>{time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-          </div>
-          <div className="revenue-chip">
-            <span className="chip-label">{t.todayRevenue}:</span>
-            <span className="chip-value">₹{todayStats.netProfit.toLocaleString('en-IN')}</span>
-            <span className="chip-count">({todayStats.jobCount} Cars)</span>
+          {/* Realtime Date & Time Indicator */}
+          <div className="datetime-chip hide-mobile">
+            <span>📅 {now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+            <span>🕒 {now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
           </div>
 
-          {/* Admin Lock & Logout Control */}
-          <button
-            onClick={onLogout}
-            className="info-chip"
-            style={{ background: 'var(--yellow-bg)', borderColor: 'var(--yellow-primary)', color: 'var(--yellow-primary)', fontWeight: '700', cursor: 'pointer' }}
-            title="Lock app & Logout"
-          >
-            <LogOut size={15} />
+          {/* Quick Metrics Badge */}
+          <div className="metrics-pill">
+            <span className="label">{t.todayRevenue}:</span>
+            <span className="value">₹{todayStats.netProfit.toLocaleString('en-IN')}</span>
+            <span className="sub-count">({todayStats.jobCount} Cars)</span>
+          </div>
+
+          {/* Lock / Logout Button */}
+          <button className="btn-logout" onClick={onLogout} title="Lock App Session">
+            <Lock size={14} />
             <span>{t.adminLogout}</span>
           </button>
+
         </div>
       </div>
 
-      {/* Unique Automotive Dashboard Control Hub (Interactive Tiles) */}
-      <div className="nav-control-hub">
-        {navItems.map(item => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <div
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`nav-hub-tile ${isActive ? 'active' : ''}`}
-            >
-              <div className="tile-icon-box">
-                <Icon size={22} />
-              </div>
-              <div className="tile-content">
-                <h3 className="tile-title">{item.label}</h3>
-                <p className="tile-sub">{item.subtitle}</p>
-              </div>
-              <ChevronRight size={16} className="tile-arrow" />
-            </div>
-          );
-        })}
-      </div>
+      {/* Main Navigation Tabs Bar */}
+      <nav className="header-tabs-nav">
+        
+        {/* 1. New Job Card Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'billing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('billing')}
+        >
+          <FileText className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.newJobCard}</span>
+            <span className="tab-sub">{t.newJobCardSub}</span>
+          </div>
+        </button>
+
+        {/* 2. Partner Batches Tab (B2B Bulk Contracts) */}
+        <button
+          className={`nav-tab-item ${activeTab === 'partner_batches' ? 'active' : ''}`}
+          onClick={() => setActiveTab('partner_batches')}
+        >
+          <Building2 className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.partnerBatches}</span>
+            <span className="tab-sub">{t.partnerBatchesSub}</span>
+          </div>
+        </button>
+
+        {/* 3. Customers & History Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'customers' ? 'active' : ''}`}
+          onClick={() => setActiveTab('customers')}
+        >
+          <Users className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.customers}</span>
+            <span className="tab-sub">{t.customersSub}</span>
+          </div>
+        </button>
+
+        {/* 4. Analytics Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          <BarChart3 className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.analytics}</span>
+            <span className="tab-sub">{t.analyticsSub}</span>
+          </div>
+        </button>
+
+        {/* 5. Inventory Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'inventory' ? 'active' : ''}`}
+          onClick={() => setActiveTab('inventory')}
+        >
+          <Package className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.inventory}</span>
+            <span className="tab-sub">{t.inventorySub}</span>
+          </div>
+        </button>
+
+        {/* 6. Bookings Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'bookings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('bookings')}
+        >
+          <Calendar className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.bookings}</span>
+            <span className="tab-sub">{t.bookingsSub}</span>
+          </div>
+        </button>
+
+        {/* 7. Expenses & Salaries Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'expenses' ? 'active' : ''}`}
+          onClick={() => setActiveTab('expenses')}
+        >
+          <Coffee className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.expenses}</span>
+            <span className="tab-sub">{t.expensesSub}</span>
+          </div>
+        </button>
+
+        {/* 8. Master Prices Settings Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'price_settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('price_settings')}
+        >
+          <Settings className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.priceSettings}</span>
+            <span className="tab-sub">{t.priceSettingsSub}</span>
+          </div>
+        </button>
+
+      </nav>
+
     </header>
   );
 }
