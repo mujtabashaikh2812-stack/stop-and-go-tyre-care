@@ -12,6 +12,10 @@ const KEYS = {
   LANGUAGE: 'stop_go_language'
 };
 
+const notifyDataChanged = () => {
+  window.dispatchEvent(new Event('storage-data-changed'));
+};
+
 export const getLanguage = () => {
   return localStorage.getItem(KEYS.LANGUAGE) || 'en';
 };
@@ -44,6 +48,7 @@ export const saveJobCard = (newCard) => {
   const updated = [newCard, ...current];
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
   deductInventoryForJobCard(newCard);
+  notifyDataChanged();
   return updated;
 };
 
@@ -51,6 +56,7 @@ export const deleteJobCard = (id) => {
   const current = getJobCards();
   const updated = current.filter(c => c.id !== id);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -58,6 +64,7 @@ export const deleteCustomerByMobile = (mobile) => {
   const current = getJobCards();
   const updated = current.filter(c => c.mobile !== mobile);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -74,6 +81,7 @@ export const updateInventoryItem = (id, newStock) => {
   const inventory = getInventory();
   const updated = inventory.map(item => item.id === id ? { ...item, inStock: newStock } : item);
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -100,6 +108,7 @@ const deductInventoryForJobCard = (jobCard) => {
   });
 
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  notifyDataChanged();
 };
 
 export const getServicePrices = () => {
@@ -113,11 +122,13 @@ export const getServicePrices = () => {
 
 export const saveServicePrices = (newPrices) => {
   localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(newPrices));
+  notifyDataChanged();
   return newPrices;
 };
 
 export const resetDefaultServicePrices = () => {
   localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(DEFAULT_SERVICES));
+  notifyDataChanged();
   return DEFAULT_SERVICES;
 };
 
@@ -157,6 +168,7 @@ export const addBooking = (booking) => {
   const current = getBookings();
   const updated = [booking, ...current];
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -164,6 +176,7 @@ export const deleteBooking = (id) => {
   const current = getBookings();
   const updated = current.filter(b => b.id !== id);
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -178,6 +191,7 @@ export const addExpense = (exp) => {
   const current = getExpenses();
   const updated = [exp, ...current];
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -185,6 +199,7 @@ export const deleteExpense = (id) => {
   const current = getExpenses();
   const updated = current.filter(e => e.id !== id);
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -199,6 +214,7 @@ export const addSalaryRecord = (sal) => {
   const current = getSalaries();
   const updated = [sal, ...current];
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -206,6 +222,7 @@ export const deleteSalaryRecord = (id) => {
   const current = getSalaries();
   const updated = current.filter(s => s.id !== id);
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -220,6 +237,7 @@ export const addScrapSale = (sale) => {
   const current = getScrapSales();
   const updated = [sale, ...current];
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
 };
 
@@ -227,7 +245,26 @@ export const deleteScrapSale = (id) => {
   const current = getScrapSales();
   const updated = current.filter(s => s.id !== id);
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
+  notifyDataChanged();
   return updated;
+};
+
+export const saveCloudData = (cloudData) => {
+  const collections = [
+    ['jobCards', KEYS.JOB_CARDS],
+    ['inventory', KEYS.INVENTORY],
+    ['bookings', KEYS.BOOKINGS],
+    ['expenses', KEYS.EXPENSES],
+    ['salaries', KEYS.SALARIES],
+    ['scrapSales', KEYS.SCRAP_SALES],
+    ['servicePrices', KEYS.SERVICE_PRICES]
+  ];
+
+  collections.forEach(([name, key]) => {
+    if (cloudData[name] !== undefined) {
+      localStorage.setItem(key, JSON.stringify(cloudData[name]));
+    }
+  });
 };
 
 export const searchCustomerByMobile = (mobile) => {

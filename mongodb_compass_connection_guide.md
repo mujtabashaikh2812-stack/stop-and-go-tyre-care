@@ -17,20 +17,21 @@ This guide explains how to connect your live app to **MongoDB Atlas Cloud** and 
 
 ---
 
-## ⚡ Step 2: Add Connection URI to Vercel (Cloud Deployment)
+## ⚡ Step 2: Configure the Backend Deployment
 
-To enable live cloud sync on your deployed website:
+The Node.js backend in `backend/` must be deployed to Railway, Render, or another Node.js host:
 
-1. Open your **[Vercel Dashboard](https://vercel.com/dashboard)**.
-2. Select your project **`stop-and-go-tyre-care`**.
-3. Navigate to **Settings** ➔ **Environment Variables**.
-4. Add a new variable:
+1. Open your backend host dashboard and create a service from the `backend/` directory.
+2. Add these environment variables:
    * **Key**: `MONGODB_URI`
    * **Value**: *(Paste your MongoDB Atlas connection string from Step 1)*
-5. Click **Save**.
-6. Go to **Deployments** ➔ Click the 3 dots on the latest deployment ➔ Select **Redeploy**.
+   * **Key**: `CLIENT_ORIGIN`
+   * **Value**: *(Your deployed web frontend URL)*
+3. Deploy or restart the backend.
+4. Confirm `https://your-backend-domain.com/api/health` reports a connected database.
 
-🎉 **Now, every bill generated in your app auto-syncs to MongoDB Atlas Cloud!**
+Set `VITE_API_URL=https://your-backend-domain.com/api` in the frontend deployment and rebuild.
+The browser app can then sync records to MongoDB Atlas.
 
 ---
 

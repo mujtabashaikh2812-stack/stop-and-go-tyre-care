@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales'];
+const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices'];
 
 const recordSchema = new mongoose.Schema(
   {
@@ -25,7 +25,23 @@ const models = Object.fromEntries(
   ])
 );
 
+<<<<<<< HEAD
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
+=======
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin) || origin === 'capacitor://localhost') {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin not allowed: ${origin}`));
+  }
+}));
+>>>>>>> 69efe9f255b0ebf71b39cc9cf0ce815e75aa786e
 app.use(express.json({ limit: '2mb' }));
 
 // 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
@@ -50,7 +66,9 @@ app.get('/api/data', async (_req, res) => {
     const data = await Promise.all(
       collectionNames.map(async (collectionName) => [
         collectionName,
-        await models[collectionName].find().sort({ createdAt: -1 }).lean()
+        collectionName === 'servicePrices'
+          ? (await models[collectionName].findOne({ id: 'current' }).lean())?.value || {}
+          : await models[collectionName].find().sort({ createdAt: -1 }).lean()
       ])
     );
     res.json(Object.fromEntries(data));
@@ -71,7 +89,9 @@ app.post('/api/sync', async (req, res) => {
 
     await Promise.all(
       collectionNames.map(async (collectionName) => {
-        const records = payload[collectionName] || [];
+        const records = collectionName === 'servicePrices'
+          ? [{ id: 'current', value: payload[collectionName] || {} }]
+          : payload[collectionName] || [];
         if (!Array.isArray(records)) {
           throw new Error(`${collectionName} must be an array`);
         }
@@ -92,6 +112,8 @@ app.post('/api/sync', async (req, res) => {
         if (operations.length > 0) {
           await models[collectionName].bulkWrite(operations, { ordered: false });
         }
+        const ids = operations.map(({ updateOne }) => updateOne.filter.id);
+        await models[collectionName].deleteMany({ id: { $nin: ids } });
         counts[collectionName] = operations.length;
       })
     );
