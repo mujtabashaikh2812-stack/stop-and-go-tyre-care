@@ -11,7 +11,8 @@ const KEYS = {
   SCRAP_SALES: 'stop_go_scrap_sales',
   LANGUAGE: 'stop_go_language',
   PARTNER_GARAGES: 'stop_go_partner_garages_v1',
-  PARTNER_BATCHES: 'stop_go_partner_batches_v1'
+  PARTNER_BATCHES: 'stop_go_partner_batches_v1',
+  TYRE_WARRANTIES: 'stop_go_tyre_warranties_v1'
 };
 
 const CLEAN_INITIAL_INVENTORY = [
@@ -344,6 +345,31 @@ export const deletePartnerBatch = (id) => {
   return updated;
 };
 
+export const getTyreWarranties = () => {
+  const data = localStorage.getItem(KEYS.TYRE_WARRANTIES);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch (e) { return []; }
+};
+
+export const saveTyreWarranty = (warranty) => {
+  const current = getTyreWarranties();
+  const newObj = {
+    ...warranty,
+    id: warranty.id || `WAR-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+    createdAt: new Date().toISOString()
+  };
+  const updated = [newObj, ...current];
+  localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
+  return updated;
+};
+
+export const deleteTyreWarranty = (id) => {
+  const current = getTyreWarranties();
+  const updated = current.filter(w => w.id !== id);
+  localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
+  return updated;
+};
+
 export const saveCloudData = (cloudData) => {
   if (!cloudData) return;
   if (Array.isArray(cloudData.jobCards)) localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
@@ -354,6 +380,7 @@ export const saveCloudData = (cloudData) => {
   if (Array.isArray(cloudData.scrapSales)) localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
   if (Array.isArray(cloudData.partnerGarages)) localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
   if (Array.isArray(cloudData.partnerBatches)) localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
+  if (Array.isArray(cloudData.tyreWarranties)) localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(cloudData.tyreWarranties));
   if (cloudData.servicePrices) localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
 };
 

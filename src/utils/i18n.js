@@ -17,6 +17,8 @@ export const TRANSLATIONS = {
     priceSettingsSub: 'Admin Configurator',
     partnerBatches: 'Partner Batches',
     partnerBatchesSub: 'B2B Bulk Contracts',
+    tyreWarranty: 'Tyre Warranty',
+    tyreWarrantySub: 'Specs & Cards',
     todayRevenue: "TODAY'S NET PROFIT",
     adminLogout: 'Lock & Logout',
     brandSubtitle: 'TOTAL TYRE CARE CENTRE',

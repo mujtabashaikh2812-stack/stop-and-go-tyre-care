@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Users, BarChart3, Package, Calendar, Coffee, Settings, Lock, Building2 } from 'lucide-react';
+import { FileText, Users, BarChart3, Package, Calendar, Coffee, Settings, Lock, Building2, ShieldCheck } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
 
@@ -146,6 +146,18 @@ export default function Header({ activeTab, setActiveTab, todayStats, onLogout, 
           <div className="tab-text-group">
             <span className="tab-title">{t.priceSettings}</span>
             <span className="tab-sub">{t.priceSettingsSub}</span>
+          </div>
+        </button>
+
+        {/* 9. Tyre Warranty Registration Tab */}
+        <button
+          className={`nav-tab-item ${activeTab === 'tyre_warranty' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tyre_warranty')}
+        >
+          <ShieldCheck className="nav-icon" size={18} />
+          <div className="tab-text-group">
+            <span className="tab-title">{t.tyreWarranty || 'Tyre Warranty'}</span>
+            <span className="tab-sub">{t.tyreWarrantySub || 'Specs & Cards'}</span>
           </div>
         </button>
 

@@ -10,12 +10,13 @@ import ServicePriceEditor from './components/ServicePriceEditor';
 import Bookings from './components/Bookings';
 import ExpensesAndScrap from './components/ExpensesAndScrap';
 import PartnerBatches from './components/PartnerBatches';
+import TyreWarranty from './components/TyreWarranty';
 import AdminLoginGate from './components/AdminLoginGate';
 
 import {
   getJobCards, saveJobCard, updateExistingJobCard, getInventory, getServicePrices,
   getBookings, getExpenses, getSalaries, getScrapSales,
-  getPartnerGarages, getPartnerBatches,
+  getPartnerGarages, getPartnerBatches, getTyreWarranties,
   getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
 import { triggerCloudSync } from './utils/syncService';
@@ -41,6 +42,7 @@ export default function App() {
   const [scrapSales, setScrapSales] = useState([]);
   const [partnerGarages, setPartnerGarages] = useState([]);
   const [partnerBatches, setPartnerBatches] = useState([]);
+  const [warranties, setWarranties] = useState([]);
 
   // Form State
   const [customerData, setCustomerData] = useState({
@@ -68,6 +70,7 @@ export default function App() {
     setScrapSales(getScrapSales());
     setPartnerGarages(getPartnerGarages());
     setPartnerBatches(getPartnerBatches());
+    setWarranties(getTyreWarranties());
 
     triggerCloudSync();
 
@@ -401,6 +404,14 @@ export default function App() {
           <ServicePriceEditor
             services={services}
             setServices={setServices}
+            currentLang={currentLang}
+          />
+        )}
+
+        {activeTab === 'tyre_warranty' && (
+          <TyreWarranty
+            warranties={warranties}
+            setWarranties={setWarranties}
             currentLang={currentLang}
           />
         )}
