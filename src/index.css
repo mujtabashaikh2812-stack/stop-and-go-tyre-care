@@ -1456,3 +1456,201 @@ input:focus, select:focus {
     width: auto !important;
   }
 }
+
+/* Customer Directory & Cards Styling */
+.customers-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.customer-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.customer-card:hover {
+  border-color: var(--yellow-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -6px rgba(250, 204, 21, 0.25);
+}
+
+.customer-card.due-reminder {
+  border-color: var(--yellow-primary);
+  background: linear-gradient(180deg, rgba(234, 179, 8, 0.04) 0%, var(--bg-card) 100%);
+}
+
+.customer-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.cust-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 4px;
+}
+
+.cust-phone {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.visit-badge {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--yellow-primary);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.customer-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+}
+
+.detail-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.detail-icon {
+  color: var(--yellow-primary);
+  flex-shrink: 0;
+}
+
+.reminder-pill {
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.reminder-pill.ok {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--emerald-primary);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.reminder-pill.alert {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--yellow-primary);
+  border: 1px solid rgba(250, 204, 21, 0.4);
+}
+
+.customer-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.total-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.total-spent-val {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  color: var(--yellow-primary);
+  font-weight: 800;
+}
+
+.card-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-whatsapp-sm {
+  background: #25d366;
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-whatsapp-sm:hover {
+  background: #20bd5a;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
+}
+
+.btn-details-sm {
+  background: var(--bg-surface-elevated);
+  color: var(--text-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-details-sm:hover {
+  border-color: var(--yellow-primary);
+  color: var(--yellow-primary);
+}
+
+.btn-delete-icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--ruby-primary);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-icon:hover {
+  background: var(--ruby-primary);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
