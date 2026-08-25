@@ -1,73 +1,131 @@
 import React, { useState } from 'react';
-import { Search, Phone, Car, Gauge, Send, AlertTriangle, Sparkles, CheckCircle2, MessageSquare, Trash2, Users } from 'lucide-react';
+import { User, Phone, Car, Calendar, Search, Trash2, Edit3, MessageSquare, ChevronRight, X, Sparkles, CheckCircle2 } from 'lucide-react';
 import { deleteJobCard, deleteCustomerByMobile } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 
-export default function CustomerHistory({ jobCards, setJobCards, currentLang = 'en' }) {
+export default function CustomerHistory({ jobCards, setJobCards, onEditBill, currentLang = 'en' }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  // Group job cards by mobile number to build unique customer profiles
+  // Group Job Cards by Customer Mobile Number
   const customerMap = {};
+
   jobCards.forEach(card => {
-    if (!customerMap[card.mobile]) {
-      customerMap[card.mobile] = {
+    const key = card.mobile || 'UNKNOWN';
+    if (!customerMap[key]) {
+      customerMap[key] = {
         mobile: card.mobile,
         customerName: card.customerName,
         vehicleName: card.vehicleName,
         vehicleNumber: card.vehicleNumber || 'N/A',
         year: card.year,
-        odometer: card.odometer,
         lastVisitDate: card.date,
-        visitCount: 0,
+        lastOdometer: card.odometer,
         totalSpent: 0,
-        history: []
+        visitCount: 0,
+        bills: []
       };
     }
-    customerMap[card.mobile].visitCount += 1;
-    customerMap[card.mobile].totalSpent += card.total;
-    customerMap[card.mobile].history.push(card);
-    
-    // Keep most recent visit date
-    if (new Date(card.date) > new Date(customerMap[card.mobile].lastVisitDate)) {
-      customerMap[card.mobile].lastVisitDate = card.date;
-      customerMap[card.mobile].odometer = card.odometer;
-      customerMap[card.mobile].vehicleNumber = card.vehicleNumber || customerMap[card.mobile].vehicleNumber;
+
+    customerMap[key].totalSpent += card.total;
+    customerMap[key].visitCount += 1;
+    customerMap[key].bills.push(card);
+
+    // Keep latest visit details
+    if (card.date >= customerMap[key].lastVisitDate) {
+      customerMap[key].lastVisitDate = card.date;
+      customerMap[key].lastOdometer = card.odometer;
+      customerMap[key].customerName = card.customerName; // Sync latest name
+      customerMap[key].vehicleName = card.vehicleName; // Sync latest car
+      customerMap[key].vehicleNumber = card.vehicleNumber || customerMap[key].vehicleNumber;
     }
   });
 
-  const customersList = Object.values(customerMap);
+  const customerList = Object.values(customerMap);
 
-  const filteredCustomers = customersList.filter(c => 
-    c.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.mobile.includes(searchTerm) ||
-    c.vehicleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter customers by search term
+  const filteredCustomers = customerList.filter(cust => {
+    const term = searchTerm.toLowerCase();
+    return (
+      cust.customerName.toLowerCase().includes(term) ||
+      cust.mobile.includes(term) ||
+      cust.vehicleName.toLowerCase().includes(term) ||
+      cust.vehicleNumber.toLowerCase().includes(term)
+    );
+  });
+
+  // Service Reminder Calculation (+5,000 KM rule or 166 days @ 30 km/day)
+  const calculateReminderStatus = (lastOdometerStr, lastVisitDateStr) => {
+    if (!lastOdometerStr || lastOdometerStr === 'N/A') return { status: 'OK', text: '5,000 KM Reminder Active' };
+    
+    const lastKm = parseInt(lastOdometerStr.replace(/\D/g, ''), 10);
+    if (isNaN(lastKm)) return { status: 'OK', text: '5,000 KM Reminder Active' };
+
+    const dueKm = lastKm + 5000;
+    
+    // Estimate days elapsed
+    const visitDate = new Date(lastVisitDateStr);
+    const now = new Date();
+    const diffDays = Math.floor((now - visitDate) / (1000 * 60 * 60 * 24));
+    
+    // Estimated current KM assuming 30 km/day
+    const estCurrentKm = lastKm + (diffDays * 30);
+
+    if (estCurrentKm >= dueKm || diffDays >= 150) {
+      return {
+        status: 'DUE_SOON',
+        text: `⚠️ Alignment Due Soon! (Est. ${estCurrentKm.toLocaleString('en-IN')} KM / ${dueKm.toLocaleString('en-IN')} KM Target)`,
+        dueKm
+      };
+    }
+
+    return {
+      status: 'OK',
+      text: `Next Alignment Due at ${dueKm.toLocaleString('en-IN')} KM`,
+      dueKm
+    };
+  };
+
+  const sendWhatsAppReminder = (cust, reminderInfo) => {
+    const msg =
+      `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
+      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
+      `Ph: +91 95455 50087, +91 94031 36311%0A` +
+      `------------------------------------%0A` +
+      `Hello ${cust.customerName}! 👋%0A%0A` +
+      `This is a friendly 5,000 KM Wheel Alignment %26 Balancing service reminder for your *${cust.vehicleName}* (${cust.vehicleNumber}).%0A%0A` +
+      `📟 *Last Visit Odometer:* ${cust.lastOdometer} KM%0A` +
+      `🔄 *Suggested Next Service Due:* ${reminderInfo.dueKm ? reminderInfo.dueKm.toLocaleString('en-IN') : '5,000 KM later'} KM%0A%0A` +
+      `Regular alignment saves tyre life by 40%25 and ensures smooth highway driving!%0A` +
+      `Visit us today for quick 15-min precision servicing. Drive safe! 🚗💨`;
+
+    const cleanMobile = cust.mobile.replace(/\D/g, '');
+    window.open(`https://wa.me/91${cleanMobile}?text=${msg}`, '_blank');
+  };
+
+  const handleDeleteBill = (billId) => {
+    if (window.confirm(`Are you sure you want to delete Bill #${billId}?`)) {
+      const updatedCards = deleteJobCard(billId);
+      setJobCards(updatedCards);
+      if (selectedCustomer) {
+        const remaining = selectedCustomer.bills.filter(b => b.id !== billId);
+        if (remaining.length === 0) {
+          setSelectedCustomer(null);
+        } else {
+          setSelectedCustomer({ ...selectedCustomer, bills: remaining });
+        }
+      }
+    }
+  };
 
   const handleDeleteEntireCustomer = (mobile, name) => {
-    if (window.confirm(`Are you sure you want to delete customer "${name}" (${mobile}) and ALL their visit records?`)) {
-      const updated = deleteCustomerByMobile(mobile);
-      setJobCards(updated);
+    if (window.confirm(`Are you sure you want to delete ALL customer records for ${name} (${mobile})?`)) {
+      const updatedCards = deleteCustomerByMobile(mobile);
+      setJobCards(updatedCards);
+      setSelectedCustomer(null);
     }
-  };
-
-  const handleDeleteSingleBill = (id, billNo) => {
-    if (window.confirm(`Are you sure you want to delete bill #${billNo}?`)) {
-      const updated = deleteJobCard(id);
-      setJobCards(updated);
-    }
-  };
-
-  const sendServiceDueWhatsApp = (c) => {
-    const msg = 
-      `Hi *${c.customerName}*! 🚗%0A` +
-      `Your *${c.vehicleName}* (${c.vehicleNumber}) is due for its 5,000 KM routine Tyre Care %26 Wheel Alignment Service at *STOP %26 GO Total Tyre Care Centre*.%0A%0A` +
-      `Regular alignment %26 balancing increases tyre life by up to 30%!%0A%0A` +
-      `Visit us today or reply to book your slot. Thank you!`;
-
-    const cleanMobile = c.mobile.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${msg}`, '_blank');
   };
 
   return (
@@ -75,157 +133,204 @@ export default function CustomerHistory({ jobCards, setJobCards, currentLang = '
       
       <div className="section-header-row">
         <div>
-          <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Users size={24} style={{ color: 'var(--yellow-primary)' }} />
-            {t.customerDirectory}
-          </h2>
+          <h2 className="section-title">{t.customerDirectory}</h2>
           <p className="section-desc">{t.customerDirectoryDesc}</p>
-        </div>
-
-        <div className="search-box-wide">
-          <Search className="search-icon" size={18} />
-          <input
-            type="text"
-            placeholder={t.searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
       </div>
 
-      {filteredCustomers.length === 0 ? (
-        <div className="card-container" style={{ textAlign: 'center', padding: '48px 24px' }}>
-          <Car size={48} className="card-icon" style={{ marginBottom: '16px' }} />
-          <h3 style={{ fontSize: '1.2rem', color: 'var(--text-white)', marginBottom: '8px' }}>No Customer Records Found</h3>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '460px', margin: '0 auto' }}>
-            Customer records and visit history will automatically populate here in real-time as you generate bills for new customers!
-          </p>
-        </div>
-      ) : (
-        <div>
-          {filteredCustomers.map(customer => {
-            // Calculate 30 km/day estimated mileage running
-            const lastDate = new Date(customer.lastVisitDate);
-            const today = new Date();
-            const diffDays = Math.max(0, Math.floor((today - lastDate) / (1000 * 60 * 60 * 24)));
-            const estimatedKmAdded = diffDays * 30; // 30 km/day running rule
-            const is5000KmDue = estimatedKmAdded >= 5000 || diffDays >= 166;
+      {/* Search Input Bar */}
+      <div className="search-box-wide">
+        <Search className="search-icon" size={20} />
+        <input
+          type="text"
+          placeholder={t.searchPlaceholder}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="clear-search-btn" onClick={() => setSearchTerm('')}>
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Customer Cards Grid */}
+      <div className="customers-cards-grid">
+        {filteredCustomers.length === 0 ? (
+          <div className="no-results-card">
+            <User size={36} className="text-muted" />
+            <p>No customer visit records match your search criteria.</p>
+          </div>
+        ) : (
+          filteredCustomers.map(cust => {
+            const reminderInfo = calculateReminderStatus(cust.lastOdometer, cust.lastVisitDate);
+            const isDueSoon = reminderInfo.status === 'DUE_SOON';
 
             return (
-              <div key={customer.mobile} className="customer-card" style={{ marginBottom: '16px' }}>
+              <div key={cust.mobile} className={`customer-card ${isDueSoon ? 'due-reminder' : ''}`}>
+                
                 <div className="customer-card-header">
-                  <div className="customer-main-info">
-                    <div className="customer-avatar-badge">
-                      {customer.customerName.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="customer-name">{customer.customerName}</h3>
-                      <div className="customer-sub-meta">
-                        <span><Phone size={12} /> {customer.mobile}</span>
-                        <span><Car size={12} /> {customer.vehicleName} ({customer.year})</span>
-                        <span>Reg No: <strong>{customer.vehicleNumber}</strong></span>
-                        <span><Gauge size={12} /> {customer.odometer} KM</span>
-                      </div>
-                    </div>
+                  <div>
+                    <h3 className="cust-name">{cust.customerName}</h3>
+                    <div className="cust-phone"><Phone size={13} /> +91 {cust.mobile}</div>
                   </div>
+                  <span className="visit-badge">{cust.visitCount} {cust.visitCount === 1 ? 'Visit' : 'Visits'}</span>
+                </div>
 
-                  <div className="customer-stats-summary">
-                    {/* Auto 5,000 KM Service Notification */}
-                    {is5000KmDue && (
-                      <span className="badge-chip info" style={{ background: 'rgba(250, 204, 21, 0.2)', border: '1px solid var(--yellow-primary)' }}>
-                        🔔 5,000 KM Service Due (+{estimatedKmAdded} km)
-                      </span>
-                    )}
-
-                    <div className="stat-badge-small">
-                      <span className="badge-label">Visits</span>
-                      <span className="badge-val">{customer.visitCount}</span>
-                    </div>
-                    <div className="stat-badge-small">
-                      <span className="badge-label">Total Spent</span>
-                      <span className="badge-val text-gold">₹{customer.totalSpent.toLocaleString('en-IN')}</span>
-                    </div>
-
-                    <button
-                      className="btn-whatsapp-sm"
-                      onClick={() => sendServiceDueWhatsApp(customer)}
-                      title="Send 5,000 KM Service Reminder on WhatsApp"
-                    >
-                      <MessageSquare size={14} />
-                      <span>Send 5,000 KM Reminder</span>
-                    </button>
-
-                    {/* OPTION A: DELETE ENTIRE CUSTOMER RECORD */}
-                    <button
-                      onClick={() => handleDeleteEntireCustomer(customer.mobile, customer.customerName)}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.12)',
-                        color: 'var(--ruby-primary)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        padding: '8px 12px',
-                        borderRadius: '20px',
-                        fontSize: '0.78rem',
-                        fontWeight: '700',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer'
-                      }}
-                      title="Delete Customer & All History"
-                    >
-                      <Trash2 size={14} />
-                      <span>{t.deleteCustomer}</span>
-                    </button>
+                <div className="customer-card-details">
+                  <div className="detail-line">
+                    <Car size={14} className="detail-icon" />
+                    <span><strong>{cust.vehicleName}</strong> ({cust.vehicleNumber})</span>
+                  </div>
+                  <div className="detail-line">
+                    <Calendar size={14} className="detail-icon" />
+                    <span>Last Visit: {cust.lastVisitDate} ({cust.lastOdometer} KM)</span>
                   </div>
                 </div>
 
-                {/* Visit History Log Drawer */}
-                <div className="customer-history-drawer">
-                  <div className="drawer-title">
-                    <span>Visit Log History ({customer.history.length})</span>
-                  </div>
-                  {customer.history.map(item => (
-                    <div key={item.id} className="history-log-row">
-                      <div>
-                        <span className="log-id">{item.id}</span>
-                        <span className="log-date">{item.date} {item.time}</span>
-                        <span className="odometer-pill">{item.odometer} KM</span>
-                      </div>
-                      <div className="services-tag-list">
-                        {item.services.map((s, idx) => (
-                          <span key={idx} className="service-tag">{s.name}</span>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div>
-                          <span className="log-amount">₹{item.total.toLocaleString('en-IN')}</span>
-                          <span className="payment-tag">({item.paymentMethod})</span>
-                        </div>
+                {/* 5,000 KM Auto Service Reminder Badge */}
+                <div className={`reminder-pill ${isDueSoon ? 'alert' : 'ok'}`}>
+                  <span>{reminderInfo.text}</span>
+                </div>
 
-                        {/* OPTION B: DELETE SPECIFIC VISIT ENTRY */}
-                        <button
-                          onClick={() => handleDeleteSingleBill(item.id, item.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'var(--ruby-primary)',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex',
-                            alignItems: 'center'
-                          }}
-                          title="Delete this bill entry"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div className="customer-card-footer">
+                  <div>
+                    <span className="total-label">Total Garage Spent:</span>
+                    <strong className="total-spent-val">₹{cust.totalSpent.toLocaleString('en-IN')}</strong>
+                  </div>
+
+                  <div className="card-actions-group">
+                    <button
+                      className="btn-whatsapp-sm"
+                      onClick={() => sendWhatsAppReminder(cust, reminderInfo)}
+                      title="Send 5,000 KM Service Reminder on WhatsApp"
+                    >
+                      <MessageSquare size={14} />
+                      <span>Send Reminder</span>
+                    </button>
+
+                    <button
+                      className="btn-details-sm"
+                      onClick={() => setSelectedCustomer(cust)}
+                    >
+                      <span>History</span>
+                      <ChevronRight size={14} />
+                    </button>
+
+                    <button
+                      className="btn-delete-icon"
+                      onClick={() => handleDeleteEntireCustomer(cust.mobile, cust.customerName)}
+                      title={t.deleteCustomer}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </div>
 
               </div>
             );
-          })}
+          })
+        )}
+      </div>
+
+      {/* Customer Full Visit History Drawer Modal */}
+      {selectedCustomer && (
+        <div className="modal-backdrop">
+          <div className="modal-content drawer-style">
+            
+            <div className="modal-header-bar">
+              <div className="modal-title">
+                <User style={{ color: 'var(--yellow-primary)' }} size={22} />
+                <span>Visit History: <strong>{selectedCustomer.customerName}</strong> (+91 {selectedCustomer.mobile})</span>
+              </div>
+              <button className="close-modal-btn" onClick={() => setSelectedCustomer(null)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="history-modal-body">
+              <div className="history-summary-strip">
+                <div><span>Vehicle:</span> <strong>{selectedCustomer.vehicleName} ({selectedCustomer.vehicleNumber})</strong></div>
+                <div><span>Total Visits:</span> <strong>{selectedCustomer.visitCount}</strong></div>
+                <div><span>Lifetime Spent:</span> <strong className="text-gold">₹{selectedCustomer.totalSpent.toLocaleString('en-IN')}</strong></div>
+              </div>
+
+              <h3 className="section-subtitle">All Job Card Slips ({selectedCustomer.bills.length})</h3>
+
+              <div className="bills-history-list">
+                {selectedCustomer.bills.map(bill => (
+                  <div key={bill.id} className="bill-history-card">
+                    
+                    <div className="bill-card-top">
+                      <div>
+                        <span className="bill-id-tag">Bill #{bill.id}</span>
+                        <span className="bill-date-tag">{bill.date} at {bill.time}</span>
+                      </div>
+                      <div className="bill-price-tag">₹{bill.total.toLocaleString('en-IN')}</div>
+                    </div>
+
+                    <div className="bill-meta-info">
+                      <span>Vehicle: {bill.vehicleName} ({bill.vehicleNumber || 'N/A'})</span>
+                      <span>Odometer: {bill.odometer} KM</span>
+                      <span>Payment: {bill.paymentMethod}</span>
+                    </div>
+
+                    <div className="bill-services-list">
+                      <strong>Services Performed:</strong>
+                      <ul>
+                        {bill.services.map((serv, i) => (
+                          <li key={i}>{serv.name} — ₹{serv.amount.toLocaleString('en-IN')}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="bill-card-actions">
+                      {/* EDIT BILL BUTTON */}
+                      {onEditBill && (
+                        <button
+                          type="button"
+                          className="btn-secondary-sm"
+                          onClick={() => {
+                            setSelectedCustomer(null);
+                            onEditBill(bill);
+                          }}
+                          style={{
+                            background: 'rgba(250, 204, 21, 0.15)',
+                            color: 'var(--yellow-primary)',
+                            border: '1px solid rgba(250, 204, 21, 0.4)',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            fontWeight: '700',
+                            fontSize: '0.82rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer'
+                          }}
+                          title="Edit details or services for this bill"
+                        >
+                          <Edit3 size={14} />
+                          <span>Edit Bill</span>
+                        </button>
+                      )}
+
+                      <button
+                        className="btn-delete-bill"
+                        onClick={() => handleDeleteBill(bill.id)}
+                        title="Delete Bill Entry"
+                      >
+                        <Trash2 size={14} />
+                        <span>Delete Bill Entry</span>
+                      </button>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+          </div>
         </div>
       )}
 

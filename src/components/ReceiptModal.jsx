@@ -1,9 +1,9 @@
 import React from 'react';
-import { X, Printer, Send, CheckCircle } from 'lucide-react';
+import { X, Printer, Send, CheckCircle, Edit3 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
 
-export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, currentLang = 'en' }) {
+export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, onEditBill, currentLang = 'en' }) {
   if (!activeReceipt) return null;
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
@@ -81,9 +81,38 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, cu
             <CheckCircle style={{ color: 'var(--emerald-primary)' }} size={22} />
             <span>{mode === 'whatsapp' ? t.digitalReceiptTitle : t.officialInvoiceTitle}</span>
           </div>
-          <button className="close-modal-btn" onClick={onClose}>
-            <X size={20} />
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* EDIT BILL BUTTON ON HEADER */}
+            {onEditBill && (
+              <button
+                type="button"
+                className="btn-secondary-sm"
+                onClick={() => onEditBill(activeReceipt)}
+                style={{
+                  background: 'rgba(250, 204, 21, 0.15)',
+                  color: 'var(--yellow-primary)',
+                  border: '1px solid rgba(250, 204, 21, 0.4)',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontWeight: '700',
+                  fontSize: '0.82rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer'
+                }}
+                title="Edit customer details or service items on this bill"
+              >
+                <Edit3 size={15} />
+                <span>Modify / Fix Bill</span>
+              </button>
+            )}
+
+            <button className="close-modal-btn" onClick={onClose}>
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Printable 80mm Thermal & A4/A5 Paper Receipt Area */}
@@ -156,6 +185,28 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, cu
 
         {/* Action Buttons inside Modal */}
         <div className="modal-actions-bar">
+          {onEditBill && (
+            <button
+              className="btn-secondary-large"
+              onClick={() => onEditBill(activeReceipt)}
+              style={{
+                background: 'rgba(250, 204, 21, 0.15)',
+                color: 'var(--yellow-primary)',
+                border: '1px solid rgba(250, 204, 21, 0.4)',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              <Edit3 size={18} />
+              <span>Modify / Fix Bill</span>
+            </button>
+          )}
+
           <button className="btn-whatsapp-large" onClick={handleSendWhatsApp}>
             <Send size={18} />
             <span>{t.sendWhatsAppBtn} (+91 {mobile})</span>

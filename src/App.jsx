@@ -12,11 +12,11 @@ import ExpensesAndScrap from './components/ExpensesAndScrap';
 import AdminLoginGate from './components/AdminLoginGate';
 
 import {
-  getJobCards, saveJobCard, getInventory, getServicePrices,
+  getJobCards, saveJobCard, updateExistingJobCard, getInventory, getServicePrices,
   getBookings, getExpenses, getSalaries, getScrapSales,
-  getLanguage, setLanguage as saveLanguage, saveCloudData
+  getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
-import { triggerCloudSync, fetchCloudData } from './utils/syncService';
+import { triggerCloudSync } from './utils/syncService';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -26,6 +26,9 @@ export default function App() {
   const [currentLang, setCurrentLang] = useState(() => getLanguage());
   const [activeTab, setActiveTab] = useState('billing');
   
+  // Edit Bill Mode State
+  const [editingBillId, setEditingBillId] = useState(null);
+
   // Data States
   const [jobCards, setJobCards] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -52,55 +55,22 @@ export default function App() {
   const [billingMode, setBillingMode] = useState('bill');
 
   useEffect(() => {
-    const loadData = async () => {
-      const cloudData = await fetchCloudData();
-      const hasCloudData = cloudData && (
-        Object.values(cloudData).some(value => Array.isArray(value) && value.length > 0) ||
-        (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0)
-      );
+    setJobCards(getJobCards());
+    setInventory(getInventory());
+    setServices(getServicePrices());
+    setBookings(getBookings());
+    setExpenses(getExpenses());
+    setSalaries(getSalaries());
+    setScrapSales(getScrapSales());
 
-      if (hasCloudData) {
-        Object.entries(cloudData).forEach(([name, value]) => {
-          if (name === 'jobCards') setJobCards(value);
-          if (name === 'inventory') setInventory(value);
-          if (name === 'servicePrices') setServices(value);
-          if (name === 'bookings') setBookings(value);
-          if (name === 'expenses') setExpenses(value);
-          if (name === 'salaries') setSalaries(value);
-          if (name === 'scrapSales') setScrapSales(value);
-        });
-        saveCloudData(cloudData);
-      } else {
-        setJobCards(getJobCards());
-        setInventory(getInventory());
-        setServices(getServicePrices());
-        setBookings(getBookings());
-        setExpenses(getExpenses());
-        setSalaries(getSalaries());
-        setScrapSales(getScrapSales());
-        triggerCloudSync();
-      }
-    };
-
-    loadData();
-
-    const handleDataChanged = () => triggerCloudSync();
-    window.addEventListener('storage-data-changed', handleDataChanged);
+    triggerCloudSync();
 
     const handleOnline = () => {
-      console.log('🌐 Device is online. Initiating MongoDB Atlas Cloud Sync...');
       triggerCloudSync();
     };
 
     window.addEventListener('online', handleOnline);
-    window.addEventListener('focus', handleOnline);
-    const retryTimer = window.setInterval(triggerCloudSync, 30000);
-    return () => {
-      window.removeEventListener('storage-data-changed', handleDataChanged);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('focus', handleOnline);
-      window.clearInterval(retryTimer);
-    };
+    return () => window.removeEventListener('online', handleOnline);
   }, []);
 
   const handleLanguageChange = (lang) => {
@@ -108,7 +78,7 @@ export default function App() {
     setCurrentLang(lang);
   };
 
-  // Compute Today Stats (Net Profit = Gross Revenue - Daily Expenses)
+  // Compute Today Stats
   const todayStr = new Date().toISOString().split('T')[0];
   const todayCards = jobCards.filter(c => c.date === todayStr);
   const todayExp = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + e.amount, 0);
@@ -132,6 +102,87 @@ export default function App() {
     setActiveTab('billing');
   };
 
+  // 🔄 HANDLE EDIT BILL: Pre-fills customer info & services into form
+  const handleEditBill = (billCard) => {
+    if (!billCard) return;
+
+    setEditingBillId(billCard.id);
+    setCustomerData({
+      name: billCard.customerName || '',
+      mobile: billCard.mobile || '',
+      vehicle: billCard.vehicleName || '',
+      vehicleNumber: billCard.vehicleNumber || '',
+      year: billCard.year || '',
+      odometer: billCard.odometer || ''
+    });
+    setPaymentMethod(billCard.paymentMethod || 'UPI / QR Code');
+    setDiscount(billCard.discount || 0);
+
+    // Pre-select & fill services from the existing bill
+    const masterServices = getServicePrices();
+    const activeServicesState = { ...masterServices };
+
+    // Reset all enabled flags first
+    Object.keys(activeServicesState).forEach(k => {
+      activeServicesState[k] = { ...activeServicesState[k], enabled: false };
+    });
+
+    // Match bill services into checklist state
+    billCard.services.forEach(billServ => {
+      const nameLower = billServ.name.toLowerCase();
+
+      if (nameLower.includes('wheel alignment')) {
+        activeServicesState.wheelAlignment = { ...activeServicesState.wheelAlignment, enabled: true, price: billServ.amount };
+      } else if (nameLower.includes('balancing')) {
+        const tyresMatch = billServ.name.match(/(\d+) Tyres/);
+        const tyres = tyresMatch ? parseInt(tyresMatch[1], 10) : 4;
+        activeServicesState.wheelBalancing = { ...activeServicesState.wheelBalancing, enabled: true, tyresCount: tyres };
+      } else if (nameLower.includes('weight')) {
+        const gMatch = billServ.name.match(/(\d+)g/);
+        const g = gMatch ? parseInt(gMatch[1], 10) : 0;
+        const isSticker = nameLower.includes('sticker');
+        activeServicesState.weight = { ...activeServicesState.weight, enabled: true, weightType: isSticker ? 'sticker' : 'brass', grams: g };
+      } else if (nameLower.includes('fitting')) {
+        activeServicesState.tyreFitting = { ...activeServicesState.tyreFitting, enabled: true };
+      } else if (nameLower.includes('rotation')) {
+        activeServicesState.tyreRotation = { ...activeServicesState.tyreRotation, enabled: true };
+      } else if (nameLower.includes('buffing')) {
+        activeServicesState.headlightBuffing = { ...activeServicesState.headlightBuffing, enabled: true, price: billServ.amount };
+      } else if (nameLower.includes('air filling') || nameLower.includes('nitrogen')) {
+        activeServicesState.airFilling = { ...activeServicesState.airFilling, enabled: true };
+      } else if (nameLower.includes('puncher') || nameLower.includes('puncture')) {
+        const qtyMatch = billServ.name.match(/(\d+) Repairs/);
+        const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+        activeServicesState.tubelessPuncher = { ...activeServicesState.tubelessPuncher, enabled: true, qty: qty };
+      } else if (nameLower.includes('camber')) {
+        activeServicesState.camberSetting = { ...activeServicesState.camberSetting, enabled: true, price: billServ.amount };
+      } else if (nameLower.includes('washing')) {
+        activeServicesState.carWashing = { ...activeServicesState.carWashing, enabled: true, price: billServ.amount };
+      } else if (nameLower.includes('cleaning')) {
+        activeServicesState.internalCleaning = { ...activeServicesState.internalCleaning, enabled: true, price: billServ.amount };
+      } else if (nameLower.includes('oil')) {
+        activeServicesState.oilChange = { ...activeServicesState.oilChange, enabled: true, price: billServ.amount };
+      } else {
+        // Custom Service matching
+        const customKey = Object.keys(activeServicesState).find(k => activeServicesState[k].name === billServ.name);
+        if (customKey) {
+          activeServicesState[customKey] = { ...activeServicesState[customKey], enabled: true, price: billServ.amount };
+        }
+      }
+    });
+
+    setServices(activeServicesState);
+    setActiveTab('billing');
+    setActiveReceipt(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingBillId(null);
+    setCustomerData({ name: '', mobile: '', vehicle: '', vehicleNumber: '', year: '', odometer: '' });
+    setDiscount(0);
+    setServices(getServicePrices());
+  };
+
   const handleGenerateInvoice = (mode = 'bill') => {
     if (!customerData.name || !customerData.mobile || !customerData.vehicle || !customerData.vehicleNumber) {
       alert('Please fill in Customer Name, Mobile Number, Vehicle Model, and Vehicle Reg. Number before generating.');
@@ -144,26 +195,26 @@ export default function App() {
       if (!serv?.enabled) return;
 
       if (key === 'wheelAlignment') {
-        selectedList.push({ name: 'Wheel Alignment', amount: serv.price || 350 });
+        selectedList.push({ name: 'Wheel Alignment', amount: parseFloat(serv.price) || 350 });
       } else if (key === 'wheelBalancing') {
         const count = parseInt(serv.tyresCount, 10) || 4;
-        const rate = serv.pricePerTyre || 50;
+        const rate = parseFloat(serv.pricePerTyre) || 50;
         selectedList.push({ name: `Wheel Balancing (${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
       } else if (key === 'weight') {
         const g = parseInt(serv.grams, 10) || 0;
-        const typeLabel = serv.weightType === 'sticker' ? 'Sticker Weight (₹4/g)' : 'Brass Weight (₹2/g)';
-        const rate = serv.weightType === 'sticker' ? (serv.stickerRate || 4) : (serv.brassRate || 2);
-        selectedList.push({ name: `Wheel Weight (${typeLabel} - ${g}g)`, amount: g * rate });
+        const rateW = serv.weightType === 'sticker' ? (parseFloat(serv.stickerRate) || 4) : (parseFloat(serv.brassRate) || 2);
+        const typeLabel = serv.weightType === 'sticker' ? `Sticker Weight (₹${rateW}/g)` : `Brass Weight (₹${rateW}/g)`;
+        selectedList.push({ name: `Wheel Weight (${typeLabel} - ${g}g)`, amount: g * rateW });
       } else if (key === 'tyreFitting') {
         const fQty = parseInt(serv.fittingQty, 10) || 1;
-        const fRate = serv.rimSize === 'large' ? (serv.largeRimRate || 125) : (serv.smallRimRate || 100);
+        const fRate = serv.rimSize === 'large' ? (parseFloat(serv.largeRimRate) || 125) : (parseFloat(serv.smallRimRate) || 100);
         const rimLabel = serv.rimSize === 'large' ? 'Rim 16-18' : 'Rim 12-15';
         let label = `Tyre Fitting (${rimLabel} - ${fQty} Tyres @ ₹${fRate}/tyre)`;
         let totalAmt = fQty * fRate;
         
         if (serv.newValve) {
           const vQty = parseInt(serv.valveQty, 10) || 0;
-          const vRate = parseInt(serv.valveRate, 10) || 60;
+          const vRate = parseFloat(serv.valveRate) || 60;
           const vAmt = vQty * vRate;
           label += ` + ${vQty} New Valves (₹${vAmt})`;
           totalAmt += vAmt;
@@ -171,26 +222,26 @@ export default function App() {
         selectedList.push({ name: label, amount: totalAmt });
       } else if (key === 'tyreRotation') {
         const count = parseInt(serv.tyresCount, 10) || 4;
-        const rate = serv.ratePerTyre || 50;
+        const rate = parseFloat(serv.ratePerTyre) || 50;
         const pattern = serv.rotationPattern || 'Cross Pattern';
         selectedList.push({ name: `Tyre Rotation (${pattern} - ${count} Tyres @ ₹${rate}/tyre)`, amount: count * rate });
       } else if (key === 'airFilling') {
         let label = 'Normal Air Filling';
-        let amt = serv.normalPrice || 20;
+        let amt = parseFloat(serv.normalPrice) || 20;
         if (serv.airType === 'nitrogen_full') {
           label = 'Nitrogen Air Full Fill';
-          amt = serv.nitrogenFullPrice || 150;
+          amt = parseFloat(serv.nitrogenFullPrice) || 150;
         } else if (serv.airType === 'nitrogen_topup') {
           label = 'Nitrogen Air Top-Up';
-          amt = serv.nitrogenTopupPrice || 50;
+          amt = parseFloat(serv.nitrogenTopupPrice) || 50;
         }
         selectedList.push({ name: label, amount: amt });
       } else if (key === 'tubelessPuncher') {
         const qty = parseInt(serv.qty, 10) || 0;
-        const rate = serv.pricePerPuncher || 100;
+        const rate = parseFloat(serv.pricePerPuncher) || 100;
         selectedList.push({ name: `Tubeless Puncher Repair (${qty} Repairs @ ₹${rate}/each)`, amount: qty * rate });
       } else {
-        selectedList.push({ name: serv.name, amount: serv.price || 0 });
+        selectedList.push({ name: serv.name || key, amount: parseFloat(serv.price) || 0 });
       }
     });
 
@@ -199,8 +250,12 @@ export default function App() {
     const finalTotal = Math.max(0, subtotal - discNum);
 
     const now = new Date();
+    
+    // Check if updating an existing bill OR generating a new bill ID
+    const cardId = editingBillId ? editingBillId : `SG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
     const newCard = {
-      id: `SG-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: cardId,
       date: now.toISOString().split('T')[0],
       time: now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
       customerName: customerData.name,
@@ -217,13 +272,19 @@ export default function App() {
       status: 'Completed'
     };
 
-    const updatedJobCards = saveJobCard(newCard);
+    let updatedJobCards;
+    if (editingBillId) {
+      updatedJobCards = updateExistingJobCard(newCard);
+      setEditingBillId(null);
+    } else {
+      updatedJobCards = saveJobCard(newCard);
+    }
+
     setJobCards(updatedJobCards);
     setInventory(getInventory());
     setBillingMode(mode);
     setActiveReceipt(newCard);
 
-    // Auto-trigger background MongoDB Atlas sync
     triggerCloudSync();
   };
 
@@ -231,10 +292,10 @@ export default function App() {
     setActiveReceipt(null);
     setCustomerData({ name: '', mobile: '', vehicle: '', vehicleNumber: '', year: '', odometer: '' });
     setDiscount(0);
+    setEditingBillId(null);
     setServices(getServicePrices());
   };
 
-  // MANDATORY LOGIN GATE
   if (!isAuthenticated) {
     return <AdminLoginGate onLoginSuccess={handleLoginSuccess} />;
   }
@@ -259,6 +320,8 @@ export default function App() {
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
               currentLang={currentLang}
+              editingBillId={editingBillId}
+              onCancelEdit={handleCancelEdit}
             />
             {Object.keys(services).length > 0 && (
               <ServiceChecklist
@@ -274,7 +337,12 @@ export default function App() {
         )}
 
         {activeTab === 'customers' && (
-          <CustomerHistory jobCards={jobCards} setJobCards={setJobCards} currentLang={currentLang} />
+          <CustomerHistory
+            jobCards={jobCards}
+            setJobCards={setJobCards}
+            onEditBill={handleEditBill}
+            currentLang={currentLang}
+          />
         )}
 
         {activeTab === 'analytics' && (
@@ -314,6 +382,7 @@ export default function App() {
         activeReceipt={activeReceipt}
         mode={billingMode}
         onClose={handleCloseReceiptModal}
+        onEditBill={handleEditBill}
         currentLang={currentLang}
       />
     </div>

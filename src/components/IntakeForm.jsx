@@ -1,129 +1,217 @@
-import React from 'react';
-import { User, Phone, Car, Gauge, Search, Sparkles, Hash } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Phone, Car, Hash, Calendar, Shield, Search, CheckCircle, Edit3, X } from 'lucide-react';
 import { searchCustomerByMobile } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 
-export default function IntakeForm({ customerData, setCustomerData, paymentMethod, setPaymentMethod, currentLang = 'en' }) {
+export default function IntakeForm({
+  customerData, setCustomerData,
+  paymentMethod, setPaymentMethod,
+  currentLang = 'en',
+  editingBillId = null,
+  onCancelEdit = null
+}) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  
+  const [autoFetchedMsg, setAutoFetchedMsg] = useState(false);
 
   const handleMobileChange = (e) => {
     const val = e.target.value;
     setCustomerData(prev => ({ ...prev, mobile: val }));
-    
+
     if (val.length === 10) {
-      const found = searchCustomerByMobile(val);
-      if (found) {
-        setCustomerData({
-          name: found.customerName,
-          mobile: found.mobile,
-          vehicle: found.vehicleName,
-          vehicleNumber: found.vehicleNumber || '',
-          year: found.year,
-          odometer: found.odometer
-        });
+      const existing = searchCustomerByMobile(val);
+      if (existing) {
+        setCustomerData(prev => ({
+          ...prev,
+          name: existing.customerName || prev.name,
+          vehicle: existing.vehicleName || prev.vehicle,
+          vehicleNumber: existing.vehicleNumber || prev.vehicleNumber || 'MH-12-AB-1234',
+          year: existing.year || prev.year,
+          odometer: existing.odometer || prev.odometer
+        }));
+        setAutoFetchedMsg(true);
+        setTimeout(() => setAutoFetchedMsg(false), 4000);
       }
     }
   };
 
-  // Live Next Alignment KM calculation (+5,000 KM rule)
-  const calculateNextKm = (odo) => {
-    if (!odo) return null;
-    const numsOnly = odo.replace(/\D/g, '');
-    if (!numsOnly) return null;
-    const current = parseInt(numsOnly, 10);
-    return (current + 5000).toLocaleString('en-IN');
+  // Live Next Alignment Due (+5,000 KM rule)
+  const calculateNextAlignmentKm = (currentOdometer) => {
+    if (!currentOdometer) return 'Auto-Calculated (+5,000 KM)';
+    const numsOnly = currentOdometer.replace(/\D/g, '');
+    if (!numsOnly) return 'Auto-Calculated (+5,000 KM)';
+    const currentKm = parseInt(numsOnly, 10);
+    const nextKm = currentKm + 5000;
+    return `${nextKm.toLocaleString('en-IN')} KM Target`;
   };
-
-  const nextKmVal = calculateNextKm(customerData.odometer);
 
   return (
     <div className="card-container">
+      
+      {/* EDIT MODE GOLD ALERT BANNER */}
+      {editingBillId && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(202, 138, 4, 0.1) 100%)',
+          border: '1px solid var(--yellow-primary)',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 18px',
+          marginBottom: '20px',
+          display: 'flex',
+          justify: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Edit3 size={20} style={{ color: 'var(--yellow-primary)' }} />
+            <div>
+              <strong style={{ color: 'var(--yellow-primary)', fontSize: '0.95rem' }}>
+                Editing Bill #{editingBillId}
+              </strong>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
+                Fix customer details or service checklist below, then click Update Bill to overwrite.
+              </div>
+            </div>
+          </div>
+
+          {onCancelEdit && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'var(--text-white)',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontWeight: '700',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <X size={14} />
+              <span>Cancel Edit</span>
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="card-header">
         <User className="card-icon" size={22} />
         <h2>{t.intakeHeader}</h2>
-        {customerData.mobile.length === 10 && searchCustomerByMobile(customerData.mobile) && (
-          <span className="badge-chip success">
-            <Sparkles size={12} /> {t.returningCustomer}
+        {autoFetchedMsg && (
+          <span className="badge-chip success" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <CheckCircle size={14} /> {t.returningCustomer}
           </span>
         )}
       </div>
 
       <div className="grid-form">
+        
+        {/* Mobile Number */}
         <div className="form-group">
-          <label><Phone size={14} /> {t.mobileNumber}</label>
-          <div className="input-with-icon">
-            <input
-              type="tel"
-              placeholder="e.g. 9876543210"
-              value={customerData.mobile}
-              onChange={handleMobileChange}
-              maxLength={10}
-              required
-            />
-            <Search className="input-icon" size={16} />
-          </div>
-          <span className="input-hint">{t.mobileHint}</span>
+          <label>
+            <Phone size={14} /> {t.mobileNumber}
+          </label>
+          <input
+            type="tel"
+            placeholder={t.mobileHint}
+            maxLength={10}
+            value={customerData.mobile}
+            onChange={handleMobileChange}
+            required
+          />
         </div>
 
+        {/* Customer Name */}
         <div className="form-group">
-          <label><User size={14} /> {t.customerName}</label>
+          <label>
+            <User size={14} /> {t.customerName}
+          </label>
           <input
             type="text"
-            placeholder="e.g. Rajesh Kumar"
+            placeholder="e.g. Rahul Patil"
             value={customerData.name}
             onChange={(e) => setCustomerData({ ...customerData, name: e.target.value })}
             required
           />
         </div>
 
+        {/* Vehicle Model */}
         <div className="form-group">
-          <label><Car size={14} /> {t.vehicleModel}</label>
+          <label>
+            <Car size={14} /> {t.vehicleModel}
+          </label>
           <input
             type="text"
-            placeholder="e.g. Hyundai Creta (White)"
+            placeholder="e.g. Maruti Swift / Creta"
             value={customerData.vehicle}
             onChange={(e) => setCustomerData({ ...customerData, vehicle: e.target.value })}
             required
           />
         </div>
 
+        {/* Vehicle Registration Number */}
         <div className="form-group">
-          <label><Hash size={14} /> {t.vehicleRegNo}</label>
+          <label>
+            <Hash size={14} /> {t.vehicleRegNo}
+          </label>
           <input
             type="text"
             placeholder="e.g. MH-12-AB-1234"
-            value={customerData.vehicleNumber || ''}
+            value={customerData.vehicleNumber}
             onChange={(e) => setCustomerData({ ...customerData, vehicleNumber: e.target.value })}
             required
           />
         </div>
 
+        {/* Year / Model */}
         <div className="form-group">
-          <label>{t.yearModel}</label>
+          <label>
+            <Calendar size={14} /> {t.yearModel}
+          </label>
           <input
             type="text"
-            placeholder="e.g. 2023"
+            placeholder="e.g. 2024"
             value={customerData.year}
             onChange={(e) => setCustomerData({ ...customerData, year: e.target.value })}
           />
         </div>
 
+        {/* Odometer (KM) */}
         <div className="form-group">
-          <label><Gauge size={14} /> {t.odometer}</label>
+          <label>
+            <Hash size={14} /> {t.odometer}
+          </label>
           <input
             type="text"
-            placeholder="e.g. 106000 KM"
+            placeholder="e.g. 106000"
             value={customerData.odometer}
             onChange={(e) => setCustomerData({ ...customerData, odometer: e.target.value })}
           />
-          {nextKmVal && (
-            <span className="input-hint" style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>
-              🔄 {t.nextAlignDue}: {nextKmVal} KM (+5,000 KM)
-            </span>
-          )}
         </div>
 
-        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+        {/* Live Next Alignment Due (+5,000 KM Rule) */}
+        <div className="form-group">
+          <label style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>
+            🔄 {t.nextAlignDue} (+5,000 KM)
+          </label>
+          <input
+            type="text"
+            value={calculateNextAlignmentKm(customerData.odometer)}
+            readOnly
+            style={{
+              background: 'var(--bg-surface-elevated)',
+              color: 'var(--yellow-primary)',
+              fontWeight: '800',
+              border: '1px solid rgba(250, 204, 21, 0.4)'
+            }}
+          />
+        </div>
+
+        {/* Payment Method Selector */}
+        <div className="form-group" style={{ gridColumn: 'span 2' }}>
           <label>{t.paymentMethod}</label>
           <div className="radio-group-segmented">
             <button
@@ -142,6 +230,7 @@ export default function IntakeForm({ customerData, setCustomerData, paymentMetho
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );

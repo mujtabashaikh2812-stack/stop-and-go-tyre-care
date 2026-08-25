@@ -53,6 +53,14 @@ export const saveJobCard = (newCard) => {
   return updated;
 };
 
+// UPDATE / OVERWRITE EXISTING BILL (NO DUPLICATE)
+export const updateExistingJobCard = (updatedCard) => {
+  const current = getJobCards();
+  const updated = current.map(c => c.id === updatedCard.id ? updatedCard : c);
+  localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  return updated;
+};
+
 export const deleteJobCard = (id) => {
   const current = getJobCards();
   const updated = current.filter(c => c.id !== id);
