@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Building2, Package, Plus, Search, Calendar, Phone, MapPin, DollarSign,
-  FileText, Send, Printer, Trash2, CheckCircle2, AlertCircle, Clock, ChevronRight, X, ChevronDown, User
+  FileText, Send, Printer, Trash2, Edit3, CheckCircle2, AlertCircle, Clock, ChevronRight, X, User
 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
@@ -29,10 +29,15 @@ export default function PartnerBatches({
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
 
+  // Edit Mode Targets
+  const [editingVehicle, setEditingVehicle] = useState(null); // null or vehicle object
+  const [editingService, setEditingService] = useState(null); // null or { vehicleId, service }
+  const [editingPayment, setEditingPayment] = useState(null); // null or payment object
+
   // Active Vehicle Selection for Service Logging
   const [targetVehicleId, setTargetVehicleId] = useState(null);
 
-  // Active Receipt Modal State (For Batch / Vehicle / Payment Receipts)
+  // Active Receipt Modal State
   const [activeReceiptData, setActiveReceiptData] = useState(null);
   const [activeReceiptType, setActiveReceiptType] = useState(null); // 'batch' | 'vehicle' | 'payment'
 
@@ -149,33 +154,70 @@ export default function PartnerBatches({
     }
   };
 
-  // Add Vehicle to Selected Batch
-  const handleAddVehicle = (e) => {
+  // VEHICLE CRUD (ADD / EDIT / DELETE)
+  const handleSaveVehicle = (e) => {
     e.preventDefault();
     if (!newVehicle.vehicleNumber || !selectedBatchId) return;
 
-    const vehicleObj = {
-      id: `veh_${Date.now()}`,
-      vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
-      vehicleName: newVehicle.vehicleName || 'Vehicle',
-      notes: newVehicle.notes,
-      services: []
-    };
+    if (editingVehicle) {
+      // Update existing vehicle
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          const updatedVehicles = (b.vehicles || []).map(v => {
+            if (v.id === editingVehicle.id) {
+              return {
+                ...v,
+                vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
+                vehicleName: newVehicle.vehicleName || 'Vehicle',
+                notes: newVehicle.notes
+              };
+            }
+            return v;
+          });
+          return { ...b, vehicles: updatedVehicles };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+      setEditingVehicle(null);
+    } else {
+      // Add new vehicle
+      const vehicleObj = {
+        id: `veh_${Date.now()}`,
+        vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
+        vehicleName: newVehicle.vehicleName || 'Vehicle',
+        notes: newVehicle.notes,
+        services: []
+      };
 
-    const updated = partnerBatches.map(b => {
-      if (b.id === selectedBatchId) {
-        return { ...b, vehicles: [...(b.vehicles || []), vehicleObj] };
-      }
-      return b;
-    });
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          return { ...b, vehicles: [...(b.vehicles || []), vehicleObj] };
+        }
+        return b;
+      });
 
-    setPartnerBatches(updated);
+      setPartnerBatches(updated);
+    }
+
     setNewVehicle({ vehicleNumber: '', vehicleName: '', notes: '' });
     setShowAddVehicleModal(false);
   };
 
-  // Add Service Entry to Vehicle
-  const handleAddServiceToVehicle = (e) => {
+  const handleDeleteVehicle = (vehicleId, vehNumber) => {
+    if (window.confirm(`Are you sure you want to delete vehicle ${vehNumber} from this batch?`)) {
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          return { ...b, vehicles: (b.vehicles || []).filter(v => v.id !== vehicleId) };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+    }
+  };
+
+  // SERVICE ENTRY CRUD (ADD / EDIT / DELETE)
+  const handleSaveService = (e) => {
     e.preventDefault();
     if (!selectedBatchId || !targetVehicleId) return;
 
@@ -188,31 +230,65 @@ export default function PartnerBatches({
     const rate = parseFloat(newService.rate) || 0;
     const amount = qty * rate;
 
-    const serviceObj = {
-      id: `serv_${Date.now()}`,
-      date: newService.date,
-      serviceName: serviceName || 'General Service',
-      description: newService.description,
-      quantity: qty,
-      rate: rate,
-      amount: amount,
-      notes: newService.notes
-    };
+    if (editingService) {
+      // Update existing service
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          const updatedVehicles = (b.vehicles || []).map(v => {
+            if (v.id === targetVehicleId) {
+              const updatedServices = (v.services || []).map(s => {
+                if (s.id === editingService.service.id) {
+                  return {
+                    ...s,
+                    date: newService.date,
+                    serviceName: serviceName || 'General Service',
+                    description: newService.description,
+                    quantity: qty,
+                    rate: rate,
+                    amount: amount,
+                    notes: newService.notes
+                  };
+                }
+                return s;
+              });
+              return { ...v, services: updatedServices };
+            }
+            return v;
+          });
+          return { ...b, vehicles: updatedVehicles };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+      setEditingService(null);
+    } else {
+      // Add new service
+      const serviceObj = {
+        id: `serv_${Date.now()}`,
+        date: newService.date,
+        serviceName: serviceName || 'General Service',
+        description: newService.description,
+        quantity: qty,
+        rate: rate,
+        amount: amount,
+        notes: newService.notes
+      };
 
-    const updated = partnerBatches.map(b => {
-      if (b.id === selectedBatchId) {
-        const updatedVehicles = (b.vehicles || []).map(v => {
-          if (v.id === targetVehicleId) {
-            return { ...v, services: [...(v.services || []), serviceObj] };
-          }
-          return v;
-        });
-        return { ...b, vehicles: updatedVehicles };
-      }
-      return b;
-    });
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          const updatedVehicles = (b.vehicles || []).map(v => {
+            if (v.id === targetVehicleId) {
+              return { ...v, services: [...(v.services || []), serviceObj] };
+            }
+            return v;
+          });
+          return { ...b, vehicles: updatedVehicles };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+    }
 
-    setPartnerBatches(updated);
     setShowAddServiceModal(false);
     setNewService({
       serviceKey: 'wheelAlignment',
@@ -225,29 +301,73 @@ export default function PartnerBatches({
     });
   };
 
-  // Add Payment Installment to Batch
-  const handleAddPayment = (e) => {
+  const handleDeleteService = (vehicleId, serviceId) => {
+    if (window.confirm(`Are you sure you want to delete this service entry?`)) {
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          const updatedVehicles = (b.vehicles || []).map(v => {
+            if (v.id === vehicleId) {
+              return { ...v, services: (v.services || []).filter(s => s.id !== serviceId) };
+            }
+            return v;
+          });
+          return { ...b, vehicles: updatedVehicles };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+    }
+  };
+
+  // PAYMENT INSTALLMENT CRUD (ADD / EDIT / DELETE)
+  const handleSavePayment = (e) => {
     e.preventDefault();
     const amt = parseFloat(newPayment.amount);
     if (isNaN(amt) || amt <= 0 || !selectedBatchId) return;
 
-    const paymentObj = {
-      id: `pay_${Date.now()}`,
-      stage: newPayment.stage,
-      amount: amt,
-      paymentMethod: newPayment.paymentMethod,
-      date: newPayment.date,
-      note: newPayment.note
-    };
+    if (editingPayment) {
+      // Update existing payment installment
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          const updatedPayments = (b.payments || []).map(p => {
+            if (p.id === editingPayment.id) {
+              return {
+                ...p,
+                stage: newPayment.stage,
+                amount: amt,
+                paymentMethod: newPayment.paymentMethod,
+                date: newPayment.date,
+                note: newPayment.note
+              };
+            }
+            return p;
+          });
+          return { ...b, payments: updatedPayments };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+      setEditingPayment(null);
+    } else {
+      // Add new payment installment
+      const paymentObj = {
+        id: `pay_${Date.now()}`,
+        stage: newPayment.stage,
+        amount: amt,
+        paymentMethod: newPayment.paymentMethod,
+        date: newPayment.date,
+        note: newPayment.note
+      };
 
-    const updated = partnerBatches.map(b => {
-      if (b.id === selectedBatchId) {
-        return { ...b, payments: [...(b.payments || []), paymentObj] };
-      }
-      return b;
-    });
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          return { ...b, payments: [...(b.payments || []), paymentObj] };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+    }
 
-    setPartnerBatches(updated);
     setShowAddPaymentModal(false);
     setNewPayment({
       stage: '🟢 Advance Payment (Before Service)',
@@ -256,6 +376,18 @@ export default function PartnerBatches({
       date: new Date().toISOString().split('T')[0],
       note: ''
     });
+  };
+
+  const handleDeletePayment = (paymentId) => {
+    if (window.confirm(`Are you sure you want to delete this payment installment?`)) {
+      const updated = partnerBatches.map(b => {
+        if (b.id === selectedBatchId) {
+          return { ...b, payments: (b.payments || []).filter(p => p.id !== paymentId) };
+        }
+        return b;
+      });
+      setPartnerBatches(updated);
+    }
   };
 
   // Current Selected Batch Object
@@ -419,7 +551,7 @@ export default function PartnerBatches({
                 type="button"
                 className="btn-delete-icon"
                 onClick={() => handleDeleteBatch(selectedBatch.id)}
-                title="Delete Batch"
+                title="Delete Entire Batch"
               >
                 <Trash2 size={16} />
               </button>
@@ -461,7 +593,11 @@ export default function PartnerBatches({
                   type="button"
                   className="btn-generate-bill"
                   style={{ padding: '10px 16px', fontSize: '0.85rem' }}
-                  onClick={() => setShowAddVehicleModal(true)}
+                  onClick={() => {
+                    setEditingVehicle(null);
+                    setNewVehicle({ vehicleNumber: '', vehicleName: '', notes: '' });
+                    setShowAddVehicleModal(true);
+                  }}
                 >
                   <Plus size={16} />
                   <span>Add Vehicle to Batch</span>
@@ -471,7 +607,17 @@ export default function PartnerBatches({
                   type="button"
                   className="btn-generate-whatsapp"
                   style={{ padding: '10px 16px', fontSize: '0.85rem' }}
-                  onClick={() => setShowAddPaymentModal(true)}
+                  onClick={() => {
+                    setEditingPayment(null);
+                    setNewPayment({
+                      stage: '🟢 Advance Payment (Before Service)',
+                      amount: '',
+                      paymentMethod: 'UPI / QR Code',
+                      date: new Date().toISOString().split('T')[0],
+                      note: ''
+                    });
+                    setShowAddPaymentModal(true);
+                  }}
                 >
                   <DollarSign size={16} />
                   <span>Record Payment Installment</span>
@@ -528,7 +674,11 @@ export default function PartnerBatches({
                 <button
                   type="button"
                   className="btn-secondary-sm"
-                  onClick={() => setShowAddVehicleModal(true)}
+                  onClick={() => {
+                    setEditingVehicle(null);
+                    setNewVehicle({ vehicleNumber: '', vehicleName: '', notes: '' });
+                    setShowAddVehicleModal(true);
+                  }}
                 >
                   <Plus size={14} /> Add Vehicle
                 </button>
@@ -560,11 +710,40 @@ export default function PartnerBatches({
                             {v.notes && <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Note: {v.notes}</p>}
                           </div>
 
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--yellow-primary)', fontFamily: 'var(--font-mono)' }}>
-                              ₹{vSubtotal.toLocaleString('en-IN')}
+                          <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div>
+                              <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--yellow-primary)', fontFamily: 'var(--font-mono)' }}>
+                                ₹{vSubtotal.toLocaleString('en-IN')}
+                              </div>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(v.services || []).length} Services</span>
                             </div>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(v.services || []).length} Services</span>
+
+                            {/* VEHICLE EDIT & DELETE BUTTONS */}
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              <button
+                                type="button"
+                                className="btn-secondary-sm"
+                                style={{ padding: '4px 8px' }}
+                                onClick={() => {
+                                  setEditingVehicle(v);
+                                  setNewVehicle({ vehicleNumber: v.vehicleNumber, vehicleName: v.vehicleName, notes: v.notes || '' });
+                                  setShowAddVehicleModal(true);
+                                }}
+                                title="Edit Vehicle Info"
+                              >
+                                <Edit3 size={13} />
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn-delete-icon"
+                                style={{ padding: '4px 8px' }}
+                                onClick={() => handleDeleteVehicle(v.id, v.vehicleNumber)}
+                                title="Delete Vehicle from Batch"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -577,7 +756,17 @@ export default function PartnerBatches({
                               className="btn-secondary-sm"
                               style={{ padding: '3px 8px', fontSize: '0.75rem' }}
                               onClick={() => {
+                                setEditingService(null);
                                 setTargetVehicleId(v.id);
+                                setNewService({
+                                  serviceKey: 'wheelAlignment',
+                                  customName: '',
+                                  description: '',
+                                  date: new Date().toISOString().split('T')[0],
+                                  quantity: 1,
+                                  rate: 350,
+                                  notes: ''
+                                });
                                 setShowAddServiceModal(true);
                               }}
                             >
@@ -595,6 +784,7 @@ export default function PartnerBatches({
                                   <th>Service Item</th>
                                   <th>Qty x Rate</th>
                                   <th className="align-right">Amt (₹)</th>
+                                  <th className="align-right">Action</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -607,6 +797,40 @@ export default function PartnerBatches({
                                     </td>
                                     <td>{s.quantity} x ₹{s.rate}</td>
                                     <td className="align-right" style={{ color: 'var(--yellow-primary)', fontWeight: '700' }}>₹{s.amount}</td>
+                                    <td className="align-right">
+                                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setTargetVehicleId(v.id);
+                                            setEditingService({ vehicleId: v.id, service: s });
+                                            setNewService({
+                                              serviceKey: 'custom',
+                                              customName: s.serviceName,
+                                              description: s.description || '',
+                                              date: s.date,
+                                              quantity: s.quantity,
+                                              rate: s.rate,
+                                              notes: s.notes || ''
+                                            });
+                                            setShowAddServiceModal(true);
+                                          }}
+                                          style={{ background: 'transparent', border: 'none', color: 'var(--yellow-primary)', cursor: 'pointer' }}
+                                          title="Edit Service Entry"
+                                        >
+                                          <Edit3 size={13} />
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteService(v.id, s.id)}
+                                          style={{ background: 'transparent', border: 'none', color: 'var(--ruby-primary)', cursor: 'pointer' }}
+                                          title="Delete Service Entry"
+                                        >
+                                          <Trash2 size={13} />
+                                        </button>
+                                      </div>
+                                    </td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -654,7 +878,17 @@ export default function PartnerBatches({
                 <button
                   type="button"
                   className="btn-whatsapp-sm"
-                  onClick={() => setShowAddPaymentModal(true)}
+                  onClick={() => {
+                    setEditingPayment(null);
+                    setNewPayment({
+                      stage: '🟢 Advance Payment (Before Service)',
+                      amount: '',
+                      paymentMethod: 'UPI / QR Code',
+                      date: new Date().toISOString().split('T')[0],
+                      note: ''
+                    });
+                    setShowAddPaymentModal(true);
+                  }}
                 >
                   <Plus size={14} /> Record Payment
                 </button>
@@ -680,10 +914,41 @@ export default function PartnerBatches({
                         {p.note && <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Note: {p.note}</div>}
                       </div>
 
-                      <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--emerald-primary)', fontFamily: 'var(--font-mono)' }}>
                           ₹{p.amount.toLocaleString('en-IN')}
                         </div>
+
+                        {/* PAYMENT EDIT & DELETE BUTTONS */}
+                        <button
+                          type="button"
+                          className="btn-secondary-sm"
+                          style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                          onClick={() => {
+                            setEditingPayment(p);
+                            setNewPayment({
+                              stage: p.stage,
+                              amount: p.amount,
+                              paymentMethod: p.paymentMethod,
+                              date: p.date,
+                              note: p.note || ''
+                            });
+                            setShowAddPaymentModal(true);
+                          }}
+                          title="Edit Payment Entry"
+                        >
+                          <Edit3 size={12} />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn-delete-icon"
+                          style={{ padding: '4px 8px' }}
+                          onClick={() => handleDeletePayment(p.id)}
+                          title="Delete Payment Entry"
+                        >
+                          <Trash2 size={12} />
+                        </button>
 
                         <button
                           type="button"
@@ -1053,7 +1318,7 @@ export default function PartnerBatches({
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: ADD VEHICLE TO BATCH MODAL */}
+      {/* MODAL 3: ADD / EDIT VEHICLE TO BATCH MODAL */}
       {/* ========================================================================= */}
       {showAddVehicleModal && (
         <div className="modal-backdrop">
@@ -1061,12 +1326,12 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <Package style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Add Vehicle to Batch #{selectedBatchId}</span>
+                <span>{editingVehicle ? 'Edit Vehicle Info' : `Add Vehicle to Batch #${selectedBatchId}`}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddVehicleModal(false)}><X size={20} /></button>
             </div>
 
-            <form onSubmit={handleAddVehicle} className="grid-form" style={{ padding: '20px' }}>
+            <form onSubmit={handleSaveVehicle} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Vehicle Reg. Number *</label>
                 <input
@@ -1100,7 +1365,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> Add Vehicle
+                  <Plus size={18} /> {editingVehicle ? 'Update Vehicle Info' : 'Add Vehicle'}
                 </button>
               </div>
             </form>
@@ -1109,7 +1374,7 @@ export default function PartnerBatches({
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 4: LOG MULTI-DAY SERVICE ENTRY MODAL */}
+      {/* MODAL 4: LOG / EDIT MULTI-DAY SERVICE ENTRY MODAL */}
       {/* ========================================================================= */}
       {showAddServiceModal && (
         <div className="modal-backdrop">
@@ -1117,12 +1382,12 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <FileText style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Log Service Entry</span>
+                <span>{editingService ? 'Edit Service Entry' : 'Log Service Entry'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddServiceModal(false)}><X size={20} /></button>
             </div>
 
-            <form onSubmit={handleAddServiceToVehicle} className="grid-form" style={{ padding: '20px' }}>
+            <form onSubmit={handleSaveService} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Select Service Type</label>
                 <select
@@ -1215,7 +1480,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> Log Service Entry
+                  <Plus size={18} /> {editingService ? 'Update Service Entry' : 'Log Service Entry'}
                 </button>
               </div>
             </form>
@@ -1224,7 +1489,7 @@ export default function PartnerBatches({
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 5: RECORD PAYMENT INSTALLMENT MODAL */}
+      {/* MODAL 5: RECORD / EDIT PAYMENT INSTALLMENT MODAL */}
       {/* ========================================================================= */}
       {showAddPaymentModal && (
         <div className="modal-backdrop">
@@ -1232,12 +1497,12 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <DollarSign style={{ color: 'var(--emerald-primary)' }} size={22} />
-                <span>Record Installment Payment</span>
+                <span>{editingPayment ? 'Edit Payment Installment' : 'Record Installment Payment'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddPaymentModal(false)}><X size={20} /></button>
             </div>
 
-            <form onSubmit={handleAddPayment} className="grid-form" style={{ padding: '20px' }}>
+            <form onSubmit={handleSavePayment} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Payment Stage / Category *</label>
                 <select
@@ -1303,7 +1568,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-whatsapp-sm" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                  <DollarSign size={18} /> Record & Generate Payment Slip
+                  <DollarSign size={18} /> {editingPayment ? 'Update Payment Entry' : 'Record & Generate Payment Slip'}
                 </button>
               </div>
             </form>

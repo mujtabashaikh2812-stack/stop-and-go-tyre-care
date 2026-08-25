@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, ShoppingBag, TrendingUp, Car, Coffee, Building2 } from 'lucide-react';
+import { DollarSign, ShoppingBag, TrendingUp, Car, Coffee, QrCode, Banknote } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/i18n';
 
 export default function Analytics({ jobCards, expenses = [], scrapSales = [], partnerBatches = [], currentLang = 'en' }) {
@@ -29,18 +29,42 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
   let partnerPaymentsSum = 0;
   let partnerPaymentsCount = 0;
 
+  // Payment Method Aggregation (UPI vs Cash)
+  let upiTotal = 0;
+  let cashTotal = 0;
+
+  // 1. Job Cards Payment Mode Breakdown
+  filteredCards.forEach(c => {
+    const amt = parseFloat(c.total) || 0;
+    if (c.paymentMethod === 'Cash') {
+      cashTotal += amt;
+    } else {
+      upiTotal += amt;
+    }
+  });
+
+  // 2. Partner Batch Payments Mode Breakdown
   partnerBatches.forEach(batch => {
     (batch.payments || []).forEach(p => {
       if (filterByDate(p.date)) {
-        partnerPaymentsSum += parseFloat(p.amount) || 0;
+        const amt = parseFloat(p.amount) || 0;
+        partnerPaymentsSum += amt;
         partnerPaymentsCount += 1;
+        if (p.paymentMethod === 'Cash') {
+          cashTotal += amt;
+        } else {
+          upiTotal += amt;
+        }
       }
     });
   });
 
+  // 3. Scrap Sales (Default Cash/UPI)
+  const scrapRevenue = filteredScrap.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+  cashTotal += scrapRevenue; // Scrap sales added to cash
+
   // Calculate Aggregates
   const walkInRevenue = filteredCards.reduce((sum, c) => sum + (c.total || 0), 0);
-  const scrapRevenue = filteredScrap.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
   const grossRevenue = walkInRevenue + scrapRevenue + partnerPaymentsSum;
 
   const totalShopExpenses = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -150,6 +174,31 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
           </div>
         </div>
 
+      </div>
+
+      {/* PAYMENT METHOD BREAKDOWN: UPI VS CASH CARDS */}
+      <div className="analytics-kpi-grid" style={{ marginTop: '20px' }}>
+        <div className="kpi-card" style={{ border: '1px solid rgba(59, 130, 246, 0.4)', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, var(--bg-card) 100%)' }}>
+          <div className="kpi-icon-wrap info">
+            <QrCode size={24} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-label" style={{ color: '#3b82f6' }}>📱 UPI / QR CODE PAYMENTS</span>
+            <span className="kpi-value" style={{ color: '#3b82f6' }}>₹{upiTotal.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Digital Bank Collection</span>
+          </div>
+        </div>
+
+        <div className="kpi-card" style={{ border: '1px solid rgba(16, 185, 129, 0.4)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, var(--bg-card) 100%)' }}>
+          <div className="kpi-icon-wrap emerald">
+            <Banknote size={24} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-label" style={{ color: 'var(--emerald-primary)' }}>💵 CASH PAYMENTS RECEIVED</span>
+            <span className="kpi-value text-emerald">₹{cashTotal.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Physical Cash In Register</span>
+          </div>
+        </div>
       </div>
 
       {/* Two Column Layout: REVENUE BREAKDOWN & TOP SERVICES */}
