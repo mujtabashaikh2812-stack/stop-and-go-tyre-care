@@ -456,6 +456,43 @@ input:focus, select:focus {
   color: var(--yellow-primary);
 }
 
+.inline-price-edit-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 3px 8px;
+  transition: all 0.2s ease;
+}
+
+.inline-price-edit-badge:hover, .inline-price-edit-badge:focus-within {
+  border-color: var(--yellow-primary);
+  background: var(--bg-surface-elevated);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+}
+
+.inline-price-edit-badge .currency-symbol {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--yellow-primary);
+}
+
+.inline-price-input {
+  width: 75px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--yellow-primary) !important;
+  font-family: var(--font-mono) !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  text-align: right !important;
+  padding: 2px 0 !important;
+  outline: none !important;
+}
+
 .service-options-row {
   margin-top: 14px;
   padding-top: 12px;
