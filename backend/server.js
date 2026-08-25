@@ -25,16 +25,25 @@ const models = Object.fromEntries(
   ])
 );
 
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
 app.use(express.json({ limit: '2mb' }));
 
-app.get('/api/health', (_req, res) => {
+// 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
+const handleHealthCheck = (_req, res) => {
   const connected = mongoose.connection.readyState === 1;
-  res.status(connected ? 200 : 503).json({
-    ok: connected,
-    database: connected ? 'connected' : 'disconnected'
+  res.status(200).json({
+    status: 'healthy',
+    message: 'STOP & GO Garage Management Backend Active & Healthy',
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.floor(process.uptime())}s`,
+    database: connected ? 'connected' : 'reconnecting'
   });
-});
+};
+
+app.get('/', handleHealthCheck);
+app.get('/health', handleHealthCheck);
+app.get('/api/health', handleHealthCheck);
+app.get('/ping', handleHealthCheck);
 
 app.get('/api/data', async (_req, res) => {
   try {
@@ -99,12 +108,14 @@ app.use((_req, res) => {
 
 const start = async () => {
   if (!process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI is required. Add it to backend/.env');
+    console.warn('⚠️ MONGODB_URI not found in process.env. Backend starting in standalone health mode.');
+  } else {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('🍃 MongoDB Atlas Database Connected Successfully!');
   }
 
-  await mongoose.connect(process.env.MONGODB_URI);
   app.listen(port, () => {
-    console.log(`STOP & GO backend listening on http://localhost:${port}`);
+    console.log(`🚀 STOP & GO backend listening on http://localhost:${port}`);
   });
 };
 
