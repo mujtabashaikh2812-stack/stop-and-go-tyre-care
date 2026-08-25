@@ -6,7 +6,7 @@ let syncInProgress = false;
 
 const reportSyncFailure = (error) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`MongoDB sync failed for ${API_URL}. Set VITE_API_URL to the deployed backend URL before building the APK.`, message);
+  console.error(`MongoDB sync failed for ${API_URL}. Set VITE_API_URL to the deployed backend URL.`, message);
   window.dispatchEvent(new CustomEvent('cloud-sync-status', {
     detail: { connected: false, message }
   }));

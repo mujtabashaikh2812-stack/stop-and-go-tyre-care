@@ -1,6 +1,4 @@
 import React from 'react';
-import { Capacitor } from '@capacitor/core';
-import { Printer as NativePrinter } from '@capgo/capacitor-printer';
 import { X, Printer, Send, CheckCircle } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
@@ -38,17 +36,8 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, cu
 
   const nextAlignmentKm = calculateNextAlignmentKm(odometer);
 
-  const handlePrint = async () => {
-    try {
-      if (Capacitor.isNativePlatform()) {
-        await NativePrinter.printWebView({ name: `Receipt ${id}` });
-        return;
-      }
-      window.print();
-    } catch (error) {
-      console.error('Unable to open the print dialog:', error);
-      window.print();
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
   const handleSendWhatsApp = () => {
