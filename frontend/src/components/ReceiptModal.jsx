@@ -1,4 +1,6 @@
 import React from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Printer as NativePrinter } from '@capgo/capacitor-printer';
 import { X, Printer, Send, CheckCircle } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
@@ -36,37 +38,47 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, cu
 
   const nextAlignmentKm = calculateNextAlignmentKm(odometer);
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await NativePrinter.printWebView({ name: `Receipt ${id}` });
+        return;
+      }
+      window.print();
+    } catch (error) {
+      console.error('Unable to open the print dialog:', error);
+      window.print();
+    }
   };
 
   const handleSendWhatsApp = () => {
-    const itemLines = services.map(s => `* ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
+    const itemLines = services.map(s => `* ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('\n');
     
     const messageText = 
-      `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-      `Official Digital Receipt %23${id}%0A` +
-      `------------------------------------%0A` +
-      `👤 *Customer:* ${customerName}%0A` +
-      `📱 *Mobile:* ${mobile}%0A` +
-      `🚘 *Vehicle:* ${vehicleName} (${year})%0A` +
-      `🔢 *Reg No:* ${vehicleNumber}%0A` +
-      `📟 *Odometer:* ${odometer} KM%0A` +
-      (nextAlignmentKm ? `🔄 *Next Alignment Due:* ${nextAlignmentKm} KM%0A` : '') +
-      `📅 *Date:* ${date} ${time}%0A` +
-      `------------------------------------%0A` +
-      `*SERVICES PERFORMED:*%0A` +
-      `${itemLines}%0A` +
-      `------------------------------------%0A` +
-      `Subtotal: ₹${subtotal.toLocaleString('en-IN')}%0A` +
-      (discount > 0 ? `Discount: -₹${discount.toLocaleString('en-IN')}%0A` : '') +
-      `*GRAND TOTAL: ₹${total.toLocaleString('en-IN')}*%0A` +
-      `Paid via: ${paymentMethod}%0A%0A` +
-      (nextAlignmentKm ? `*Suggested Next Alignment Service at ${nextAlignmentKm} KM*%0A%0A` : '') +
-      `Thank you for trusting STOP %26 GO! Drive safe! 🚗💨`;
+      `*STOP & GO TOTAL TYRE CARE CENTRE*\n` +
+      `Official Digital Receipt #${id}\n` +
+      `------------------------------------\n` +
+      `👤 *Customer:* ${customerName}\n` +
+      `📱 *Mobile:* ${mobile}\n` +
+      `🚘 *Vehicle:* ${vehicleName} (${year})\n` +
+      `🔢 *Reg No:* ${vehicleNumber}\n` +
+      `📟 *Odometer:* ${odometer} KM\n` +
+      (nextAlignmentKm ? `🔄 *Next Alignment Due:* ${nextAlignmentKm} KM\n` : '') +
+      `📅 *Date:* ${date} ${time}\n` +
+      `------------------------------------\n` +
+      `*SERVICES PERFORMED:*\n` +
+      `${itemLines}\n` +
+      `------------------------------------\n` +
+      `Subtotal: ₹${subtotal.toLocaleString('en-IN')}\n` +
+      (discount > 0 ? `Discount: -₹${discount.toLocaleString('en-IN')}\n` : '') +
+      `*GRAND TOTAL: ₹${total.toLocaleString('en-IN')}*\n` +
+      `Paid via: ${paymentMethod}\n\n` +
+      (nextAlignmentKm ? `*Suggested Next Alignment Service at ${nextAlignmentKm} KM*\n\n` : '') +
+      `Thank you for trusting STOP & GO! Drive safe! 🚗💨`;
 
     const cleanMobile = mobile.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${messageText}`, '_blank');
+    const whatsappUrl = `https://wa.me/91${cleanMobile}?text=${encodeURIComponent(messageText)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
