@@ -234,6 +234,16 @@ export const saveBooking = (booking) => {
   return updated;
 };
 
+export const addBooking = saveBooking;
+
+export const deleteBooking = (id) => {
+  const current = getBookings();
+  const updated = current.filter(b => b.id !== id);
+  localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  deleteItemFromCloud('bookings', id);
+  return updated;
+};
+
 export const updateBookingStatus = (id, status) => {
   const current = getBookings();
   const updated = current.map(b => b.id === id ? { ...b, status } : b);
