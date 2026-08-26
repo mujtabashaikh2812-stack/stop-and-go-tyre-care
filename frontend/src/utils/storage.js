@@ -78,6 +78,10 @@ export const deleteJobCard = (id) => {
 
 export const deleteCustomerByMobile = (mobile) => {
   const current = getJobCards();
+  const cardsToDelete = current.filter(c => c.mobile === mobile);
+  cardsToDelete.forEach(card => {
+    deleteItemFromCloud('jobCards', card.id);
+  });
   const updated = current.filter(c => c.mobile !== mobile);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
   return updated;
