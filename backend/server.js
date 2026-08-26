@@ -5,30 +5,51 @@ import mongoose from 'mongoose';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const collectionNames = [
-  'jobCards', 'inventory', 'bookings', 'expenses', 'salaries',
-  'scrapSales', 'servicePrices', 'partnerGarages', 'partnerBatches', 'tyreWarranties'
-];
+const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices', 'partnerGarages', 'partnerBatches', 'tyreWarranties'];
 
 const recordSchema = new mongoose.Schema(
-  { id: { type: String, required: true } },
-  { strict: false, timestamps: true }
+  {
+    id: { type: String, required: true }
+  },
+  {
+    strict: false,
+    timestamps: true
+  }
 );
 recordSchema.index({ id: 1 }, { unique: true });
 
 const models = Object.fromEntries(
-  collectionNames.map((name) => [
-    name,
-    mongoose.model(name, recordSchema, name.toLowerCase())
+  collectionNames.map((collectionName) => [
+    collectionName,
+    mongoose.model(collectionName, recordSchema, collectionName.toLowerCase())
   ])
 );
 
-// ✅ Allow ALL origins — required for Vercel/Netlify frontend + Android APK
-app.use(cors());
-app.options('/(.*)' , cors());
+// Allow CORS from all origins (Vercel, Netlify, Android APK, localhost)
+const allowedOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map(o => o.trim())
+  : null;
+
+app.use(cors({
+  origin: allowedOrigins
+    ? (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(null, true); // fallback: allow all for now
+      }
+    : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+// Handle preflight for all routes
+app.options('*', cors());
 app.use(express.json({ limit: '2mb' }));
 
-// Health check
+// 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
 const handleHealthCheck = (_req, res) => {
   const connected = mongoose.connection.readyState === 1;
   res.status(200).json({
@@ -45,91 +66,90 @@ app.get('/health', handleHealthCheck);
 app.get('/api/health', handleHealthCheck);
 app.get('/ping', handleHealthCheck);
 
-// GET all data from MongoDB
 app.get('/api/data', async (_req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(200).json({
-        jobCards: [], inventory: [], bookings: [], expenses: [],
-        salaries: [], scrapSales: [], servicePrices: {},
-        partnerGarages: [], partnerBatches: [], tyreWarranties: []
+        jobCards: [], inventory: [], bookings: [], expenses: [], salaries: [], scrapSales: [], servicePrices: {}, partnerGarages: [], partnerBatches: [], tyreWarranties: []
       });
     }
-    const entries = await Promise.all(
-      collectionNames.map(async (name) => [
-        name,
-        name === 'servicePrices'
-          ? (await models[name].findOne({ id: 'current' }).lean())?.value || {}
-          : await models[name].find().sort({ createdAt: -1 }).lean()
+    const data = await Promise.all(
+      collectionNames.map(async (collectionName) => [
+        collectionName,
+        collectionName === 'servicePrices'
+          ? (await models[collectionName].findOne({ id: 'current' }).lean())?.value || {}
+          : await models[collectionName].find().sort({ createdAt: -1 }).lean()
       ])
     );
-    res.json(Object.fromEntries(entries));
+    res.json(Object.fromEntries(data));
   } catch (error) {
     res.status(500).json({ error: 'Unable to fetch data', details: error.message });
   }
 });
 
-// POST — upsert records into MongoDB (never deletes)
 app.post('/api/sync', async (req, res) => {
   const payload = req.body;
 
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
-    return res.status(400).json({ error: 'Request body must be an object' });
+    return res.status(400).json({ error: 'Request body must be an object of record arrays' });
   }
 
   try {
     if (mongoose.connection.readyState !== 1) {
-      return res.status(200).json({ success: true, message: 'MongoDB reconnecting — data queued in localStorage.' });
+      return res.status(200).json({ success: true, message: 'Saved in LocalStorage; MongoDB reconnecting.' });
     }
 
     const counts = {};
 
     await Promise.all(
-      collectionNames.map(async (name) => {
-        const records = name === 'servicePrices'
-          ? [{ id: 'current', value: payload[name] || {} }]
-          : payload[name] || [];
+      collectionNames.map(async (collectionName) => {
+        const records = collectionName === 'servicePrices'
+          ? [{ id: 'current', value: payload[collectionName] || {} }]
+          : payload[collectionName] || [];
+        if (!Array.isArray(records)) {
+          throw new Error(`${collectionName} must be an array`);
+        }
 
-        if (!Array.isArray(records)) return;
-
-        const ops = records
-          .filter((r) => r && typeof r === 'object' && r.id)
-          .map((r) => {
-            const { _id, __v, ...safe } = r;
+        const operations = records
+          .filter((record) => record && typeof record === 'object' && record.id)
+          .map((record) => {
+            const { _id, __v, ...safeRecord } = record;
             return {
               updateOne: {
-                filter: { id: String(safe.id) },
-                update: { $set: safe },
+                filter: { id: String(safeRecord.id) },
+                update: { $set: safeRecord },
                 upsert: true
               }
             };
           });
 
-        if (ops.length > 0) {
-          await models[name].bulkWrite(ops, { ordered: false });
+        if (operations.length > 0) {
+          await models[collectionName].bulkWrite(operations, { ordered: false });
         }
-        counts[name] = ops.length;
+        counts[collectionName] = operations.length;
       })
     );
 
     res.json({ success: true, counts });
   } catch (error) {
-    res.status(500).json({ error: 'Sync failed', details: error.message });
+    res.status(500).json({ error: 'Unable to sync data', details: error.message });
   }
 });
 
-app.use((_req, res) => res.status(404).json({ error: 'Route not found' }));
+app.use((_req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
 
-// Start server, then connect to MongoDB
+// Start Express Server immediately so Render Health Check passes 100%
 app.listen(port, () => {
   console.log(`🚀 STOP & GO backend listening on port ${port}`);
 
   if (process.env.MONGODB_URI) {
     console.log('🍃 Connecting to MongoDB Atlas...');
     mongoose.connect(process.env.MONGODB_URI)
-      .then(() => console.log('✅ MongoDB Atlas connected successfully!'))
-      .catch((err) => console.error('⚠️ MongoDB connection error:', err.message));
+      .then(() => console.log('✅ MongoDB Atlas Database Connected Successfully!'))
+      .catch(err => console.error('⚠️ MongoDB Connection Notice (Ensure 0.0.0.0/0 IP Whitelist in MongoDB Atlas):', err.message));
   } else {
-    console.warn('⚠️ MONGODB_URI not set in environment variables.');
+    console.warn('⚠️ MONGODB_URI not found in environment variables.');
   }
 });
