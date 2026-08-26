@@ -443,40 +443,31 @@ export const saveCloudData = (cloudData) => {
   if (!cloudData) return;
 
   if (Array.isArray(cloudData.jobCards)) {
-    const merged = mergeArraysById(getJobCards(), cloudData.jobCards);
-    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(merged));
+    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
   }
   if (Array.isArray(cloudData.inventory) && cloudData.inventory.length > 0) {
-    const merged = mergeArraysById(getInventory(), cloudData.inventory);
-    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(merged));
+    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(cloudData.inventory));
   }
   if (Array.isArray(cloudData.bookings)) {
-    const merged = mergeArraysById(getBookings(), cloudData.bookings);
-    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(merged));
+    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(cloudData.bookings));
   }
   if (Array.isArray(cloudData.expenses)) {
-    const merged = mergeArraysById(getExpenses(), cloudData.expenses);
-    localStorage.setItem(KEYS.EXPENSES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.EXPENSES, JSON.stringify(cloudData.expenses));
   }
   if (Array.isArray(cloudData.salaries)) {
-    const merged = mergeArraysById(getSalaries(), cloudData.salaries);
-    localStorage.setItem(KEYS.SALARIES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.SALARIES, JSON.stringify(cloudData.salaries));
   }
   if (Array.isArray(cloudData.scrapSales)) {
-    const merged = mergeArraysById(getScrapSales(), cloudData.scrapSales);
-    localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
   }
   if (Array.isArray(cloudData.partnerGarages)) {
-    const merged = mergeArraysById(getPartnerGarages(), cloudData.partnerGarages);
-    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
   }
   if (Array.isArray(cloudData.partnerBatches)) {
-    const merged = mergeArraysById(getPartnerBatches(), cloudData.partnerBatches);
-    localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
   }
   if (Array.isArray(cloudData.tyreWarranties)) {
-    const merged = mergeArraysById(getTyreWarranties(), cloudData.tyreWarranties);
-    localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(merged));
+    localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(cloudData.tyreWarranties));
   }
   if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) {
     localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
