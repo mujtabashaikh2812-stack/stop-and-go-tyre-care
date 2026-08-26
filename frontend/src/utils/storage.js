@@ -253,13 +253,6 @@ export const updateBookingStatus = (id, status) => {
   return updated;
 };
 
-export const deleteBooking = (id) => {
-  const current = getBookings();
-  const updated = current.filter(b => b.id !== id);
-  localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
-  return updated;
-};
-
 // Daily Expenses
 export const getExpenses = () => {
   const data = localStorage.getItem(KEYS.EXPENSES);
