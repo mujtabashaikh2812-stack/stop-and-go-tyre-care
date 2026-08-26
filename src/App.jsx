@@ -73,27 +73,38 @@ export default function App() {
     setPartnerBatches(getPartnerBatches());
     setWarranties(getTyreWarranties());
 
-    // 2. Async Cloud Sync: First upload local data to MongoDB Atlas, then fetch and merge cloud data
-    const syncWithCloud = async () => {
-      await triggerCloudSync();
+    // 2. Fetch latest live data from MongoDB Cloud & Refresh all React state
+    const loadCloudData = async () => {
       const cloudData = await fetchCloudData();
       if (cloudData) {
         saveCloudData(cloudData);
         setJobCards(getJobCards());
+        setInventory(getInventory());
+        setServices(getServicePrices());
+        setBookings(getBookings());
+        setExpenses(getExpenses());
+        setSalaries(getSalaries());
+        setScrapSales(getScrapSales());
         setPartnerGarages(getPartnerGarages());
         setPartnerBatches(getPartnerBatches());
         setWarranties(getTyreWarranties());
       }
     };
 
-    syncWithCloud();
+    loadCloudData();
+
+    // 3. Live 10-second Polling: Auto-syncs new bills, batches & warranties across all connected phones
+    const interval = setInterval(loadCloudData, 10000);
 
     const handleOnline = () => {
-      syncWithCloud();
+      loadCloudData();
     };
 
     window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', handleOnline);
+    };
   }, []);
 
   const handleLanguageChange = (lang) => {
