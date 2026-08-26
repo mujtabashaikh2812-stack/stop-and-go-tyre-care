@@ -25,8 +25,13 @@ const models = Object.fromEntries(
   ])
 );
 
-// Allow CORS from Vercel Web App, Localhost, and Android Capacitor App
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
+// Allow CORS from Vercel Web App, Localhost, Android Capacitor Apps, and Mobile Browsers
+app.use(cors({
+  origin: true, // Echoes the requesting origin (e.g. https://stop-and-go-tyre-care.vercel.app)
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 app.use(express.json({ limit: '2mb' }));
 
 // 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
