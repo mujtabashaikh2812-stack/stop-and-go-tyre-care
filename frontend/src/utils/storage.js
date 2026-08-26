@@ -1,5 +1,4 @@
 import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY, INITIAL_BOOKINGS, INITIAL_EXPENSES, INITIAL_SALARIES, INITIAL_SCRAP_SALES } from '../data/mockData';
-// Direct MongoDB Atlas Cloud REST Persistence & LocalStorage Fallback System
 import { saveItemToCloud, deleteItemFromCloud } from './syncService';
 
 const KEYS = {
@@ -14,7 +13,8 @@ const KEYS = {
   LANGUAGE: 'stop_go_language',
   PARTNER_GARAGES: 'stop_go_partner_garages_v1',
   PARTNER_BATCHES: 'stop_go_partner_batches_v1',
-  TYRE_WARRANTIES: 'stop_go_tyre_warranties_v1'
+  TYRE_WARRANTIES: 'stop_go_tyre_warranties_v1',
+  DELETED_ITEMS: 'stop_go_deleted_items_v1'
 };
 
 const CLEAN_INITIAL_INVENTORY = [
@@ -22,6 +22,46 @@ const CLEAN_INITIAL_INVENTORY = [
   { id: 'brass_weights', name: 'Brass Wheel Weights', unit: 'Grams', inStock: 0, reorderLevel: 500 },
   { id: 'tyre_valves', name: 'Tubeless Tyre Valves', unit: 'Pieces', inStock: 0, reorderLevel: 25 }
 ];
+
+// ==========================================
+// PERSISTENT TOMBSTONE DELETION MANAGEMENT
+// ==========================================
+
+export const getDeletedItems = () => {
+  const data = localStorage.getItem(KEYS.DELETED_ITEMS);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch (e) { return []; }
+};
+
+export const recordDeletedItem = (collectionName, id) => {
+  if (!collectionName || !id) return;
+  const current = getDeletedItems();
+  const idStr = String(id);
+  const exists = current.some(item => item.collectionName === collectionName && String(item.id) === idStr);
+  if (!exists) {
+    const updated = [...current, { collectionName, id: idStr, deletedAt: new Date().toISOString() }];
+    localStorage.setItem(KEYS.DELETED_ITEMS, JSON.stringify(updated));
+  }
+};
+
+export const clearDeletedItem = (collectionName, id) => {
+  if (!collectionName || !id) return;
+  const current = getDeletedItems();
+  const idStr = String(id);
+  const updated = current.filter(item => !(item.collectionName === collectionName && String(item.id) === idStr));
+  localStorage.setItem(KEYS.DELETED_ITEMS, JSON.stringify(updated));
+};
+
+const filterOutDeleted = (collectionName, items) => {
+  if (!Array.isArray(items)) return [];
+  const tombstones = getDeletedItems();
+  const tombSet = new Set(tombstones.filter(t => t.collectionName === collectionName).map(t => String(t.id)));
+  return items.filter(item => item && item.id && !tombSet.has(String(item.id)));
+};
+
+// ==========================================
+// LANGUAGE & ADMIN AUTH
+// ==========================================
 
 export const getLanguage = () => {
   return localStorage.getItem(KEYS.LANGUAGE) || 'en';
@@ -41,16 +81,23 @@ export const saveAdminPassword = (newPassword) => {
   return newPassword;
 };
 
+// ==========================================
+// JOB CARDS MANAGEMENT
+// ==========================================
+
 export const getJobCards = () => {
   const data = localStorage.getItem(KEYS.JOB_CARDS);
-  if (!data) {
-    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(INITIAL_JOB_CARDS));
-    return INITIAL_JOB_CARDS;
+  let parsed = [];
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_JOB_CARDS; }
+  } else {
+    parsed = INITIAL_JOB_CARDS;
   }
-  try { return JSON.parse(data); } catch (e) { return INITIAL_JOB_CARDS; }
+  return filterOutDeleted('jobCards', parsed);
 };
 
 export const saveJobCard = (newCard) => {
+  clearDeletedItem('jobCards', newCard.id);
   const current = getJobCards();
   const updated = [newCard, ...current];
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
@@ -59,8 +106,8 @@ export const saveJobCard = (newCard) => {
   return updated;
 };
 
-// UPDATE / OVERWRITE EXISTING BILL (NO DUPLICATE)
 export const updateExistingJobCard = (updatedCard) => {
+  clearDeletedItem('jobCards', updatedCard.id);
   const current = getJobCards();
   const updated = current.map(c => c.id === updatedCard.id ? updatedCard : c);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
@@ -69,8 +116,9 @@ export const updateExistingJobCard = (updatedCard) => {
 };
 
 export const deleteJobCard = (id) => {
+  recordDeletedItem('jobCards', id);
   const current = getJobCards();
-  const updated = current.filter(c => c.id !== id);
+  const updated = current.filter(c => String(c.id) !== String(id));
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
   deleteItemFromCloud('jobCards', id);
   return updated;
@@ -80,6 +128,7 @@ export const deleteCustomerByMobile = (mobile) => {
   const current = getJobCards();
   const cardsToDelete = current.filter(c => c.mobile === mobile);
   cardsToDelete.forEach(card => {
+    recordDeletedItem('jobCards', card.id);
     deleteItemFromCloud('jobCards', card.id);
   });
   const updated = current.filter(c => c.mobile !== mobile);
@@ -87,20 +136,23 @@ export const deleteCustomerByMobile = (mobile) => {
   return updated;
 };
 
-// INVENTORY STORAGE & MANAGEMENT
+// ==========================================
+// INVENTORY MANAGEMENT
+// ==========================================
+
 export const getInventory = () => {
   const data = localStorage.getItem(KEYS.INVENTORY);
-  if (!data) {
-    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(CLEAN_INITIAL_INVENTORY));
-    return CLEAN_INITIAL_INVENTORY;
+  let parsed = CLEAN_INITIAL_INVENTORY;
+  if (data) {
+    try {
+      const read = JSON.parse(data);
+      const filtered = read.filter(item => item.id !== 'nitrogen_tank');
+      parsed = filtered.length > 0 ? filtered : CLEAN_INITIAL_INVENTORY;
+    } catch (e) {
+      parsed = CLEAN_INITIAL_INVENTORY;
+    }
   }
-  try {
-    const parsed = JSON.parse(data);
-    const filtered = parsed.filter(item => item.id !== 'nitrogen_tank');
-    return filtered.length > 0 ? filtered : CLEAN_INITIAL_INVENTORY;
-  } catch (e) {
-    return CLEAN_INITIAL_INVENTORY;
-  }
+  return filterOutDeleted('inventory', parsed);
 };
 
 export const updateInventoryItem = (id, newStock) => {
@@ -121,6 +173,7 @@ export const addInventoryItem = (name, unit, initialStock = 0, reorderLevel = 10
     inStock: parseFloat(initialStock) || 0,
     reorderLevel: parseFloat(reorderLevel) || 10
   };
+  clearDeletedItem('inventory', newItem.id);
   const updated = [...inventory, newItem];
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
   saveItemToCloud('inventory', newItem);
@@ -128,8 +181,9 @@ export const addInventoryItem = (name, unit, initialStock = 0, reorderLevel = 10
 };
 
 export const deleteInventoryItem = (id) => {
+  recordDeletedItem('inventory', id);
   const inventory = getInventory();
-  const updated = inventory.filter(item => item.id !== id);
+  const updated = inventory.filter(item => String(item.id) !== String(id));
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
   deleteItemFromCloud('inventory', id);
   return updated;
@@ -175,6 +229,10 @@ const deductInventoryForJobCard = (jobCard) => {
     localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
   }
 };
+
+// ==========================================
+// SERVICE MASTER PRICES
+// ==========================================
 
 export const getServicePrices = () => {
   const data = localStorage.getItem(KEYS.SERVICE_PRICES);
@@ -224,14 +282,21 @@ export const deleteCustomService = (serviceKey) => {
   return updated;
 };
 
-// Bookings
+// ==========================================
+// BOOKINGS MANAGEMENT
+// ==========================================
+
 export const getBookings = () => {
   const data = localStorage.getItem(KEYS.BOOKINGS);
-  if (!data) return INITIAL_BOOKINGS;
-  try { return JSON.parse(data); } catch (e) { return INITIAL_BOOKINGS; }
+  let parsed = INITIAL_BOOKINGS;
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_BOOKINGS; }
+  }
+  return filterOutDeleted('bookings', parsed);
 };
 
 export const saveBooking = (booking) => {
+  clearDeletedItem('bookings', booking.id);
   const current = getBookings();
   const updated = [booking, ...current];
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
@@ -242,8 +307,9 @@ export const saveBooking = (booking) => {
 export const addBooking = saveBooking;
 
 export const deleteBooking = (id) => {
+  recordDeletedItem('bookings', id);
   const current = getBookings();
-  const updated = current.filter(b => b.id !== id);
+  const updated = current.filter(b => String(b.id) !== String(id));
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
   deleteItemFromCloud('bookings', id);
   return updated;
@@ -258,14 +324,21 @@ export const updateBookingStatus = (id, status) => {
   return updated;
 };
 
-// Daily Expenses
+// ==========================================
+// EXPENSES & SALARIES & SCRAP SALES
+// ==========================================
+
 export const getExpenses = () => {
   const data = localStorage.getItem(KEYS.EXPENSES);
-  if (!data) return INITIAL_EXPENSES;
-  try { return JSON.parse(data); } catch (e) { return INITIAL_EXPENSES; }
+  let parsed = INITIAL_EXPENSES;
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_EXPENSES; }
+  }
+  return filterOutDeleted('expenses', parsed);
 };
 
 export const addExpense = (exp) => {
+  clearDeletedItem('expenses', exp.id);
   const current = getExpenses();
   const updated = [exp, ...current];
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
@@ -274,21 +347,25 @@ export const addExpense = (exp) => {
 };
 
 export const deleteExpense = (id) => {
+  recordDeletedItem('expenses', id);
   const current = getExpenses();
-  const updated = current.filter(e => e.id !== id);
+  const updated = current.filter(e => String(e.id) !== String(id));
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
   deleteItemFromCloud('expenses', id);
   return updated;
 };
 
-// Staff Salaries
 export const getSalaries = () => {
   const data = localStorage.getItem(KEYS.SALARIES);
-  if (!data) return INITIAL_SALARIES;
-  try { return JSON.parse(data); } catch (e) { return INITIAL_SALARIES; }
+  let parsed = INITIAL_SALARIES;
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_SALARIES; }
+  }
+  return filterOutDeleted('salaries', parsed);
 };
 
 export const addSalaryRecord = (sal) => {
+  clearDeletedItem('salaries', sal.id);
   const current = getSalaries();
   const updated = [sal, ...current];
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
@@ -297,21 +374,25 @@ export const addSalaryRecord = (sal) => {
 };
 
 export const deleteSalaryRecord = (id) => {
+  recordDeletedItem('salaries', id);
   const current = getSalaries();
-  const updated = current.filter(s => s.id !== id);
+  const updated = current.filter(s => String(s.id) !== String(id));
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
   deleteItemFromCloud('salaries', id);
   return updated;
 };
 
-// Scrap Tyre Sales
 export const getScrapSales = () => {
   const data = localStorage.getItem(KEYS.SCRAP_SALES);
-  if (!data) return INITIAL_SCRAP_SALES;
-  try { return JSON.parse(data); } catch (e) { return INITIAL_SCRAP_SALES; }
+  let parsed = INITIAL_SCRAP_SALES;
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_SCRAP_SALES; }
+  }
+  return filterOutDeleted('scrapSales', parsed);
 };
 
 export const addScrapSale = (sale) => {
+  clearDeletedItem('scrapSales', sale.id);
   const current = getScrapSales();
   const updated = [sale, ...current];
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
@@ -320,8 +401,9 @@ export const addScrapSale = (sale) => {
 };
 
 export const deleteScrapSale = (id) => {
+  recordDeletedItem('scrapSales', id);
   const current = getScrapSales();
-  const updated = current.filter(s => s.id !== id);
+  const updated = current.filter(s => String(s.id) !== String(id));
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
   deleteItemFromCloud('scrapSales', id);
   return updated;
@@ -333,23 +415,25 @@ export const deleteScrapSale = (id) => {
 
 export const getPartnerGarages = () => {
   const data = localStorage.getItem(KEYS.PARTNER_GARAGES);
-  if (!data) {
-    const initialGarages = [
+  let parsed = [];
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+  } else {
+    parsed = [
       { id: 'pg_1', name: 'Sahara Motors', contactPerson: 'Aslam Khan', mobile: '9822011223', address: 'Hotgi Road Industrial Estate, Solapur', notes: 'Primary bulk drop-off garage client' }
     ];
-    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(initialGarages));
-    return initialGarages;
   }
-  try { return JSON.parse(data); } catch (e) { return []; }
+  return filterOutDeleted('partnerGarages', parsed);
 };
 
 export const savePartnerGarage = (garage) => {
-  const current = getPartnerGarages();
   const newGarage = {
     ...garage,
     id: garage.id || `pg_${Date.now()}`,
     createdAt: new Date().toISOString()
   };
+  clearDeletedItem('partnerGarages', newGarage.id);
+  const current = getPartnerGarages();
   const updated = [newGarage, ...current];
   localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
   saveItemToCloud('partnerGarages', newGarage);
@@ -357,8 +441,9 @@ export const savePartnerGarage = (garage) => {
 };
 
 export const deletePartnerGarage = (id) => {
+  recordDeletedItem('partnerGarages', id);
   const current = getPartnerGarages();
-  const updated = current.filter(g => g.id !== id);
+  const updated = current.filter(g => String(g.id) !== String(id));
   localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
   deleteItemFromCloud('partnerGarages', id);
   return updated;
@@ -366,12 +451,14 @@ export const deletePartnerGarage = (id) => {
 
 export const getPartnerBatches = () => {
   const data = localStorage.getItem(KEYS.PARTNER_BATCHES);
-  if (!data) return [];
-  try { return JSON.parse(data); } catch (e) { return []; }
+  let parsed = [];
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+  }
+  return filterOutDeleted('partnerBatches', parsed);
 };
 
 export const savePartnerBatch = (batch) => {
-  const current = getPartnerBatches();
   const newBatch = {
     ...batch,
     id: batch.id || `SGB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -380,6 +467,8 @@ export const savePartnerBatch = (batch) => {
     payments: batch.payments || [],
     createdAt: new Date().toISOString()
   };
+  clearDeletedItem('partnerBatches', newBatch.id);
+  const current = getPartnerBatches();
   const updated = [newBatch, ...current];
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
   saveItemToCloud('partnerBatches', newBatch);
@@ -387,6 +476,7 @@ export const savePartnerBatch = (batch) => {
 };
 
 export const updatePartnerBatch = (updatedBatch) => {
+  clearDeletedItem('partnerBatches', updatedBatch.id);
   const current = getPartnerBatches();
   const updated = current.map(b => b.id === updatedBatch.id ? updatedBatch : b);
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
@@ -395,8 +485,9 @@ export const updatePartnerBatch = (updatedBatch) => {
 };
 
 export const deletePartnerBatch = (id) => {
+  recordDeletedItem('partnerBatches', id);
   const current = getPartnerBatches();
-  const updated = current.filter(b => b.id !== id);
+  const updated = current.filter(b => String(b.id) !== String(id));
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
   deleteItemFromCloud('partnerBatches', id);
   return updated;
@@ -404,17 +495,21 @@ export const deletePartnerBatch = (id) => {
 
 export const getTyreWarranties = () => {
   const data = localStorage.getItem(KEYS.TYRE_WARRANTIES);
-  if (!data) return [];
-  try { return JSON.parse(data); } catch (e) { return []; }
+  let parsed = [];
+  if (data) {
+    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+  }
+  return filterOutDeleted('tyreWarranties', parsed);
 };
 
 export const saveTyreWarranty = (warranty) => {
-  const current = getTyreWarranties();
   const newObj = {
     ...warranty,
     id: warranty.id || `WAR-2026-${Math.floor(1000 + Math.random() * 9000)}`,
     createdAt: new Date().toISOString()
   };
+  clearDeletedItem('tyreWarranties', newObj.id);
+  const current = getTyreWarranties();
   const updated = [newObj, ...current];
   localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
   saveItemToCloud('tyreWarranties', newObj);
@@ -422,56 +517,73 @@ export const saveTyreWarranty = (warranty) => {
 };
 
 export const deleteTyreWarranty = (id) => {
+  recordDeletedItem('tyreWarranties', id);
   const current = getTyreWarranties();
-  const updated = current.filter(w => w.id !== id);
+  const updated = current.filter(w => String(w.id) !== String(id));
   localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
   deleteItemFromCloud('tyreWarranties', id);
   return updated;
 };
 
-const mergeArraysById = (localArray, cloudArray) => {
-  if (!Array.isArray(cloudArray)) return localArray || [];
-  if (!Array.isArray(localArray)) return cloudArray || [];
-
-  const map = new Map();
-  localArray.forEach(item => {
-    if (item && item.id) map.set(String(item.id), item);
-  });
-  cloudArray.forEach(item => {
-    if (item && item.id) map.set(String(item.id), item);
-  });
-  return Array.from(map.values());
-};
-
 export const saveCloudData = (cloudData) => {
   if (!cloudData) return;
 
-  if (Array.isArray(cloudData.jobCards)) {
-    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
+  // 1. Merge incoming tombstones into LocalStorage
+  if (Array.isArray(cloudData.deletedItems) && cloudData.deletedItems.length > 0) {
+    const currentTombstones = getDeletedItems();
+    const map = new Map();
+    currentTombstones.forEach(t => map.set(`${t.collectionName}:${String(t.id)}`, t));
+    cloudData.deletedItems.forEach(t => {
+      if (t && t.collectionName && t.id) {
+        map.set(`${t.collectionName}:${String(t.id)}`, {
+          collectionName: t.collectionName,
+          id: String(t.id),
+          deletedAt: t.deletedAt || new Date().toISOString()
+        });
+      }
+    });
+    localStorage.setItem(KEYS.DELETED_ITEMS, JSON.stringify(Array.from(map.values())));
   }
-  if (Array.isArray(cloudData.inventory) && cloudData.inventory.length > 0) {
-    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(cloudData.inventory));
+
+  const deletedItems = getDeletedItems();
+  const deletedSet = new Set(deletedItems.map(item => `${item.collectionName}:${String(item.id)}`));
+  const isNotDeleted = (collectionName, id) => !deletedSet.has(`${collectionName}:${String(id)}`);
+
+  if (Array.isArray(cloudData.jobCards)) {
+    const valid = cloudData.jobCards.filter(item => isNotDeleted('jobCards', item.id));
+    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(valid));
+  }
+  if (Array.isArray(cloudData.inventory)) {
+    const valid = cloudData.inventory.filter(item => isNotDeleted('inventory', item.id));
+    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.bookings)) {
-    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(cloudData.bookings));
+    const valid = cloudData.bookings.filter(item => isNotDeleted('bookings', item.id));
+    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.expenses)) {
-    localStorage.setItem(KEYS.EXPENSES, JSON.stringify(cloudData.expenses));
+    const valid = cloudData.expenses.filter(item => isNotDeleted('expenses', item.id));
+    localStorage.setItem(KEYS.EXPENSES, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.salaries)) {
-    localStorage.setItem(KEYS.SALARIES, JSON.stringify(cloudData.salaries));
+    const valid = cloudData.salaries.filter(item => isNotDeleted('salaries', item.id));
+    localStorage.setItem(KEYS.SALARIES, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.scrapSales)) {
-    localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
+    const valid = cloudData.scrapSales.filter(item => isNotDeleted('scrapSales', item.id));
+    localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.partnerGarages)) {
-    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
+    const valid = cloudData.partnerGarages.filter(item => isNotDeleted('partnerGarages', item.id));
+    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.partnerBatches)) {
-    localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
+    const valid = cloudData.partnerBatches.filter(item => isNotDeleted('partnerBatches', item.id));
+    localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(valid));
   }
   if (Array.isArray(cloudData.tyreWarranties)) {
-    localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(cloudData.tyreWarranties));
+    const valid = cloudData.tyreWarranties.filter(item => isNotDeleted('tyreWarranties', item.id));
+    localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(valid));
   }
   if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) {
     localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));

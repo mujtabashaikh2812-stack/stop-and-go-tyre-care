@@ -1,7 +1,8 @@
 import {
   getJobCards, getInventory, getServicePrices, getBookings,
   getExpenses, getSalaries, getScrapSales,
-  getPartnerGarages, getPartnerBatches, getTyreWarranties
+  getPartnerGarages, getPartnerBatches, getTyreWarranties,
+  getDeletedItems
 } from './storage';
 
 // Active Production Render Backend Target
@@ -37,6 +38,7 @@ export const triggerCloudSync = async () => {
     const partnerGarages = getPartnerGarages();
     const partnerBatches = getPartnerBatches();
     const tyreWarranties = getTyreWarranties();
+    const deletedItems = getDeletedItems();
 
     const payload = {
       jobCards,
@@ -48,7 +50,8 @@ export const triggerCloudSync = async () => {
       scrapSales,
       partnerGarages,
       partnerBatches,
-      tyreWarranties
+      tyreWarranties,
+      deletedItems
     };
 
     const response = await fetch(`${API_URL}/sync`, {

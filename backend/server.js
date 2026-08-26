@@ -25,16 +25,28 @@ const models = Object.fromEntries(
   ])
 );
 
+// Tombstone Schema for Persistent Deletion Tracking across all devices
+const deletedItemSchema = new mongoose.Schema(
+  {
+    collectionName: { type: String, required: true },
+    id: { type: String, required: true },
+    deletedAt: { type: Date, default: Date.now }
+  },
+  { timestamps: true }
+);
+deletedItemSchema.index({ collectionName: 1, id: 1 }, { unique: true });
+const DeletedItem = mongoose.models.DeletedItem || mongoose.model('DeletedItem', deletedItemSchema, 'deleteditems');
+
 // Allow CORS from Vercel Web App, Localhost, Android Capacitor Apps, and Mobile Browsers
 app.use(cors({
-  origin: true, // Echoes the requesting origin (e.g. https://stop-and-go-tyre-care.vercel.app)
+  origin: true, // Echoes requesting origin (e.g. https://stop-and-go-tyre-care.vercel.app)
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json({ limit: '2mb' }));
 
-// 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
+// 🏥 Uptime Monitor & Favicon Route Handlers
 const handleHealthCheck = (_req, res) => {
   const connected = mongoose.connection.readyState === 1;
   res.status(200).json({
@@ -48,25 +60,43 @@ const handleHealthCheck = (_req, res) => {
 
 app.get('/', handleHealthCheck);
 app.get('/health', handleHealthCheck);
+app.get('/api', handleHealthCheck);
 app.get('/api/health', handleHealthCheck);
 app.get('/ping', handleHealthCheck);
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
+app.get('/robots.txt', (_req, res) => res.status(200).send('User-agent: *\nDisallow:'));
 
 app.get('/api/data', async (_req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(200).json({
-        jobCards: [], inventory: [], bookings: [], expenses: [], salaries: [], scrapSales: [], servicePrices: {}, partnerGarages: [], partnerBatches: [], tyreWarranties: []
+        jobCards: [], inventory: [], bookings: [], expenses: [], salaries: [], scrapSales: [], servicePrices: {}, partnerGarages: [], partnerBatches: [], tyreWarranties: [], deletedItems: []
       });
     }
+
+    const tombstones = await DeletedItem.find().lean();
+    const tombstoneSet = new Set(tombstones.map(t => `${t.collectionName}:${String(t.id)}`));
+
     const data = await Promise.all(
-      collectionNames.map(async (collectionName) => [
-        collectionName,
-        collectionName === 'servicePrices'
-          ? (await models[collectionName].findOne({ id: 'current' }).lean())?.value || {}
-          : await models[collectionName].find().sort({ createdAt: -1 }).lean()
-      ])
+      collectionNames.map(async (collectionName) => {
+        if (collectionName === 'servicePrices') {
+          const doc = await models[collectionName].findOne({ id: 'current' }).lean();
+          return [collectionName, doc?.value || {}];
+        }
+        const docs = await models[collectionName].find().sort({ createdAt: -1 }).lean();
+        const filteredDocs = docs.filter(doc => !tombstoneSet.has(`${collectionName}:${String(doc.id)}`));
+        return [collectionName, filteredDocs];
+      })
     );
-    res.json(Object.fromEntries(data));
+
+    const result = Object.fromEntries(data);
+    result.deletedItems = tombstones.map(t => ({
+      collectionName: t.collectionName,
+      id: String(t.id),
+      deletedAt: t.deletedAt || t.createdAt
+    }));
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Unable to fetch data', details: error.message });
   }
@@ -80,13 +110,18 @@ app.post('/api/save-item', async (req, res) => {
 
   try {
     if (mongoose.connection.readyState === 1) {
+      const idStr = String(record.id);
+
+      // Remove from tombstone collection if record is explicitly re-created
+      await DeletedItem.deleteOne({ collectionName, id: idStr });
+
       const { _id, __v, ...safeRecord } = record;
       await models[collectionName].updateOne(
-        { id: String(safeRecord.id) },
+        { id: idStr },
         { $set: safeRecord },
         { upsert: true }
       );
-      console.log(`🍃 Saved ${collectionName} item ${safeRecord.id} to MongoDB Atlas`);
+      console.log(`🍃 Saved ${collectionName} item ${idStr} to MongoDB Atlas`);
     }
     res.json({ success: true, collectionName, id: record.id });
   } catch (error) {
@@ -103,8 +138,16 @@ app.post('/api/delete-item', async (req, res) => {
 
   try {
     if (mongoose.connection.readyState === 1) {
-      await models[collectionName].deleteOne({ id: String(id) });
-      console.log(`🗑️ Deleted ${collectionName} item ${id} from MongoDB Atlas`);
+      const idStr = String(id);
+      await models[collectionName].deleteOne({ id: idStr });
+
+      // Record tombstone to prevent resurrection from stale sync payloads/clients
+      await DeletedItem.updateOne(
+        { collectionName, id: idStr },
+        { $set: { collectionName, id: idStr, deletedAt: new Date() } },
+        { upsert: true }
+      );
+      console.log(`🗑️ Permanently deleted ${collectionName} item ${idStr} & recorded tombstone`);
     }
     res.json({ success: true, collectionName, id });
   } catch (error) {
@@ -125,8 +168,31 @@ app.post('/api/sync', async (req, res) => {
       return res.status(200).json({ success: true, message: 'Saved in LocalStorage; MongoDB reconnecting.' });
     }
 
+    // 1. Process explicit tombstones / deletedItems from client payload
+    const incomingDeleted = payload.deletedItems || [];
+    if (Array.isArray(incomingDeleted) && incomingDeleted.length > 0) {
+      await Promise.all(
+        incomingDeleted.map(async (del) => {
+          if (del && del.collectionName && del.id && models[del.collectionName]) {
+            const idStr = String(del.id);
+            await models[del.collectionName].deleteOne({ id: idStr });
+            await DeletedItem.updateOne(
+              { collectionName: del.collectionName, id: idStr },
+              { $set: { collectionName: del.collectionName, id: idStr, deletedAt: del.deletedAt ? new Date(del.deletedAt) : new Date() } },
+              { upsert: true }
+            );
+          }
+        })
+      );
+    }
+
+    // 2. Fetch all persistent tombstones from MongoDB Atlas
+    const allTombstones = await DeletedItem.find().lean();
+    const tombstoneSet = new Set(allTombstones.map(t => `${t.collectionName}:${String(t.id)}`));
+
     const counts = {};
 
+    // 3. Perform bulkWrite upserts ONLY for records NOT in tombstoneSet
     await Promise.all(
       collectionNames.map(async (collectionName) => {
         const records = collectionName === 'servicePrices'
@@ -138,6 +204,7 @@ app.post('/api/sync', async (req, res) => {
 
         const operations = records
           .filter((record) => record && typeof record === 'object' && record.id)
+          .filter((record) => !tombstoneSet.has(`${collectionName}:${String(record.id)}`)) // SERVER-SIDE DELETION PRECEDENCE!
           .map((record) => {
             const { _id, __v, ...safeRecord } = record;
             return {
@@ -162,11 +229,12 @@ app.post('/api/sync', async (req, res) => {
   }
 });
 
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+app.use((req, res) => {
+  console.warn(`⚠️ 404 Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ error: 'Route not found', path: req.url, method: req.method });
 });
 
-// Start Express Server immediately so Render Health Check passes 100%
+// Start Express Server
 app.listen(port, () => {
   console.log(`🚀 STOP & GO backend listening on port ${port}`);
 
@@ -174,7 +242,7 @@ app.listen(port, () => {
     console.log('🍃 Connecting to MongoDB Atlas...');
     mongoose.connect(process.env.MONGODB_URI)
       .then(() => console.log('✅ MongoDB Atlas Database Connected Successfully!'))
-      .catch(err => console.error('⚠️ MongoDB Connection Notice (Ensure 0.0.0.0/0 IP Whitelist in MongoDB Atlas):', err.message));
+      .catch(err => console.error('⚠️ MongoDB Connection Notice:', err.message));
   } else {
     console.warn('⚠️ MONGODB_URI not found in environment variables.');
   }
