@@ -25,28 +25,8 @@ const models = Object.fromEntries(
   ])
 );
 
-// Allow CORS from all origins (Vercel, Netlify, Android APK, localhost)
-const allowedOrigins = process.env.CLIENT_ORIGIN
-  ? process.env.CLIENT_ORIGIN.split(',').map(o => o.trim())
-  : null;
-
-app.use(cors({
-  origin: allowedOrigins
-    ? (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Postman)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-        return callback(null, true); // fallback: allow all for now
-      }
-    : '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false
-}));
-// Handle preflight for all routes
-app.options('*', cors());
+// Allow CORS from Vercel Web App, Localhost, and Android Capacitor App
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
 app.use(express.json({ limit: '2mb' }));
 
 // 🏥 Uptime Monitor Health Check Routes (Render Keep-Alive Endpoints)
