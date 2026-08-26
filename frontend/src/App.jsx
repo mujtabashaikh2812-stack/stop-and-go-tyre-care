@@ -73,8 +73,9 @@ export default function App() {
     setPartnerBatches(getPartnerBatches());
     setWarranties(getTyreWarranties());
 
-    // 2. Fetch latest live data from MongoDB Cloud & Refresh all React state
+    // 2. Sync local data & fetch live MongoDB Cloud data to refresh React state
     const loadCloudData = async () => {
+      await triggerCloudSync();
       const cloudData = await fetchCloudData();
       if (cloudData) {
         saveCloudData(cloudData);
