@@ -1,4 +1,5 @@
 import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY, INITIAL_BOOKINGS, INITIAL_EXPENSES, INITIAL_SALARIES, INITIAL_SCRAP_SALES } from '../data/mockData';
+// Direct MongoDB Atlas Cloud REST Persistence & LocalStorage Fallback System
 import { saveItemToCloud, deleteItemFromCloud } from './syncService';
 
 const KEYS = {
