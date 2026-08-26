@@ -81,9 +81,11 @@ app.post('/api/save-item', async (req, res) => {
         { $set: safeRecord },
         { upsert: true }
       );
+      console.log(`🍃 Saved ${collectionName} item ${safeRecord.id} to MongoDB Atlas`);
     }
     res.json({ success: true, collectionName, id: record.id });
   } catch (error) {
+    console.error(`❌ Failed to save ${collectionName}:`, error.message);
     res.status(500).json({ error: 'Failed to save item to MongoDB', details: error.message });
   }
 });
@@ -97,9 +99,11 @@ app.post('/api/delete-item', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
       await models[collectionName].deleteOne({ id: String(id) });
+      console.log(`🗑️ Deleted ${collectionName} item ${id} from MongoDB Atlas`);
     }
     res.json({ success: true, collectionName, id });
   } catch (error) {
+    console.error(`❌ Failed to delete ${collectionName}:`, error.message);
     res.status(500).json({ error: 'Failed to delete item from MongoDB', details: error.message });
   }
 });
