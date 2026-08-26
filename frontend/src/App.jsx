@@ -19,8 +19,7 @@ import {
   getPartnerGarages, getPartnerBatches, getTyreWarranties,
   getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
-import { triggerCloudSync, fetchCloudData } from './utils/syncService';
-import { saveCloudData } from './utils/storage';
+import { triggerCloudSync } from './utils/syncService';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -62,7 +61,6 @@ export default function App() {
   const [billingMode, setBillingMode] = useState('bill');
 
   useEffect(() => {
-    // Load from localStorage first (instant render)
     setJobCards(getJobCards());
     setInventory(getInventory());
     setServices(getServicePrices());
@@ -74,31 +72,10 @@ export default function App() {
     setPartnerBatches(getPartnerBatches());
     setWarranties(getTyreWarranties());
 
-    // Then fetch latest data from MongoDB and refresh all state
-    const loadCloudData = async () => {
-      const cloudData = await fetchCloudData();
-      if (cloudData) {
-        saveCloudData(cloudData);
-        // Refresh React state from the newly saved localStorage values
-        if (Array.isArray(cloudData.jobCards) && cloudData.jobCards.length > 0) setJobCards(cloudData.jobCards);
-        if (Array.isArray(cloudData.inventory) && cloudData.inventory.length > 0) setInventory(cloudData.inventory);
-        if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) setServices(cloudData.servicePrices);
-        if (Array.isArray(cloudData.bookings) && cloudData.bookings.length > 0) setBookings(cloudData.bookings);
-        if (Array.isArray(cloudData.expenses) && cloudData.expenses.length > 0) setExpenses(cloudData.expenses);
-        if (Array.isArray(cloudData.salaries) && cloudData.salaries.length > 0) setSalaries(cloudData.salaries);
-        if (Array.isArray(cloudData.scrapSales) && cloudData.scrapSales.length > 0) setScrapSales(cloudData.scrapSales);
-        if (Array.isArray(cloudData.partnerGarages) && cloudData.partnerGarages.length > 0) setPartnerGarages(cloudData.partnerGarages);
-        if (Array.isArray(cloudData.partnerBatches) && cloudData.partnerBatches.length > 0) setPartnerBatches(cloudData.partnerBatches);
-        if (Array.isArray(cloudData.tyreWarranties) && cloudData.tyreWarranties.length > 0) setWarranties(cloudData.tyreWarranties);
-      }
-      // After loading cloud data, push local changes (if any new ones exist)
-      triggerCloudSync();
-    };
-
-    loadCloudData();
+    triggerCloudSync();
 
     const handleOnline = () => {
-      loadCloudData();
+      triggerCloudSync();
     };
 
     window.addEventListener('online', handleOnline);

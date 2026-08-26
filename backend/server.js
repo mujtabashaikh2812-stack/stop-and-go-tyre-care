@@ -106,6 +106,8 @@ app.post('/api/sync', async (req, res) => {
         if (operations.length > 0) {
           await models[collectionName].bulkWrite(operations, { ordered: false });
         }
+        const ids = operations.map(({ updateOne }) => updateOne.filter.id);
+        await models[collectionName].deleteMany({ id: { $nin: ids } });
         counts[collectionName] = operations.length;
       })
     );
