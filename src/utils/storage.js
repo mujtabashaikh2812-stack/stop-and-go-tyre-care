@@ -1,4 +1,5 @@
 import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY, INITIAL_BOOKINGS, INITIAL_EXPENSES, INITIAL_SALARIES, INITIAL_SCRAP_SALES } from '../data/mockData';
+import { saveItemToCloud, deleteItemFromCloud } from './syncService';
 
 const KEYS = {
   JOB_CARDS: 'stop_go_job_cards_v3',
@@ -53,6 +54,7 @@ export const saveJobCard = (newCard) => {
   const updated = [newCard, ...current];
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
   deductInventoryForJobCard(newCard);
+  saveItemToCloud('jobCards', newCard);
   return updated;
 };
 
@@ -61,6 +63,7 @@ export const updateExistingJobCard = (updatedCard) => {
   const current = getJobCards();
   const updated = current.map(c => c.id === updatedCard.id ? updatedCard : c);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  saveItemToCloud('jobCards', updatedCard);
   return updated;
 };
 
@@ -68,6 +71,7 @@ export const deleteJobCard = (id) => {
   const current = getJobCards();
   const updated = current.filter(c => c.id !== id);
   localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(updated));
+  deleteItemFromCloud('jobCards', id);
   return updated;
 };
 
@@ -98,6 +102,8 @@ export const updateInventoryItem = (id, newStock) => {
   const inventory = getInventory();
   const updated = inventory.map(item => item.id === id ? { ...item, inStock: newStock } : item);
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  const target = updated.find(i => i.id === id);
+  if (target) saveItemToCloud('inventory', target);
   return updated;
 };
 
@@ -112,6 +118,7 @@ export const addInventoryItem = (name, unit, initialStock = 0, reorderLevel = 10
   };
   const updated = [...inventory, newItem];
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  saveItemToCloud('inventory', newItem);
   return updated;
 };
 
@@ -119,32 +126,49 @@ export const deleteInventoryItem = (id) => {
   const inventory = getInventory();
   const updated = inventory.filter(item => item.id !== id);
   localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  deleteItemFromCloud('inventory', id);
   return updated;
 };
 
 const deductInventoryForJobCard = (jobCard) => {
+  if (!jobCard || !jobCard.services) return;
   const inventory = getInventory();
-  let updated = [...inventory];
-  
-  jobCard.services.forEach(serv => {
-    if (serv.name.includes('Weight')) {
-      const matchGrams = serv.name.match(/(\d+)g/);
-      if (matchGrams) {
-        const grams = parseInt(matchGrams[1], 10);
-        const itemKey = serv.name.includes('Brass') ? 'brass_weights' : 'sticker_weights';
-        updated = updated.map(item => item.id === itemKey ? { ...item, inStock: Math.max(0, item.inStock - grams) } : item);
+  const services = jobCard.services;
+  let changed = false;
+
+  const updated = inventory.map(item => {
+    let copy = { ...item };
+
+    if (item.id === 'sticker_weights' && services.weight?.enabled && services.weight?.weightType === 'sticker') {
+      const grams = parseInt(services.weight.grams, 10) || 0;
+      if (grams > 0) {
+        copy.inStock = Math.max(0, copy.inStock - grams);
+        changed = true;
       }
     }
-    if (serv.name.includes('Valves')) {
-      const matchValves = serv.name.match(/(\d+) New Valves/);
-      if (matchValves) {
-        const count = parseInt(matchValves[1], 10);
-        updated = updated.map(item => item.id === 'tyre_valves' ? { ...item, inStock: Math.max(0, item.inStock - count) } : item);
+
+    if (item.id === 'brass_weights' && services.weight?.enabled && services.weight?.weightType === 'brass') {
+      const grams = parseInt(services.weight.grams, 10) || 0;
+      if (grams > 0) {
+        copy.inStock = Math.max(0, copy.inStock - grams);
+        changed = true;
       }
     }
+
+    if (item.id === 'tyre_valves' && services.tyreFitting?.enabled && services.tyreFitting?.newValve) {
+      const qty = parseInt(services.tyreFitting.valveQty, 10) || 0;
+      if (qty > 0) {
+        copy.inStock = Math.max(0, copy.inStock - qty);
+        changed = true;
+      }
+    }
+
+    return copy;
   });
 
-  localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  if (changed) {
+    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(updated));
+  }
 };
 
 export const getServicePrices = () => {
@@ -153,12 +177,16 @@ export const getServicePrices = () => {
     localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(DEFAULT_SERVICES));
     return DEFAULT_SERVICES;
   }
-  try { return JSON.parse(data); } catch (e) { return DEFAULT_SERVICES; }
+  try { 
+    const parsed = JSON.parse(data);
+    return { ...DEFAULT_SERVICES, ...parsed };
+  } catch (e) { return DEFAULT_SERVICES; }
 };
 
-export const saveServicePrices = (newPrices) => {
-  localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(newPrices));
-  return newPrices;
+export const saveServicePrices = (prices) => {
+  localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(prices));
+  saveItemToCloud('servicePrices', { id: 'current', value: prices });
+  return prices;
 };
 
 export const resetDefaultServicePrices = () => {
@@ -198,10 +226,20 @@ export const getBookings = () => {
   try { return JSON.parse(data); } catch (e) { return INITIAL_BOOKINGS; }
 };
 
-export const addBooking = (booking) => {
+export const saveBooking = (booking) => {
   const current = getBookings();
   const updated = [booking, ...current];
   localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  saveItemToCloud('bookings', booking);
+  return updated;
+};
+
+export const updateBookingStatus = (id, status) => {
+  const current = getBookings();
+  const updated = current.map(b => b.id === id ? { ...b, status } : b);
+  localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+  const target = updated.find(b => b.id === id);
+  if (target) saveItemToCloud('bookings', target);
   return updated;
 };
 
@@ -223,6 +261,7 @@ export const addExpense = (exp) => {
   const current = getExpenses();
   const updated = [exp, ...current];
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
+  saveItemToCloud('expenses', exp);
   return updated;
 };
 
@@ -230,6 +269,7 @@ export const deleteExpense = (id) => {
   const current = getExpenses();
   const updated = current.filter(e => e.id !== id);
   localStorage.setItem(KEYS.EXPENSES, JSON.stringify(updated));
+  deleteItemFromCloud('expenses', id);
   return updated;
 };
 
@@ -244,6 +284,7 @@ export const addSalaryRecord = (sal) => {
   const current = getSalaries();
   const updated = [sal, ...current];
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
+  saveItemToCloud('salaries', sal);
   return updated;
 };
 
@@ -251,6 +292,7 @@ export const deleteSalaryRecord = (id) => {
   const current = getSalaries();
   const updated = current.filter(s => s.id !== id);
   localStorage.setItem(KEYS.SALARIES, JSON.stringify(updated));
+  deleteItemFromCloud('salaries', id);
   return updated;
 };
 
@@ -265,6 +307,7 @@ export const addScrapSale = (sale) => {
   const current = getScrapSales();
   const updated = [sale, ...current];
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
+  saveItemToCloud('scrapSales', sale);
   return updated;
 };
 
@@ -272,6 +315,7 @@ export const deleteScrapSale = (id) => {
   const current = getScrapSales();
   const updated = current.filter(s => s.id !== id);
   localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(updated));
+  deleteItemFromCloud('scrapSales', id);
   return updated;
 };
 
@@ -300,6 +344,7 @@ export const savePartnerGarage = (garage) => {
   };
   const updated = [newGarage, ...current];
   localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
+  saveItemToCloud('partnerGarages', newGarage);
   return updated;
 };
 
@@ -307,6 +352,7 @@ export const deletePartnerGarage = (id) => {
   const current = getPartnerGarages();
   const updated = current.filter(g => g.id !== id);
   localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(updated));
+  deleteItemFromCloud('partnerGarages', id);
   return updated;
 };
 
@@ -328,6 +374,7 @@ export const savePartnerBatch = (batch) => {
   };
   const updated = [newBatch, ...current];
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  saveItemToCloud('partnerBatches', newBatch);
   return updated;
 };
 
@@ -335,6 +382,7 @@ export const updatePartnerBatch = (updatedBatch) => {
   const current = getPartnerBatches();
   const updated = current.map(b => b.id === updatedBatch.id ? updatedBatch : b);
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  saveItemToCloud('partnerBatches', updatedBatch);
   return updated;
 };
 
@@ -342,6 +390,7 @@ export const deletePartnerBatch = (id) => {
   const current = getPartnerBatches();
   const updated = current.filter(b => b.id !== id);
   localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(updated));
+  deleteItemFromCloud('partnerBatches', id);
   return updated;
 };
 
@@ -360,6 +409,7 @@ export const saveTyreWarranty = (warranty) => {
   };
   const updated = [newObj, ...current];
   localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
+  saveItemToCloud('tyreWarranties', newObj);
   return updated;
 };
 
@@ -367,6 +417,7 @@ export const deleteTyreWarranty = (id) => {
   const current = getTyreWarranties();
   const updated = current.filter(w => w.id !== id);
   localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(updated));
+  deleteItemFromCloud('tyreWarranties', id);
   return updated;
 };
 

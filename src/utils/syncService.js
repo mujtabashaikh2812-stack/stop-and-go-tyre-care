@@ -78,6 +78,36 @@ export const triggerCloudSync = async () => {
   return false;
 };
 
+export const saveItemToCloud = async (collectionName, record) => {
+  if (!navigator.onLine || !record || !record.id) return false;
+  try {
+    const response = await fetch(`${API_URL}/save-item`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ collectionName, record })
+    });
+    return response.ok;
+  } catch (err) {
+    console.warn(`Direct save for ${collectionName} failed:`, err);
+    return false;
+  }
+};
+
+export const deleteItemFromCloud = async (collectionName, id) => {
+  if (!navigator.onLine || !id) return false;
+  try {
+    const response = await fetch(`${API_URL}/delete-item`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ collectionName, id })
+    });
+    return response.ok;
+  } catch (err) {
+    console.warn(`Direct delete for ${collectionName} failed:`, err);
+    return false;
+  }
+};
+
 export const fetchCloudData = async () => {
   if (!navigator.onLine) return null;
 

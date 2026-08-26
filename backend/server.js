@@ -67,6 +67,43 @@ app.get('/api/data', async (_req, res) => {
   }
 });
 
+app.post('/api/save-item', async (req, res) => {
+  const { collectionName, record } = req.body;
+  if (!collectionName || !record || !record.id || !models[collectionName]) {
+    return res.status(400).json({ error: 'Invalid collectionName or record payload' });
+  }
+
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const { _id, __v, ...safeRecord } = record;
+      await models[collectionName].updateOne(
+        { id: String(safeRecord.id) },
+        { $set: safeRecord },
+        { upsert: true }
+      );
+    }
+    res.json({ success: true, collectionName, id: record.id });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save item to MongoDB', details: error.message });
+  }
+});
+
+app.post('/api/delete-item', async (req, res) => {
+  const { collectionName, id } = req.body;
+  if (!collectionName || !id || !models[collectionName]) {
+    return res.status(400).json({ error: 'Invalid collectionName or id payload' });
+  }
+
+  try {
+    if (mongoose.connection.readyState === 1) {
+      await models[collectionName].deleteOne({ id: String(id) });
+    }
+    res.json({ success: true, collectionName, id });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete item from MongoDB', details: error.message });
+  }
+});
+
 app.post('/api/sync', async (req, res) => {
   const payload = req.body;
 
@@ -106,8 +143,6 @@ app.post('/api/sync', async (req, res) => {
         if (operations.length > 0) {
           await models[collectionName].bulkWrite(operations, { ordered: false });
         }
-        const ids = operations.map(({ updateOne }) => updateOne.filter.id);
-        await models[collectionName].deleteMany({ id: { $nin: ids } });
         counts[collectionName] = operations.length;
       })
     );
