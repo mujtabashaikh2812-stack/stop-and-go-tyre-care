@@ -4,6 +4,7 @@ import {
   getPartnerGarages, getPartnerBatches, getTyreWarranties
 } from './storage';
 
+// Default Production Render Backend URL for Multi-Device MongoDB Atlas Sync
 const DEFAULT_RENDER_BACKEND = 'https://stop-and-go-tyre-care-2.onrender.com/api';
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
 const API_URL = (configuredApiUrl || DEFAULT_RENDER_BACKEND).replace(/\/+$/, '');
