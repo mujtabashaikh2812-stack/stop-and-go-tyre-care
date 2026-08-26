@@ -1,12 +1,17 @@
-import { getJobCards, getInventory, getServicePrices, getBookings, getExpenses, getSalaries, getScrapSales } from './storage';
+import {
+  getJobCards, getInventory, getServicePrices, getBookings,
+  getExpenses, getSalaries, getScrapSales,
+  getPartnerGarages, getPartnerBatches, getTyreWarranties
+} from './storage';
 
+const DEFAULT_RENDER_BACKEND = 'https://stop-and-go-tyre-care-2.onrender.com/api';
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
-const API_URL = (configuredApiUrl || '/api').replace(/\/+$/, '');
+const API_URL = (configuredApiUrl || DEFAULT_RENDER_BACKEND).replace(/\/+$/, '');
 let syncInProgress = false;
 
 const reportSyncFailure = (error) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`MongoDB sync failed for ${API_URL}. Set VITE_API_URL to the deployed backend URL.`, message);
+  console.error(`MongoDB sync failed for ${API_URL}.`, message);
   window.dispatchEvent(new CustomEvent('cloud-sync-status', {
     detail: { connected: false, message }
   }));
@@ -30,6 +35,9 @@ export const triggerCloudSync = async () => {
     const expenses = getExpenses();
     const salaries = getSalaries();
     const scrapSales = getScrapSales();
+    const partnerGarages = getPartnerGarages();
+    const partnerBatches = getPartnerBatches();
+    const tyreWarranties = getTyreWarranties();
 
     const payload = {
       jobCards,
@@ -38,7 +46,10 @@ export const triggerCloudSync = async () => {
       bookings,
       expenses,
       salaries,
-      scrapSales
+      scrapSales,
+      partnerGarages,
+      partnerBatches,
+      tyreWarranties
     };
 
     const response = await fetch(`${API_URL}/sync`, {
