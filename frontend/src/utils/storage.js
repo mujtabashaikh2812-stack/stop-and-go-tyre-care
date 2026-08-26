@@ -372,16 +372,36 @@ export const deleteTyreWarranty = (id) => {
 
 export const saveCloudData = (cloudData) => {
   if (!cloudData) return;
-  if (Array.isArray(cloudData.jobCards)) localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
-  if (Array.isArray(cloudData.inventory)) localStorage.setItem(KEYS.INVENTORY, JSON.stringify(cloudData.inventory));
-  if (Array.isArray(cloudData.bookings)) localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(cloudData.bookings));
-  if (Array.isArray(cloudData.expenses)) localStorage.setItem(KEYS.EXPENSES, JSON.stringify(cloudData.expenses));
-  if (Array.isArray(cloudData.salaries)) localStorage.setItem(KEYS.SALARIES, JSON.stringify(cloudData.salaries));
-  if (Array.isArray(cloudData.scrapSales)) localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
-  if (Array.isArray(cloudData.partnerGarages)) localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
-  if (Array.isArray(cloudData.partnerBatches)) localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
-  if (Array.isArray(cloudData.tyreWarranties)) localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(cloudData.tyreWarranties));
-  if (cloudData.servicePrices) localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
+  if (Array.isArray(cloudData.jobCards) && cloudData.jobCards.length > 0) {
+    localStorage.setItem(KEYS.JOB_CARDS, JSON.stringify(cloudData.jobCards));
+  }
+  if (Array.isArray(cloudData.inventory) && cloudData.inventory.length > 0) {
+    localStorage.setItem(KEYS.INVENTORY, JSON.stringify(cloudData.inventory));
+  }
+  if (Array.isArray(cloudData.bookings) && cloudData.bookings.length > 0) {
+    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(cloudData.bookings));
+  }
+  if (Array.isArray(cloudData.expenses) && cloudData.expenses.length > 0) {
+    localStorage.setItem(KEYS.EXPENSES, JSON.stringify(cloudData.expenses));
+  }
+  if (Array.isArray(cloudData.salaries) && cloudData.salaries.length > 0) {
+    localStorage.setItem(KEYS.SALARIES, JSON.stringify(cloudData.salaries));
+  }
+  if (Array.isArray(cloudData.scrapSales) && cloudData.scrapSales.length > 0) {
+    localStorage.setItem(KEYS.SCRAP_SALES, JSON.stringify(cloudData.scrapSales));
+  }
+  if (Array.isArray(cloudData.partnerGarages) && cloudData.partnerGarages.length > 0) {
+    localStorage.setItem(KEYS.PARTNER_GARAGES, JSON.stringify(cloudData.partnerGarages));
+  }
+  if (Array.isArray(cloudData.partnerBatches) && cloudData.partnerBatches.length > 0) {
+    localStorage.setItem(KEYS.PARTNER_BATCHES, JSON.stringify(cloudData.partnerBatches));
+  }
+  if (Array.isArray(cloudData.tyreWarranties) && cloudData.tyreWarranties.length > 0) {
+    localStorage.setItem(KEYS.TYRE_WARRANTIES, JSON.stringify(cloudData.tyreWarranties));
+  }
+  if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) {
+    localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
+  }
 };
 
 export const searchCustomerByMobile = (mobile) => {

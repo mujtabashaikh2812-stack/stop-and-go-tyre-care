@@ -16,10 +16,10 @@ import AdminLoginGate from './components/AdminLoginGate';
 import {
   getJobCards, saveJobCard, updateExistingJobCard, getInventory, getServicePrices,
   getBookings, getExpenses, getSalaries, getScrapSales,
-  getPartnerGarages, getPartnerBatches, getTyreWarranties,
+  getPartnerGarages, getPartnerBatches, getTyreWarranties, saveCloudData,
   getLanguage, setLanguage as saveLanguage
 } from './utils/storage';
-import { triggerCloudSync } from './utils/syncService';
+import { triggerCloudSync, fetchCloudData } from './utils/syncService';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -61,6 +61,7 @@ export default function App() {
   const [billingMode, setBillingMode] = useState('bill');
 
   useEffect(() => {
+    // 1. Initial render from local cache
     setJobCards(getJobCards());
     setInventory(getInventory());
     setServices(getServicePrices());
@@ -72,10 +73,23 @@ export default function App() {
     setPartnerBatches(getPartnerBatches());
     setWarranties(getTyreWarranties());
 
-    triggerCloudSync();
+    // 2. Async Cloud Sync: First upload local data to MongoDB Atlas, then fetch and merge cloud data
+    const syncWithCloud = async () => {
+      await triggerCloudSync();
+      const cloudData = await fetchCloudData();
+      if (cloudData) {
+        saveCloudData(cloudData);
+        setJobCards(getJobCards());
+        setPartnerGarages(getPartnerGarages());
+        setPartnerBatches(getPartnerBatches());
+        setWarranties(getTyreWarranties());
+      }
+    };
+
+    syncWithCloud();
 
     const handleOnline = () => {
-      triggerCloudSync();
+      syncWithCloud();
     };
 
     window.addEventListener('online', handleOnline);
