@@ -45,7 +45,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, on
     
     const lines = [
       `*STOP & GO TOTAL TYRE CARE CENTRE*`,
-      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+      `Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.`,
       `Ph: +91 95455 50087, +91 94031 36311`,
       `------------------------------------`,
       `Official Digital Receipt #${id}`,
@@ -125,7 +125,7 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, on
           <div className="receipt-header" style={{ textAlign: 'center', marginBottom: '12px' }}>
             <LogoBanner height="50px" useVector={false} forPrint={true} />
             <div className="receipt-address" style={{ marginTop: '8px', fontWeight: '600', fontSize: '0.85rem' }}>
-              Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.
+              Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.
             </div>
             <div className="receipt-address" style={{ fontWeight: '700', fontSize: '0.88rem', marginTop: '2px' }}>
               Ph: +91 95455 50087, +91 94031 36311

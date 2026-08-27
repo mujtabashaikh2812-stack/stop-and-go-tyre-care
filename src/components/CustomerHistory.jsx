@@ -91,7 +91,7 @@ export default function CustomerHistory({ jobCards, setJobCards, onEditBill, cur
   const sendWhatsAppReminder = (cust, reminderInfo) => {
     const lines = [
       `*STOP & GO TOTAL TYRE CARE CENTRE*`,
-      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+      `Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.`,
       `Ph: +91 95455 50087, +91 94031 36311`,
       `------------------------------------`,
       `Hello ${cust.customerName}! 👋`,

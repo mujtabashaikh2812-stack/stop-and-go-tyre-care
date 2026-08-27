@@ -242,7 +242,13 @@ export const getServicePrices = () => {
   }
   try { 
     const parsed = JSON.parse(data);
-    return { ...DEFAULT_SERVICES, ...parsed };
+    const merged = { ...DEFAULT_SERVICES, ...parsed };
+    Object.keys(merged).forEach(k => {
+      if (merged[k] && typeof merged[k].name === 'string') {
+        merged[k].name = merged[k].name.replace(' (Future Service)', '');
+      }
+    });
+    return merged;
   } catch (e) { return DEFAULT_SERVICES; }
 };
 

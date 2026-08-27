@@ -49,9 +49,9 @@ export const TRANSLATIONS = {
     airFilling: '7. Air Filling',
     tubelessPuncher: '8. Tubeless Puncher Repair',
     camberSetting: '9. Camber Setting',
-    carWashing: '10. Car Washing (Future Service)',
-    internalCleaning: '11. Internal Cleaning (Future Service)',
-    oilChange: '12. Engine Oil Change (Future Service)',
+    carWashing: '10. Car Washing',
+    internalCleaning: '11. Internal Cleaning',
+    oilChange: '12. Engine Oil Change',
 
     // Summary & Actions
     subtotal: 'Subtotal',

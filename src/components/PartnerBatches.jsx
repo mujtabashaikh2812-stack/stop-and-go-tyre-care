@@ -397,7 +397,7 @@ export default function PartnerBatches({
     if (type === 'payment') {
       lines = [
         `*STOP & GO TOTAL TYRE CARE CENTRE*`,
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.`,
         `Ph: +91 95455 50087, +91 94031 36311`,
         `------------------------------------`,
         `💳 *OFFICIAL PARTNER PAYMENT RECEIPT*`,
@@ -421,7 +421,7 @@ export default function PartnerBatches({
       const itemsStr = (data.vehicle.services || []).map(s => `* ${s.serviceName}: ₹${s.amount.toLocaleString('en-IN')}`).join('\n');
       lines = [
         `*STOP & GO TOTAL TYRE CARE CENTRE*`,
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.`,
         `------------------------------------`,
         `🚗 *VEHICLE SERVICE SLIP (Batch ${data.batchId})*`,
         `------------------------------------`,
@@ -444,7 +444,7 @@ export default function PartnerBatches({
 
       lines = [
         `*STOP & GO TOTAL TYRE CARE CENTRE*`,
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.`,
         `Ph: +91 95455 50087, +91 94031 36311`,
         `------------------------------------`,
         `📄 *CONSOLIDATED BATCH STATEMENT ${data.batch.id}*`,
@@ -1589,7 +1589,7 @@ export default function PartnerBatches({
               <div className="receipt-header" style={{ textAlign: 'center', marginBottom: '12px' }}>
                 <LogoBanner height="50px" useVector={false} forPrint={true} />
                 <div className="receipt-address" style={{ marginTop: '8px', fontWeight: '600', fontSize: '0.85rem' }}>
-                  Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.
+                  Beside Solapur Steel, Oppo Chroma Showroom Hotgi road, Solapur.
                 </div>
                 <div className="receipt-address" style={{ fontWeight: '700', fontSize: '0.88rem', marginTop: '2px' }}>
                   Ph: +91 95455 50087, +91 94031 36311

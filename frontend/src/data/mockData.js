@@ -8,9 +8,9 @@ export const DEFAULT_SERVICES = {
   airFilling: { id: 'airFilling', name: 'Air Filling', airType: 'nitrogen_full', nitrogenFullPrice: 150, nitrogenTopupPrice: 50, normalPrice: 20, enabled: false },
   tubelessPuncher: { id: 'tubelessPuncher', name: 'Tubeless Puncher (Repair)', qty: 1, pricePerPuncher: 100, enabled: false },
   camberSetting: { id: 'camberSetting', name: 'Camber Setting (Bolt & Sims Add/Remove)', price: 1200, enabled: false },
-  carWashing: { id: 'carWashing', name: 'Car Washing (Future Service)', price: 350, enabled: false },
-  internalCleaning: { id: 'internalCleaning', name: 'Internal Cleaning (Future Service)', price: 800, enabled: false },
-  oilChange: { id: 'oilChange', name: 'Engine Oil Change (Future Service)', price: 1500, enabled: false }
+  carWashing: { id: 'carWashing', name: 'Car Washing', price: 350, enabled: false },
+  internalCleaning: { id: 'internalCleaning', name: 'Internal Cleaning', price: 800, enabled: false },
+  oilChange: { id: 'oilChange', name: 'Engine Oil Change', price: 1500, enabled: false }
 };
 
 // Production Clean Slate Data Structures
