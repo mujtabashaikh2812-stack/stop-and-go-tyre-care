@@ -39,6 +39,16 @@ const checkAuthStatus = () => {
   return false;
 };
 
+const createBlankDraftServices = (masterList) => {
+  const draft = {};
+  if (masterList && typeof masterList === 'object') {
+    Object.keys(masterList).forEach(k => {
+      draft[k] = { ...masterList[k], enabled: false };
+    });
+  }
+  return draft;
+};
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => checkAuthStatus());
 
@@ -51,7 +61,8 @@ export default function App() {
   // Data States
   const [jobCards, setJobCards] = useState([]);
   const [inventory, setInventory] = useState([]);
-  const [services, setServices] = useState({});
+  const [masterServices, setMasterServices] = useState(() => getServicePrices());
+  const [activeServices, setActiveServices] = useState(() => createBlankDraftServices(getServicePrices()));
   const [bookings, setBookings] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [salaries, setSalaries] = useState([]);
@@ -78,9 +89,11 @@ export default function App() {
 
   useEffect(() => {
     // 1. Initial render from local cache
+    const initialMaster = getServicePrices();
     setJobCards(getJobCards());
     setInventory(getInventory());
-    setServices(getServicePrices());
+    setMasterServices(initialMaster);
+    setActiveServices(prev => Object.keys(prev).length > 0 ? prev : createBlankDraftServices(initialMaster));
     setBookings(getBookings());
     setExpenses(getExpenses());
     setSalaries(getSalaries());
@@ -97,7 +110,7 @@ export default function App() {
         saveCloudData(cloudData);
         setJobCards(getJobCards());
         setInventory(getInventory());
-        setServices(getServicePrices());
+        setMasterServices(getServicePrices()); // Updates master prices list only; NEVER touches active draft!
         setBookings(getBookings());
         setExpenses(getExpenses());
         setSalaries(getSalaries());
@@ -249,7 +262,7 @@ export default function App() {
       }
     });
 
-    setServices(activeServicesState);
+    setActiveServices(activeServicesState);
     setActiveTab('billing');
     setActiveReceipt(null);
   };
@@ -258,7 +271,7 @@ export default function App() {
     setEditingBillId(null);
     setCustomerData({ name: '', mobile: '', vehicle: '', vehicleNumber: '', year: '', odometer: '' });
     setDiscount(0);
-    setServices(getServicePrices());
+    setActiveServices(createBlankDraftServices(masterServices));
   };
 
   const handleGenerateInvoice = (mode = 'bill') => {
@@ -269,7 +282,7 @@ export default function App() {
 
     const selectedList = [];
 
-    Object.entries(services).forEach(([key, serv]) => {
+    Object.entries(activeServices).forEach(([key, serv]) => {
       if (!serv?.enabled) return;
 
       if (key === 'wheelAlignment') {
@@ -360,6 +373,7 @@ export default function App() {
     setInventory(getInventory());
     setBillingMode(mode);
     setActiveReceipt(newCard);
+    setActiveServices(createBlankDraftServices(masterServices));
 
     triggerCloudSync();
   };
@@ -369,7 +383,7 @@ export default function App() {
     setCustomerData({ name: '', mobile: '', vehicle: '', vehicleNumber: '', year: '', odometer: '' });
     setDiscount(0);
     setEditingBillId(null);
-    setServices(getServicePrices());
+    setActiveServices(createBlankDraftServices(masterServices));
   };
 
   if (!isAuthenticated) {
@@ -399,10 +413,10 @@ export default function App() {
               editingBillId={editingBillId}
               onCancelEdit={handleCancelEdit}
             />
-            {Object.keys(services).length > 0 && (
+            {Object.keys(activeServices).length > 0 && (
               <ServiceChecklist
-                services={services}
-                setServices={setServices}
+                services={activeServices}
+                setServices={setActiveServices}
                 discount={discount}
                 setDiscount={setDiscount}
                 onGenerateInvoice={handleGenerateInvoice}
@@ -418,7 +432,7 @@ export default function App() {
             setPartnerGarages={setPartnerGarages}
             partnerBatches={partnerBatches}
             setPartnerBatches={setPartnerBatches}
-            masterServices={services}
+            masterServices={masterServices}
             currentLang={currentLang}
           />
         )}
@@ -464,8 +478,8 @@ export default function App() {
 
         {activeTab === 'price_settings' && (
           <ServicePriceEditor
-            services={services}
-            setServices={setServices}
+            services={masterServices}
+            setServices={setMasterServices}
             currentLang={currentLang}
           />
         )}
