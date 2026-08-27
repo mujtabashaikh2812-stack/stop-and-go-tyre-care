@@ -142,29 +142,31 @@ export default function TyreWarranty({
   // WhatsApp Sender
   const sendWhatsAppWarranty = (warranty) => {
     const details = getWarrantyDetails(warranty);
-    const msg =
-      `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-      `Ph: +91 95455 50087, +91 94031 36311%0A` +
-      `------------------------------------%0A` +
-      `🛡️ *OFFICIAL TYRE WARRANTY CERTIFICATE*%0A` +
-      `------------------------------------%0A` +
-      `📌 *Certificate No:* #${warranty.id}%0A` +
-      `👤 *Customer:* ${warranty.customerName}%0A` +
-      `🚘 *Vehicle:* ${warranty.vehicleName} (${warranty.vehicleNumber})%0A` +
-      `🏷️ *Tyre Brand:* *${warranty.brand}*%0A` +
-      `📏 *Size Spec:* ${warranty.sizeSpec}%0A` +
-      `🔢 *Serial / DOT Code:* *${warranty.serialNumber}*%0A` +
-      `📦 *Quantity:* ${warranty.quantity} Tyres%0A` +
-      `📅 *Purchase Date:* ${warranty.purchaseDate}%0A` +
-      `⏱️ *Warranty Period:* ${warranty.warrantyYears} Years (${warranty.warrantyType})%0A` +
-      `🔴 *Warranty Expiry:* *${details.expiryDateStr}*%0A` +
-      (warranty.notes ? `📝 *Note:* ${warranty.notes}%0A` : '') +
-      `------------------------------------%0A` +
-      `Thank you for trusting STOP %26 GO Tyre Care! 🚗💨`;
+    const lines = [
+      `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+      `Ph: +91 95455 50087, +91 94031 36311`,
+      `------------------------------------`,
+      `🛡️ *OFFICIAL TYRE WARRANTY CERTIFICATE*`,
+      `------------------------------------`,
+      `📌 *Certificate No:* #${warranty.id}`,
+      `👤 *Customer:* ${warranty.customerName}`,
+      `🚘 *Vehicle:* ${warranty.vehicleName} (${warranty.vehicleNumber})`,
+      `🏷️ *Tyre Brand:* *${warranty.brand}*`,
+      `📏 *Size Spec:* ${warranty.sizeSpec}`,
+      `🔢 *Serial / DOT Code:* *${warranty.serialNumber}*`,
+      `📦 *Quantity:* ${warranty.quantity} Tyres`,
+      `📅 *Purchase Date:* ${warranty.purchaseDate}`,
+      `⏱️ *Warranty Period:* ${warranty.warrantyYears} Years (${warranty.warrantyType})`,
+      `🔴 *Warranty Expiry:* *${details.expiryDateStr}*`,
+      warranty.notes ? `📝 *Note:* ${warranty.notes}` : null,
+      `------------------------------------`,
+      `Thank you for trusting STOP & GO Tyre Care! 🚗💨`
+    ].filter(line => line !== null).join('\n');
 
     const cleanMobile = warranty.mobile.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${msg}`, '_blank');
+    const encodedText = encodeURIComponent(lines);
+    window.open(`https://api.whatsapp.com/send?phone=91${cleanMobile}&text=${encodedText}`, '_blank');
   };
 
   return (

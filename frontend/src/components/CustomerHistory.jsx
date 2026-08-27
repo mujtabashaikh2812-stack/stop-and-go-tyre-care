@@ -89,20 +89,25 @@ export default function CustomerHistory({ jobCards, setJobCards, onEditBill, cur
   };
 
   const sendWhatsAppReminder = (cust, reminderInfo) => {
-    const msg =
-      `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-      `Ph: +91 95455 50087, +91 94031 36311%0A` +
-      `------------------------------------%0A` +
-      `Hello ${cust.customerName}! 👋%0A%0A` +
-      `This is a friendly 5,000 KM Wheel Alignment %26 Balancing service reminder for your *${cust.vehicleName}* (${cust.vehicleNumber}).%0A%0A` +
-      `📟 *Last Visit Odometer:* ${cust.lastOdometer} KM%0A` +
-      `🔄 *Suggested Next Service Due:* ${reminderInfo.dueKm ? reminderInfo.dueKm.toLocaleString('en-IN') : '5,000 KM later'} KM%0A%0A` +
-      `Regular alignment saves tyre life by 40%25 and ensures smooth highway driving!%0A` +
-      `Visit us today for quick 15-min precision servicing. Drive safe! 🚗💨`;
+    const lines = [
+      `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+      `Ph: +91 95455 50087, +91 94031 36311`,
+      `------------------------------------`,
+      `Hello ${cust.customerName}! 👋`,
+      ``,
+      `This is a friendly 5,000 KM Wheel Alignment & Balancing service reminder for your *${cust.vehicleName}* (${cust.vehicleNumber}).`,
+      ``,
+      `📟 *Last Visit Odometer:* ${cust.lastOdometer} KM`,
+      `🔄 *Suggested Next Service Due:* ${reminderInfo.dueKm ? reminderInfo.dueKm.toLocaleString('en-IN') : '5,000 KM later'} KM`,
+      ``,
+      `Regular alignment saves tyre life by 40% and ensures smooth highway driving!`,
+      `Visit us today for quick 15-min precision servicing. Drive safe! 🚗💨`
+    ].join('\n');
 
     const cleanMobile = cust.mobile.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${msg}`, '_blank');
+    const encodedText = encodeURIComponent(lines);
+    window.open(`https://api.whatsapp.com/send?phone=91${cleanMobile}&text=${encodedText}`, '_blank');
   };
 
   const handleDeleteBill = (billId) => {

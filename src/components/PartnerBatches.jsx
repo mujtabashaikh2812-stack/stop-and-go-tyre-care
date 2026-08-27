@@ -391,76 +391,83 @@ export default function PartnerBatches({
 
   // WhatsApp Sender for Receipts
   const sendWhatsAppReceipt = (type, data) => {
-    let msg = '';
+    let lines = [];
     const phone = data.partnerMobile || data.mobile || '9545550087';
 
     if (type === 'payment') {
-      msg =
-        `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-        `Ph: +91 95455 50087, +91 94031 36311%0A` +
-        `------------------------------------%0A` +
-        `💳 *OFFICIAL PARTNER PAYMENT RECEIPT*%0A` +
-        `------------------------------------%0A` +
-        `🏢 *Partner Garage:* ${data.partnerGarageName}%0A` +
-        `📦 *Batch Ref:* ${data.batchId}%0A` +
-        `📅 *Payment Date:* ${data.date}%0A` +
-        `📌 *Payment Stage:* ${data.stage}%0A` +
-        `💵 *Amount Received:* *₹${data.amount.toLocaleString('en-IN')}*%0A` +
-        `📱 *Payment Mode:* ${data.paymentMethod}%0A` +
-        (data.note ? `📝 *Note:* ${data.note}%0A` : '') +
-        `------------------------------------%0A` +
-        `*CURRENT BATCH STATUS:*%0A` +
-        `Total Billed: ₹${data.totalBilled.toLocaleString('en-IN')}%0A` +
-        `Total Paid: ₹${data.totalPaid.toLocaleString('en-IN')}%0A` +
-        `*REMAINING BALANCE DUE: ₹${data.balanceDue.toLocaleString('en-IN')}*%0A%0A` +
-        `Thank you for your payment! 🚗💨`;
+      lines = [
+        `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `Ph: +91 95455 50087, +91 94031 36311`,
+        `------------------------------------`,
+        `💳 *OFFICIAL PARTNER PAYMENT RECEIPT*`,
+        `------------------------------------`,
+        `🏢 *Partner Garage:* ${data.partnerGarageName}`,
+        `📦 *Batch Ref:* ${data.batchId}`,
+        `📅 *Payment Date:* ${data.date}`,
+        `📌 *Payment Stage:* ${data.stage}`,
+        `💵 *Amount Received:* *₹${data.amount.toLocaleString('en-IN')}*`,
+        `📱 *Payment Mode:* ${data.paymentMethod}`,
+        data.note ? `📝 *Note:* ${data.note}` : null,
+        `------------------------------------`,
+        `*CURRENT BATCH STATUS:*`,
+        `Total Billed: ₹${data.totalBilled.toLocaleString('en-IN')}`,
+        `Total Paid: ₹${data.totalPaid.toLocaleString('en-IN')}`,
+        `*REMAINING BALANCE DUE: ₹${data.balanceDue.toLocaleString('en-IN')}*`,
+        ``,
+        `Thank you for your payment! 🚗💨`
+      ];
     } else if (type === 'vehicle') {
-      const itemsStr = (data.vehicle.services || []).map(s => `* ${s.serviceName}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
-      msg =
-        `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-        `------------------------------------%0A` +
-        `🚗 *VEHICLE SERVICE SLIP (Batch ${data.batchId})*%0A` +
-        `------------------------------------%0A` +
-        `🚘 *Vehicle:* ${data.vehicle.vehicleName} (${data.vehicle.vehicleNumber})%0A` +
-        `🏢 *Partner Garage:* ${data.partnerGarageName}%0A` +
-        `------------------------------------%0A` +
-        `*SERVICES PERFORMED:*%0A` +
-        `${itemsStr}%0A` +
-        `------------------------------------%0A` +
-        `*VEHICLE TOTAL: ₹${data.vehicleSubtotal.toLocaleString('en-IN')}*%0A%0A` +
-        `Thank you for trusting STOP %26 GO!`;
+      const itemsStr = (data.vehicle.services || []).map(s => `* ${s.serviceName}: ₹${s.amount.toLocaleString('en-IN')}`).join('\n');
+      lines = [
+        `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `------------------------------------`,
+        `🚗 *VEHICLE SERVICE SLIP (Batch ${data.batchId})*`,
+        `------------------------------------`,
+        `🚘 *Vehicle:* ${data.vehicle.vehicleName} (${data.vehicle.vehicleNumber})`,
+        `🏢 *Partner Garage:* ${data.partnerGarageName}`,
+        `------------------------------------`,
+        `*SERVICES PERFORMED:*`,
+        itemsStr,
+        `------------------------------------`,
+        `*VEHICLE TOTAL: ₹${data.vehicleSubtotal.toLocaleString('en-IN')}*`,
+        ``,
+        `Thank you for trusting STOP & GO!`
+      ];
     } else if (type === 'batch') {
-      let vehicleLines = '';
-      (data.batch.vehicles || []).forEach(v => {
+      const vehicleLines = (data.batch.vehicles || []).map(v => {
         let vSub = 0;
         (v.services || []).forEach(s => vSub += s.amount);
-        vehicleLines += `• *${v.vehicleName} (${v.vehicleNumber})*: ₹${vSub.toLocaleString('en-IN')}%0A`;
-      });
+        return `• *${v.vehicleName} (${v.vehicleNumber})*: ₹${vSub.toLocaleString('en-IN')}`;
+      }).join('\n');
 
-      msg =
-        `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-        `Ph: +91 95455 50087, +91 94031 36311%0A` +
-        `------------------------------------%0A` +
-        `📄 *CONSOLIDATED BATCH STATEMENT ${data.batch.id}*%0A` +
-        `------------------------------------%0A` +
-        `🏢 *Partner Garage:* ${data.batch.partnerGarageName}%0A` +
-        `📅 *Drop-Off Date:* ${data.batch.dropOffDate}%0A` +
-        `📅 *Expected Pickup:* ${data.batch.expectedPickupDate}%0A` +
-        `------------------------------------%0A` +
-        `*VEHICLES SUMMARY (${(data.batch.vehicles || []).length}):*%0A` +
-        `${vehicleLines}%0A` +
-        `------------------------------------%0A` +
-        `TOTAL BATCH BILLED: ₹${data.fin.totalBilled.toLocaleString('en-IN')}%0A` +
-        `TOTAL PAID INSTALLMENTS: ₹${data.fin.totalPaid.toLocaleString('en-IN')}%0A` +
-        `*NET BALANCE DUE: ₹${data.fin.balanceDue.toLocaleString('en-IN')} (${data.fin.paymentStatus.toUpperCase()})*%0A%0A` +
-        `Thank you for your partnership! 🚗💨`;
+      lines = [
+        `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+        `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+        `Ph: +91 95455 50087, +91 94031 36311`,
+        `------------------------------------`,
+        `📄 *CONSOLIDATED BATCH STATEMENT ${data.batch.id}*`,
+        `------------------------------------`,
+        `🏢 *Partner Garage:* ${data.batch.partnerGarageName}`,
+        `📅 *Drop-Off Date:* ${data.batch.dropOffDate}`,
+        `📅 *Expected Pickup:* ${data.batch.expectedPickupDate}`,
+        `------------------------------------`,
+        `*VEHICLES SUMMARY (${(data.batch.vehicles || []).length}):*`,
+        vehicleLines,
+        `------------------------------------`,
+        `TOTAL BATCH BILLED: ₹${data.fin.totalBilled.toLocaleString('en-IN')}`,
+        `TOTAL PAID INSTALLMENTS: ₹${data.fin.totalPaid.toLocaleString('en-IN')}`,
+        `*NET BALANCE DUE: ₹${data.fin.balanceDue.toLocaleString('en-IN')} (${data.fin.paymentStatus.toUpperCase()})*`,
+        ``,
+        `Thank you for your partnership! 🚗💨`
+      ];
     }
 
+    const fullText = lines.filter(line => line !== null).join('\n');
     const cleanMobile = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${msg}`, '_blank');
+    const encodedText = encodeURIComponent(fullText);
+    window.open(`https://api.whatsapp.com/send?phone=91${cleanMobile}&text=${encodedText}`, '_blank');
   };
 
   return (

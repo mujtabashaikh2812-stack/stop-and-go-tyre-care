@@ -41,35 +41,39 @@ export default function ReceiptModal({ activeReceipt, mode = 'bill', onClose, on
   };
 
   const handleSendWhatsApp = () => {
-    const itemLines = services.map(s => `* ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('%0A');
+    const itemLines = services.map(s => `* ${s.name}: ₹${s.amount.toLocaleString('en-IN')}`).join('\n');
     
-    const messageText = 
-      `*STOP %26 GO TOTAL TYRE CARE CENTRE*%0A` +
-      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.%0A` +
-      `Ph: +91 95455 50087, +91 94031 36311%0A` +
-      `------------------------------------%0A` +
-      `Official Digital Receipt %23${id}%0A` +
-      `------------------------------------%0A` +
-      `👤 *Customer:* ${customerName}%0A` +
-      `📱 *Mobile:* ${mobile}%0A` +
-      `🚘 *Vehicle:* ${vehicleName} (${year})%0A` +
-      `🔢 *Reg No:* ${vehicleNumber}%0A` +
-      `📟 *Odometer:* ${odometer} KM%0A` +
-      (nextAlignmentKm ? `🔄 *Next Alignment Due:* ${nextAlignmentKm} KM%0A` : '') +
-      `📅 *Date:* ${date} ${time}%0A` +
-      `------------------------------------%0A` +
-      `*SERVICES PERFORMED:*%0A` +
-      `${itemLines}%0A` +
-      `------------------------------------%0A` +
-      `Subtotal: ₹${subtotal.toLocaleString('en-IN')}%0A` +
-      (discount > 0 ? `Discount: -₹${discount.toLocaleString('en-IN')}%0A` : '') +
-      `*GRAND TOTAL: ₹${total.toLocaleString('en-IN')}*%0A` +
-      `Paid via: ${paymentMethod}%0A%0A` +
-      (nextAlignmentKm ? `*Suggested Next Alignment Service at ${nextAlignmentKm} KM*%0A%0A` : '') +
-      `Thank you for trusting STOP %26 GO! Drive safe! 🚗💨`;
+    const lines = [
+      `*STOP & GO TOTAL TYRE CARE CENTRE*`,
+      `Beside Solapur Steel, Near Multani bakery, Hotgi road, Solapur.`,
+      `Ph: +91 95455 50087, +91 94031 36311`,
+      `------------------------------------`,
+      `Official Digital Receipt #${id}`,
+      `------------------------------------`,
+      `👤 *Customer:* ${customerName}`,
+      `📱 *Mobile:* ${mobile}`,
+      `🚘 *Vehicle:* ${vehicleName} (${year})`,
+      `🔢 *Reg No:* ${vehicleNumber}`,
+      `📟 *Odometer:* ${odometer} KM`,
+      nextAlignmentKm ? `🔄 *Next Alignment Due:* ${nextAlignmentKm} KM` : null,
+      `📅 *Date:* ${date} ${time}`,
+      `------------------------------------`,
+      `*SERVICES PERFORMED:*`,
+      itemLines,
+      `------------------------------------`,
+      `Subtotal: ₹${subtotal.toLocaleString('en-IN')}`,
+      discount > 0 ? `Discount: -₹${discount.toLocaleString('en-IN')}` : null,
+      `*GRAND TOTAL: ₹${total.toLocaleString('en-IN')}*`,
+      `Paid via: ${paymentMethod}`,
+      ``,
+      nextAlignmentKm ? `*Suggested Next Alignment Service at ${nextAlignmentKm} KM*` : null,
+      ``,
+      `Thank you for trusting STOP & GO! Drive safe! 🚗💨`
+    ].filter(line => line !== null).join('\n');
 
     const cleanMobile = mobile.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanMobile}?text=${messageText}`, '_blank');
+    const encodedText = encodeURIComponent(lines);
+    window.open(`https://api.whatsapp.com/send?phone=91${cleanMobile}&text=${encodedText}`, '_blank');
   };
 
   return (
