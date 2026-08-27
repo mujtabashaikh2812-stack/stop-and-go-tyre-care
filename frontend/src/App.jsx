@@ -21,10 +21,26 @@ import {
 } from './utils/storage';
 import { triggerCloudSync, fetchCloudData } from './utils/syncService';
 
+const AUTH_KEY = 'stop_go_auth_token';
+const AUTH_TIME_KEY = 'stop_go_auth_timestamp';
+const ONE_HOUR_MS = 60 * 60 * 1000; // 1 Hour Session Window
+
+const checkAuthStatus = () => {
+  const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
+  const loginTime = parseInt(localStorage.getItem(AUTH_TIME_KEY), 10) || 0;
+  const now = Date.now();
+
+  if (isAuth && (now - loginTime) < ONE_HOUR_MS) {
+    return true;
+  }
+  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_TIME_KEY);
+  sessionStorage.removeItem('stop_go_auth');
+  return false;
+};
+
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem('stop_go_auth') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => checkAuthStatus());
 
   const [currentLang, setCurrentLang] = useState(() => getLanguage());
   const [activeTab, setActiveTab] = useState('billing');
@@ -94,16 +110,31 @@ export default function App() {
 
     loadCloudData();
 
-    // 3. Live 10-second Polling: Auto-syncs new bills, batches & warranties across all connected phones
-    const interval = setInterval(loadCloudData, 10000);
+    const checkSessionExpiry = () => {
+      if (!checkAuthStatus()) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    // 3. Live 10-second Polling: Auto-syncs database & verifies 1-hour session validity
+    const interval = setInterval(() => {
+      checkSessionExpiry();
+      loadCloudData();
+    }, 10000);
+
+    const handleFocus = () => {
+      checkSessionExpiry();
+    };
 
     const handleOnline = () => {
       loadCloudData();
     };
 
+    window.addEventListener('focus', handleFocus);
     window.addEventListener('online', handleOnline);
     return () => {
       clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleOnline);
     };
   }, []);
@@ -135,11 +166,16 @@ export default function App() {
   };
 
   const handleLoginSuccess = () => {
+    const now = Date.now();
+    localStorage.setItem(AUTH_KEY, 'true');
+    localStorage.setItem(AUTH_TIME_KEY, String(now));
     sessionStorage.setItem('stop_go_auth', 'true');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_TIME_KEY);
     sessionStorage.removeItem('stop_go_auth');
     setIsAuthenticated(false);
     setActiveTab('billing');
