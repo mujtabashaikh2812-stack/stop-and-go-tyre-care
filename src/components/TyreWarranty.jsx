@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
+import { saveTyreWarranty, deleteTyreWarranty } from '../utils/storage';
 
 export default function TyreWarranty({
   warranties = [],
@@ -89,7 +90,7 @@ export default function TyreWarranty({
       createdAt: new Date().toISOString()
     };
 
-    const updated = [newWarrantyObj, ...warranties];
+    const updated = saveTyreWarranty(newWarrantyObj);
     setWarranties(updated);
     setShowAddModal(false);
 
@@ -117,7 +118,8 @@ export default function TyreWarranty({
 
   const handleDeleteWarranty = (id) => {
     if (window.confirm('Are you sure you want to delete this warranty record?')) {
-      setWarranties(prev => prev.filter(w => w.id !== id));
+      const updated = deleteTyreWarranty(id);
+      setWarranties(updated);
     }
   };
 

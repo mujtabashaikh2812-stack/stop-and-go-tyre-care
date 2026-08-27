@@ -5,6 +5,10 @@ import {
 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
+import {
+  savePartnerGarage, deletePartnerGarage,
+  savePartnerBatch, updatePartnerBatch, deletePartnerBatch
+} from '../utils/storage';
 
 export default function PartnerBatches({
   partnerGarages, setPartnerGarages,
@@ -100,7 +104,7 @@ export default function PartnerBatches({
       ...newGarage,
       createdAt: new Date().toISOString()
     };
-    const updated = [garageObj, ...partnerGarages];
+    const updated = savePartnerGarage(garageObj);
     setPartnerGarages(updated);
     setNewGarage({ name: '', contactPerson: '', mobile: '', address: '', notes: '' });
     setShowAddGarageModal(false);
@@ -108,7 +112,8 @@ export default function PartnerBatches({
 
   const handleDeleteGarage = (id, name) => {
     if (window.confirm(`Are you sure you want to delete partner garage "${name}"?`)) {
-      setPartnerGarages(prev => prev.filter(g => g.id !== id));
+      const updated = deletePartnerGarage(id);
+      setPartnerGarages(updated);
     }
   };
 
@@ -136,20 +141,25 @@ export default function PartnerBatches({
       createdAt: new Date().toISOString()
     };
 
-    const updated = [batchObj, ...partnerBatches];
+    const updated = savePartnerBatch(batchObj);
     setPartnerBatches(updated);
     setShowNewBatchModal(false);
     setSelectedBatchId(batchObj.id);
   };
 
   const handleUpdateBatchStatus = (batchId, newStatus) => {
-    const updated = partnerBatches.map(b => b.id === batchId ? { ...b, status: newStatus } : b);
-    setPartnerBatches(updated);
+    const target = partnerBatches.find(b => b.id === batchId);
+    if (target) {
+      const updatedBatch = { ...target, status: newStatus };
+      const updated = updatePartnerBatch(updatedBatch);
+      setPartnerBatches(updated);
+    }
   };
 
   const handleDeleteBatch = (batchId) => {
     if (window.confirm(`Are you sure you want to delete Batch #${batchId}?`)) {
-      setPartnerBatches(prev => prev.filter(b => b.id !== batchId));
+      const updated = deletePartnerBatch(batchId);
+      setPartnerBatches(updated);
       if (selectedBatchId === batchId) setSelectedBatchId(null);
     }
   };
@@ -159,29 +169,25 @@ export default function PartnerBatches({
     e.preventDefault();
     if (!newVehicle.vehicleNumber || !selectedBatchId) return;
 
+    const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+    if (!targetBatch) return;
+
+    let updatedBatch;
     if (editingVehicle) {
-      // Update existing vehicle
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          const updatedVehicles = (b.vehicles || []).map(v => {
-            if (v.id === editingVehicle.id) {
-              return {
-                ...v,
-                vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
-                vehicleName: newVehicle.vehicleName || 'Vehicle',
-                notes: newVehicle.notes
-              };
-            }
-            return v;
-          });
-          return { ...b, vehicles: updatedVehicles };
+      const updatedVehicles = (targetBatch.vehicles || []).map(v => {
+        if (v.id === editingVehicle.id) {
+          return {
+            ...v,
+            vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
+            vehicleName: newVehicle.vehicleName || 'Vehicle',
+            notes: newVehicle.notes
+          };
         }
-        return b;
+        return v;
       });
-      setPartnerBatches(updated);
+      updatedBatch = { ...targetBatch, vehicles: updatedVehicles };
       setEditingVehicle(null);
     } else {
-      // Add new vehicle
       const vehicleObj = {
         id: `veh_${Date.now()}`,
         vehicleNumber: newVehicle.vehicleNumber.toUpperCase(),
@@ -189,30 +195,23 @@ export default function PartnerBatches({
         notes: newVehicle.notes,
         services: []
       };
-
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          return { ...b, vehicles: [...(b.vehicles || []), vehicleObj] };
-        }
-        return b;
-      });
-
-      setPartnerBatches(updated);
+      updatedBatch = { ...targetBatch, vehicles: [...(targetBatch.vehicles || []), vehicleObj] };
     }
 
+    const updatedBatches = updatePartnerBatch(updatedBatch);
+    setPartnerBatches(updatedBatches);
     setNewVehicle({ vehicleNumber: '', vehicleName: '', notes: '' });
     setShowAddVehicleModal(false);
   };
 
   const handleDeleteVehicle = (vehicleId, vehNumber) => {
     if (window.confirm(`Are you sure you want to delete vehicle ${vehNumber} from this batch?`)) {
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          return { ...b, vehicles: (b.vehicles || []).filter(v => v.id !== vehicleId) };
-        }
-        return b;
-      });
-      setPartnerBatches(updated);
+      const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+      if (targetBatch) {
+        const updatedBatch = { ...targetBatch, vehicles: (targetBatch.vehicles || []).filter(v => v.id !== vehicleId) };
+        const updatedBatches = updatePartnerBatch(updatedBatch);
+        setPartnerBatches(updatedBatches);
+      }
     }
   };
 
@@ -220,6 +219,9 @@ export default function PartnerBatches({
   const handleSaveService = (e) => {
     e.preventDefault();
     if (!selectedBatchId || !targetVehicleId) return;
+
+    const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+    if (!targetBatch) return;
 
     let serviceName = newService.customName;
     if (newService.serviceKey !== 'custom' && masterServices[newService.serviceKey]) {
@@ -230,39 +232,32 @@ export default function PartnerBatches({
     const rate = parseFloat(newService.rate) || 0;
     const amount = qty * rate;
 
+    let updatedBatch;
     if (editingService) {
-      // Update existing service
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          const updatedVehicles = (b.vehicles || []).map(v => {
-            if (v.id === targetVehicleId) {
-              const updatedServices = (v.services || []).map(s => {
-                if (s.id === editingService.service.id) {
-                  return {
-                    ...s,
-                    date: newService.date,
-                    serviceName: serviceName || 'General Service',
-                    description: newService.description,
-                    quantity: qty,
-                    rate: rate,
-                    amount: amount,
-                    notes: newService.notes
-                  };
-                }
-                return s;
-              });
-              return { ...v, services: updatedServices };
+      const updatedVehicles = (targetBatch.vehicles || []).map(v => {
+        if (v.id === targetVehicleId) {
+          const updatedServices = (v.services || []).map(s => {
+            if (s.id === editingService.service.id) {
+              return {
+                ...s,
+                date: newService.date,
+                serviceName: serviceName || 'General Service',
+                description: newService.description,
+                quantity: qty,
+                rate: rate,
+                amount: amount,
+                notes: newService.notes
+              };
             }
-            return v;
+            return s;
           });
-          return { ...b, vehicles: updatedVehicles };
+          return { ...v, services: updatedServices };
         }
-        return b;
+        return v;
       });
-      setPartnerBatches(updated);
+      updatedBatch = { ...targetBatch, vehicles: updatedVehicles };
       setEditingService(null);
     } else {
-      // Add new service
       const serviceObj = {
         id: `serv_${Date.now()}`,
         date: newService.date,
@@ -274,21 +269,17 @@ export default function PartnerBatches({
         notes: newService.notes
       };
 
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          const updatedVehicles = (b.vehicles || []).map(v => {
-            if (v.id === targetVehicleId) {
-              return { ...v, services: [...(v.services || []), serviceObj] };
-            }
-            return v;
-          });
-          return { ...b, vehicles: updatedVehicles };
+      const updatedVehicles = (targetBatch.vehicles || []).map(v => {
+        if (v.id === targetVehicleId) {
+          return { ...v, services: [...(v.services || []), serviceObj] };
         }
-        return b;
+        return v;
       });
-      setPartnerBatches(updated);
+      updatedBatch = { ...targetBatch, vehicles: updatedVehicles };
     }
 
+    const updatedBatches = updatePartnerBatch(updatedBatch);
+    setPartnerBatches(updatedBatches);
     setShowAddServiceModal(false);
     setNewService({
       serviceKey: 'wheelAlignment',
@@ -303,19 +294,18 @@ export default function PartnerBatches({
 
   const handleDeleteService = (vehicleId, serviceId) => {
     if (window.confirm(`Are you sure you want to delete this service entry?`)) {
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          const updatedVehicles = (b.vehicles || []).map(v => {
-            if (v.id === vehicleId) {
-              return { ...v, services: (v.services || []).filter(s => s.id !== serviceId) };
-            }
-            return v;
-          });
-          return { ...b, vehicles: updatedVehicles };
-        }
-        return b;
-      });
-      setPartnerBatches(updated);
+      const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+      if (targetBatch) {
+        const updatedVehicles = (targetBatch.vehicles || []).map(v => {
+          if (v.id === vehicleId) {
+            return { ...v, services: (v.services || []).filter(s => s.id !== serviceId) };
+          }
+          return v;
+        });
+        const updatedBatch = { ...targetBatch, vehicles: updatedVehicles };
+        const updatedBatches = updatePartnerBatch(updatedBatch);
+        setPartnerBatches(updatedBatches);
+      }
     }
   };
 
@@ -325,31 +315,27 @@ export default function PartnerBatches({
     const amt = parseFloat(newPayment.amount);
     if (isNaN(amt) || amt <= 0 || !selectedBatchId) return;
 
+    const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+    if (!targetBatch) return;
+
+    let updatedBatch;
     if (editingPayment) {
-      // Update existing payment installment
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          const updatedPayments = (b.payments || []).map(p => {
-            if (p.id === editingPayment.id) {
-              return {
-                ...p,
-                stage: newPayment.stage,
-                amount: amt,
-                paymentMethod: newPayment.paymentMethod,
-                date: newPayment.date,
-                note: newPayment.note
-              };
-            }
-            return p;
-          });
-          return { ...b, payments: updatedPayments };
+      const updatedPayments = (targetBatch.payments || []).map(p => {
+        if (p.id === editingPayment.id) {
+          return {
+            ...p,
+            stage: newPayment.stage,
+            amount: amt,
+            paymentMethod: newPayment.paymentMethod,
+            date: newPayment.date,
+            note: newPayment.note
+          };
         }
-        return b;
+        return p;
       });
-      setPartnerBatches(updated);
+      updatedBatch = { ...targetBatch, payments: updatedPayments };
       setEditingPayment(null);
     } else {
-      // Add new payment installment
       const paymentObj = {
         id: `pay_${Date.now()}`,
         stage: newPayment.stage,
@@ -359,15 +345,12 @@ export default function PartnerBatches({
         note: newPayment.note
       };
 
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          return { ...b, payments: [...(b.payments || []), paymentObj] };
-        }
-        return b;
-      });
-      setPartnerBatches(updated);
+      const updatedPayments = [...(targetBatch.payments || []), paymentObj];
+      updatedBatch = { ...targetBatch, payments: updatedPayments };
     }
 
+    const updatedBatches = updatePartnerBatch(updatedBatch);
+    setPartnerBatches(updatedBatches);
     setShowAddPaymentModal(false);
     setNewPayment({
       stage: '🟢 Advance Payment (Before Service)',
@@ -380,13 +363,13 @@ export default function PartnerBatches({
 
   const handleDeletePayment = (paymentId) => {
     if (window.confirm(`Are you sure you want to delete this payment installment?`)) {
-      const updated = partnerBatches.map(b => {
-        if (b.id === selectedBatchId) {
-          return { ...b, payments: (b.payments || []).filter(p => p.id !== paymentId) };
-        }
-        return b;
-      });
-      setPartnerBatches(updated);
+      const targetBatch = partnerBatches.find(b => b.id === selectedBatchId);
+      if (targetBatch) {
+        const updatedPayments = (targetBatch.payments || []).filter(p => p.id !== paymentId);
+        const updatedBatch = { ...targetBatch, payments: updatedPayments };
+        const updatedBatches = updatePartnerBatch(updatedBatch);
+        setPartnerBatches(updatedBatches);
+      }
     }
   };
 
