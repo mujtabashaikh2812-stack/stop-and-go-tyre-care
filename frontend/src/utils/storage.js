@@ -73,7 +73,12 @@ export const setLanguage = (lang) => {
 };
 
 export const getAdminPassword = () => {
-  return localStorage.getItem(KEYS.ADMIN_PASSWORD) || 'stopandgo';
+  const stored = localStorage.getItem(KEYS.ADMIN_PASSWORD);
+  if (!stored || stored === 'admin123' || stored === 'admin') {
+    localStorage.setItem(KEYS.ADMIN_PASSWORD, 'stopandgo');
+    return 'stopandgo';
+  }
+  return stored;
 };
 
 export const saveAdminPassword = (newPassword) => {
