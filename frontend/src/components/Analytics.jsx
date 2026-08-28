@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { DollarSign, ShoppingBag, TrendingUp, Car, Coffee, QrCode, Banknote } from 'lucide-react';
+import { DollarSign, ShoppingBag, TrendingUp, Car, Coffee, QrCode, Banknote, Building2, Users } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/i18n';
 
-export default function Analytics({ jobCards, expenses = [], scrapSales = [], partnerBatches = [], currentLang = 'en' }) {
+export default function Analytics({ jobCards, expenses = [], salaries = [], scrapSales = [], partnerBatches = [], currentLang = 'en' }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
   
   const [filterPeriod, setFilterPeriod] = useState('month'); // 'today' | 'month' | 'year' | 'all'
@@ -23,6 +23,7 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
 
   const filteredCards = jobCards.filter(c => filterByDate(c.date));
   const filteredExpenses = expenses.filter(e => filterByDate(e.date));
+  const filteredSalaries = salaries.filter(s => filterByDate(s.date));
   const filteredScrap = scrapSales.filter(s => filterByDate(s.date));
 
   // Compute Partner Batch Payments in this period
@@ -60,15 +61,29 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
   });
 
   // 3. Scrap Sales (Default Cash/UPI)
-  const scrapRevenue = filteredScrap.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+  const scrapRevenue = filteredScrap.reduce((sum, s) => sum + (parseFloat(s.totalAmount) || 0), 0);
   cashTotal += scrapRevenue; // Scrap sales added to cash
 
-  // Calculate Aggregates
-  const walkInRevenue = filteredCards.reduce((sum, c) => sum + (c.total || 0), 0);
+  // 4. Calculate Gross Revenue
+  const walkInRevenue = filteredCards.reduce((sum, c) => sum + (parseFloat(c.total) || 0), 0);
   const grossRevenue = walkInRevenue + scrapRevenue + partnerPaymentsSum;
 
-  const totalShopExpenses = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-  const netGarageProfit = Math.max(0, grossRevenue - totalShopExpenses);
+  // 5. Calculate Deductions Breakdown (Rent + Salaries + Expenditures)
+  const totalShopRent = filteredExpenses
+    .filter(e => e.category === 'Shop Rent' || e.category === 'Rent' || (e.note && e.note.toLowerCase().includes('rent')))
+    .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+  const totalStaffSalaries = filteredSalaries.reduce((sum, s) => sum + (parseFloat(s.netPayout) || 0), 0);
+
+  const totalShopExpenses = filteredExpenses
+    .filter(e => e.category !== 'Shop Rent' && e.category !== 'Rent' && !(e.note && e.note.toLowerCase().includes('rent')))
+    .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+  // Total Deductions = Shop Rent + Staff Salaries + General Expenditures
+  const totalDeductions = totalShopRent + totalStaffSalaries + totalShopExpenses;
+
+  // Monthly / Period Net Profit = Gross Revenue - Shop Rent - Salaries - Expenditures
+  const netGarageProfit = Math.max(0, grossRevenue - totalDeductions);
 
   const totalCarsServiced = filteredCards.length;
 
@@ -138,19 +153,43 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
           </div>
         </div>
 
-        {/* 2. Shop Expenses */}
+        {/* 2. Shop Rent */}
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap ruby" style={{ backgroundColor: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
+            <Building2 size={24} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-label">Shop Rent / Lease</span>
+            <span className="kpi-value" style={{ color: '#ef4444' }}>₹{totalShopRent.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Property Rent Deductions</span>
+          </div>
+        </div>
+
+        {/* 3. Staff Salaries */}
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap info">
+            <Users size={24} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-label">Staff Salaries</span>
+            <span className="kpi-value text-info">₹{totalStaffSalaries.toLocaleString('en-IN')}</span>
+            <span className="kpi-subtext">Total Salary Payouts</span>
+          </div>
+        </div>
+
+        {/* 4. Shop Expenditures */}
         <div className="kpi-card">
           <div className="kpi-icon-wrap ruby">
             <Coffee size={24} />
           </div>
           <div className="kpi-data">
-            <span className="kpi-label">{t.shopExpenses}</span>
+            <span className="kpi-label">General Expenditures</span>
             <span className="kpi-value text-ruby">₹{totalShopExpenses.toLocaleString('en-IN')}</span>
-            <span className="kpi-subtext">Deducted Tea, Spares & Supplies</span>
+            <span className="kpi-subtext">Tea, Spares & Supplies</span>
           </div>
         </div>
 
-        {/* 3. Net Garage Profit */}
+        {/* 5. Net Garage Profit (HIGHLIGHTED) */}
         <div className="kpi-card highlight">
           <div className="kpi-icon-wrap emerald">
             <TrendingUp size={24} />
@@ -158,11 +197,11 @@ export default function Analytics({ jobCards, expenses = [], scrapSales = [], pa
           <div className="kpi-data">
             <span className="kpi-label">{t.netProfit}</span>
             <span className="kpi-value text-emerald">₹{netGarageProfit.toLocaleString('en-IN')}</span>
-            <span className="kpi-subtext">Actual Bankable Revenue</span>
+            <span className="kpi-subtext">Revenue - Rent - Salaries - Expenses</span>
           </div>
         </div>
 
-        {/* 4. Total Cars Serviced */}
+        {/* 6. Total Cars Serviced */}
         <div className="kpi-card">
           <div className="kpi-icon-wrap info">
             <Car size={24} />

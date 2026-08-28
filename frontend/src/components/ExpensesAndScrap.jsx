@@ -149,6 +149,8 @@ export default function ExpensesAndScrap({
             <label>Expense Category *</label>
             <select value={expCategory} onChange={(e) => setExpCategory(e.target.value)}>
               <option value="Tea & Snacks">{t.categoryTea}</option>
+              <option value="Shop Rent">🏢 {t.categoryRent || 'Shop Rent / Lease'}</option>
+              <option value="Electricity & Utilities">⚡ {t.categoryUtilities || 'Electricity & Utilities'}</option>
               <option value="Shop Maintenance">{t.categoryMaintenance}</option>
               <option value="Tools & Spares">{t.categorySpares}</option>
             </select>

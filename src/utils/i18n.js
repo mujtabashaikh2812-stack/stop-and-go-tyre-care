@@ -99,6 +99,8 @@ export const TRANSLATIONS = {
     expensesDesc: 'Log tea/snacks expenses, track staff monthly advances, and record scrap sales',
     logExpense: 'Log Daily Expense',
     categoryTea: 'Tea & Snacks',
+    categoryRent: 'Shop Rent / Lease',
+    categoryUtilities: 'Electricity & Utilities',
     categoryMaintenance: 'Shop Maintenance',
     categorySpares: 'Tools & Spares',
     expenseAmount: 'Expense Amount (₹)',

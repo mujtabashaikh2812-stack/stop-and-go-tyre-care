@@ -157,11 +157,12 @@ export default function App() {
     setCurrentLang(lang);
   };
 
-  // Compute Today Stats (Including Partner Payments)
+  // Compute Today Stats (Including Partner Payments, Salaries, & Shop Rent Deductions)
   const todayStr = new Date().toISOString().split('T')[0];
   const todayCards = jobCards.filter(c => c.date === todayStr);
-  const todayExp = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + e.amount, 0);
-  const todayScrap = scrapSales.filter(s => s.date === todayStr).reduce((sum, s) => sum + s.totalAmount, 0);
+  const todayExp = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const todaySalaries = salaries.filter(s => s.date === todayStr).reduce((sum, s) => sum + (parseFloat(s.netPayout) || 0), 0);
+  const todayScrap = scrapSales.filter(s => s.date === todayStr).reduce((sum, s) => sum + (parseFloat(s.totalAmount) || 0), 0);
 
   let todayPartnerPayments = 0;
   partnerBatches.forEach(b => {
@@ -170,8 +171,9 @@ export default function App() {
     });
   });
 
-  const todayGross = todayCards.reduce((sum, c) => sum + c.total, 0) + todayScrap + todayPartnerPayments;
-  const todayNetProfit = Math.max(0, todayGross - todayExp);
+  const todayGross = todayCards.reduce((sum, c) => sum + (parseFloat(c.total) || 0), 0) + todayScrap + todayPartnerPayments;
+  const todayTotalDeductions = todayExp + todaySalaries;
+  const todayNetProfit = Math.max(0, todayGross - todayTotalDeductions);
 
   const todayStats = {
     netProfit: todayNetProfit,
@@ -450,6 +452,7 @@ export default function App() {
           <Analytics
             jobCards={jobCards}
             expenses={expenses}
+            salaries={salaries}
             scrapSales={scrapSales}
             partnerBatches={partnerBatches}
             currentLang={currentLang}
