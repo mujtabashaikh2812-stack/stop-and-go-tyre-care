@@ -73,11 +73,12 @@ export const setLanguage = (lang) => {
 };
 
 export const getAdminPassword = () => {
-  return localStorage.getItem(KEYS.ADMIN_PASSWORD) || 'admin123';
+  return localStorage.getItem(KEYS.ADMIN_PASSWORD) || 'stopandgo';
 };
 
 export const saveAdminPassword = (newPassword) => {
   localStorage.setItem(KEYS.ADMIN_PASSWORD, newPassword);
+  saveItemToCloud('adminPassword', { id: 'current', value: newPassword });
   return newPassword;
 };
 
@@ -593,6 +594,14 @@ export const saveCloudData = (cloudData) => {
   }
   if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) {
     localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
+  }
+  if (Array.isArray(cloudData.adminPassword) && cloudData.adminPassword.length > 0) {
+    const pwdObj = cloudData.adminPassword[0];
+    if (pwdObj && pwdObj.value) {
+      localStorage.setItem(KEYS.ADMIN_PASSWORD, pwdObj.value);
+    }
+  } else if (cloudData.adminPassword && typeof cloudData.adminPassword === 'object' && cloudData.adminPassword.value) {
+    localStorage.setItem(KEYS.ADMIN_PASSWORD, cloudData.adminPassword.value);
   }
 };
 

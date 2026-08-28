@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Key, ShieldCheck, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { getAdminPassword } from '../utils/storage';
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [password, setPassword] = useState('');
@@ -10,14 +11,14 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Default Admin Password: admin123
-    if (password === 'admin123' || password === 'admin') {
+    const currentAdminPwd = getAdminPassword();
+    if (password === currentAdminPwd) {
       onLoginSuccess();
       setPassword('');
       setErrorMsg('');
       onClose();
     } else {
-      setErrorMsg('Incorrect Admin Password! Default password is: admin123');
+      setErrorMsg('Incorrect Admin Password! Please try again.');
     }
   };
 
@@ -45,7 +46,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
             <div className="input-with-icon">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password (admin123)"
+                placeholder="Enter admin password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
@@ -60,7 +61,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <span className="input-hint">Default shop admin password: <strong style={{ color: 'var(--yellow-primary)' }}>admin123</strong></span>
+            <span className="input-hint">Default shop admin password: <strong style={{ color: 'var(--yellow-primary)' }}>stopandgo</strong></span>
           </div>
 
           {errorMsg && (

@@ -18,7 +18,7 @@ export default function AdminLoginGate({ onLoginSuccess }) {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     const currentAdminPwd = getAdminPassword();
-    if (password === currentAdminPwd || password === 'admin123' || password === 'admin') {
+    if (password === currentAdminPwd) {
       onLoginSuccess();
       setPassword('');
       setErrorMsg('');
