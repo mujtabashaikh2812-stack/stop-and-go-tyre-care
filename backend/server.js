@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices', 'partnerGarages', 'partnerBatches', 'tyreWarranties'];
+const collectionNames = ['jobCards', 'inventory', 'bookings', 'expenses', 'salaries', 'scrapSales', 'servicePrices', 'partnerGarages', 'partnerBatches', 'tyreWarranties', 'adminPassword'];
 
 const recordSchema = new mongoose.Schema(
   {
@@ -79,9 +79,9 @@ app.get('/api/data', async (_req, res) => {
 
     const data = await Promise.all(
       collectionNames.map(async (collectionName) => {
-        if (collectionName === 'servicePrices') {
+        if (collectionName === 'servicePrices' || collectionName === 'adminPassword') {
           const doc = await models[collectionName].findOne({ id: 'current' }).lean();
-          return [collectionName, doc?.value || {}];
+          return [collectionName, doc?.value || null];
         }
         const docs = await models[collectionName].find().sort({ createdAt: -1 }).lean();
         const filteredDocs = docs.filter(doc => !tombstoneSet.has(`${collectionName}:${String(doc.id)}`));
@@ -195,8 +195,8 @@ app.post('/api/sync', async (req, res) => {
     // 3. Perform bulkWrite upserts ONLY for records NOT in tombstoneSet
     await Promise.all(
       collectionNames.map(async (collectionName) => {
-        const records = collectionName === 'servicePrices'
-          ? [{ id: 'current', value: payload[collectionName] || {} }]
+        const records = (collectionName === 'servicePrices' || collectionName === 'adminPassword')
+          ? (payload[collectionName] ? [{ id: 'current', value: payload[collectionName] }] : [])
           : payload[collectionName] || [];
         if (!Array.isArray(records)) {
           throw new Error(`${collectionName} must be an array`);

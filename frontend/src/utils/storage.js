@@ -600,13 +600,16 @@ export const saveCloudData = (cloudData) => {
   if (cloudData.servicePrices && Object.keys(cloudData.servicePrices).length > 0) {
     localStorage.setItem(KEYS.SERVICE_PRICES, JSON.stringify(cloudData.servicePrices));
   }
-  if (Array.isArray(cloudData.adminPassword) && cloudData.adminPassword.length > 0) {
-    const pwdObj = cloudData.adminPassword[0];
-    if (pwdObj && pwdObj.value) {
-      localStorage.setItem(KEYS.ADMIN_PASSWORD, pwdObj.value);
+  if (cloudData.adminPassword) {
+    let pwd = null;
+    if (typeof cloudData.adminPassword === 'string') {
+      pwd = cloudData.adminPassword;
+    } else if (typeof cloudData.adminPassword === 'object') {
+      pwd = cloudData.adminPassword.value || (Array.isArray(cloudData.adminPassword) && cloudData.adminPassword[0]?.value);
     }
-  } else if (cloudData.adminPassword && typeof cloudData.adminPassword === 'object' && cloudData.adminPassword.value) {
-    localStorage.setItem(KEYS.ADMIN_PASSWORD, cloudData.adminPassword.value);
+    if (pwd && typeof pwd === 'string' && pwd !== 'admin123' && pwd !== 'admin') {
+      localStorage.setItem(KEYS.ADMIN_PASSWORD, pwd);
+    }
   }
 };
 
