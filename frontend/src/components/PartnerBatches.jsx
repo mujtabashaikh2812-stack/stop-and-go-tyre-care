@@ -476,8 +476,8 @@ export default function PartnerBatches({
       {/* Top Header & Sub-Nav Bar */}
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">🏢 Partner Batches & B2B Contracts</h2>
-          <p className="section-desc">Manage bulk vehicle drop-offs (15–20 days), multi-day vehicle service logs, and installment payments</p>
+          <h2 className="section-title">{t.partnerBatchesTitle || '🏢 Partner Batches & B2B Contracts'}</h2>
+          <p className="section-desc">{t.partnerBatchesDesc || 'Manage bulk vehicle drop-offs (15–20 days), multi-day vehicle service logs, and installment payments'}</p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -487,7 +487,7 @@ export default function PartnerBatches({
             onClick={() => { setSubTab('batches'); setSelectedBatchId(null); }}
           >
             <Package size={16} />
-            <span>Batches ({partnerBatches.length})</span>
+            <span>{t.tabBatches || 'Batches'} ({partnerBatches.length})</span>
           </button>
 
           <button
@@ -496,7 +496,7 @@ export default function PartnerBatches({
             onClick={() => { setSubTab('garages'); setSelectedBatchId(null); }}
           >
             <Building2 size={16} />
-            <span>Source Garages ({partnerGarages.length})</span>
+            <span>{t.tabGarages || 'Source Garages'} ({partnerGarages.length})</span>
           </button>
         </div>
       </div>
@@ -515,11 +515,11 @@ export default function PartnerBatches({
               onClick={() => setSelectedBatchId(null)}
               style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              ← Back to Batches List
+              {t.backToBatches || '← Back to Batches List'}
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Status:</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t.batchStatusLabel || 'Status'}:</span>
               <select
                 value={selectedBatch.status}
                 onChange={(e) => handleUpdateBatchStatus(selectedBatch.id, e.target.value)}
@@ -532,16 +532,16 @@ export default function PartnerBatches({
                   borderRadius: '6px'
                 }}
               >
-                <option value="Active">🟢 Active (Work in Progress)</option>
-                <option value="Completed">✅ Completed & Delivered</option>
-                <option value="Overdue">🔴 Overdue</option>
+                <option value="Active">{t.statusActiveWork || '🟢 Active (Work in Progress)'}</option>
+                <option value="Completed">{t.statusCompleted || '✅ Completed & Delivered'}</option>
+                <option value="Overdue">{t.statusOverdueTag || '🔴 Overdue'}</option>
               </select>
 
               <button
                 type="button"
                 className="btn-delete-icon"
                 onClick={() => handleDeleteBatch(selectedBatch.id)}
-                title="Delete Entire Batch"
+                title={t.deleteBtn || 'Delete'}
               >
                 <Trash2 size={16} />
               </button>
@@ -557,10 +557,10 @@ export default function PartnerBatches({
                   🏢 {selectedBatch.partnerGarageName}
                 </h2>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '4px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                  <span><User size={13} /> Contact: <strong>{selectedBatch.partnerContact}</strong></span>
+                  <span><User size={13} /> {t.contactPerson || 'Contact'}: <strong>{selectedBatch.partnerContact}</strong></span>
                   <span><Phone size={13} /> +91 <strong>{selectedBatch.partnerMobile}</strong></span>
-                  <span><Calendar size={13} /> Drop-off: <strong>{selectedBatch.dropOffDate}</strong></span>
-                  <span><Clock size={13} /> Expected Pickup: <strong>{selectedBatch.expectedPickupDate}</strong></span>
+                  <span><Calendar size={13} /> {t.batchDropOff || 'Drop-off'}: <strong>{selectedBatch.dropOffDate}</strong></span>
+                  <span><Clock size={13} /> {t.batchExpectedPickup || 'Expected Pickup'}: <strong>{selectedBatch.expectedPickupDate}</strong></span>
                 </div>
               </div>
 
@@ -576,7 +576,7 @@ export default function PartnerBatches({
                   }}
                 >
                   <FileText size={16} />
-                  <span>Consolidated Batch Bill</span>
+                  <span>{t.consolidatedBillBtn || 'Consolidated Batch Bill'}</span>
                 </button>
 
                 <button
@@ -590,7 +590,7 @@ export default function PartnerBatches({
                   }}
                 >
                   <Plus size={16} />
-                  <span>Add Vehicle to Batch</span>
+                  <span>{t.addVehicleToBatchBtn || 'Add Vehicle to Batch'}</span>
                 </button>
 
                 <button
@@ -610,7 +610,7 @@ export default function PartnerBatches({
                   }}
                 >
                   <DollarSign size={16} />
-                  <span>Record Payment Installment</span>
+                  <span>{t.recordPaymentInstallmentBtn || 'Record Payment Installment'}</span>
                 </button>
               </div>
             </div>
@@ -625,21 +625,21 @@ export default function PartnerBatches({
               gap: '16px'
             }}>
               <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>TOTAL BATCH BILLED</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.totalBatchBilledHeader || 'TOTAL BATCH BILLED'}</span>
                 <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-white)', fontFamily: 'var(--font-mono)' }}>
                   ₹{selectedBatchFin.totalBilled.toLocaleString('en-IN')}
                 </div>
               </div>
 
               <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--emerald-primary)' }}>TOTAL PAID INSTALLMENTS</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--emerald-primary)' }}>{t.totalPaidInstallmentsHeader || 'TOTAL PAID INSTALLMENTS'}</span>
                 <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--emerald-primary)', fontFamily: 'var(--font-mono)' }}>
                   ₹{selectedBatchFin.totalPaid.toLocaleString('en-IN')}
                 </div>
               </div>
 
               <div style={{ background: 'rgba(250, 204, 21, 0.1)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(250, 204, 21, 0.4)' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--yellow-primary)' }}>REMAINING BALANCE DUE</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--yellow-primary)' }}>{t.remainingBalanceDueHeader || 'REMAINING BALANCE DUE'}</span>
                 <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--yellow-primary)', fontFamily: 'var(--font-mono)' }}>
                   ₹{selectedBatchFin.balanceDue.toLocaleString('en-IN')}
                   <span style={{ fontSize: '0.75rem', marginLeft: '8px', padding: '2px 8px', borderRadius: '12px', background: 'var(--yellow-primary)', color: '#000000', fontWeight: '800' }}>
@@ -658,7 +658,7 @@ export default function PartnerBatches({
               <div className="card-header" style={{ justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Package className="card-icon" size={22} />
-                  <h2>Vehicles in Batch ({(selectedBatch.vehicles || []).length})</h2>
+                  <h2>{t.vehiclesInThisBatch || 'Vehicles in Batch'} ({(selectedBatch.vehicles || []).length})</h2>
                 </div>
 
                 <button
@@ -670,16 +670,16 @@ export default function PartnerBatches({
                     setShowAddVehicleModal(true);
                   }}
                 >
-                  <Plus size={14} /> Add Vehicle
+                  <Plus size={14} /> {t.addVehicleBtn || 'Add Vehicle'}
                 </button>
               </div>
 
               {(selectedBatch.vehicles || []).length === 0 ? (
                 <div className="no-results-card" style={{ padding: '30px' }}>
                   <Package size={32} className="text-muted" />
-                  <p>No vehicles added to this batch yet.</p>
+                  <p>{t.noVehiclesInBatch || 'No vehicles added to this batch yet.'}</p>
                   <button type="button" className="btn-generate-bill" onClick={() => setShowAddVehicleModal(true)}>
-                    ➕ Add First Vehicle
+                    ➕ {t.addVehicleBtn || 'Add First Vehicle'}
                   </button>
                 </div>
               ) : (
@@ -693,11 +693,11 @@ export default function PartnerBatches({
                         
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                           <div>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--yellow-primary)', fontWeight: '700' }}>Vehicle #{vIndex + 1}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--yellow-primary)', fontWeight: '700' }}>{t.warrantyVehicle || 'Vehicle'} #{vIndex + 1}</span>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-white)' }}>
                               {v.vehicleName} ({v.vehicleNumber})
                             </h3>
-                            {v.notes && <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Note: {v.notes}</p>}
+                            {v.notes && <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t.warrantyNote || 'Note'}: {v.notes}</p>}
                           </div>
 
                           <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -705,7 +705,7 @@ export default function PartnerBatches({
                               <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--yellow-primary)', fontFamily: 'var(--font-mono)' }}>
                                 ₹{vSubtotal.toLocaleString('en-IN')}
                               </div>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(v.services || []).length} Services</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(v.services || []).length} {t.servicesDone || 'Services'}</span>
                             </div>
 
                             {/* VEHICLE EDIT & DELETE BUTTONS */}
@@ -719,7 +719,7 @@ export default function PartnerBatches({
                                   setNewVehicle({ vehicleNumber: v.vehicleNumber, vehicleName: v.vehicleName, notes: v.notes || '' });
                                   setShowAddVehicleModal(true);
                                 }}
-                                title="Edit Vehicle Info"
+                                title={t.editDetails || 'Edit'}
                               >
                                 <Edit3 size={13} />
                               </button>
@@ -729,7 +729,7 @@ export default function PartnerBatches({
                                 className="btn-delete-icon"
                                 style={{ padding: '4px 8px' }}
                                 onClick={() => handleDeleteVehicle(v.id, v.vehicleNumber)}
-                                title="Delete Vehicle from Batch"
+                                title={t.deleteBtn || 'Delete'}
                               >
                                 <Trash2 size={13} />
                               </button>
@@ -740,7 +740,7 @@ export default function PartnerBatches({
                         {/* Services List for this Vehicle */}
                         <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <strong style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Multi-Day Service History:</strong>
+                            <strong style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{t.serviceHistory || 'Multi-Day Service History'}:</strong>
                             <button
                               type="button"
                               className="btn-secondary-sm"
@@ -760,21 +760,21 @@ export default function PartnerBatches({
                                 setShowAddServiceModal(true);
                               }}
                             >
-                              <Plus size={12} /> Log Service
+                              <Plus size={12} /> {t.logService || 'Log Service'}
                             </button>
                           </div>
 
                           {(v.services || []).length === 0 ? (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No service entries logged yet for this vehicle.</p>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>{t.noServicesLogged || 'No service entries logged yet for this vehicle.'}</p>
                           ) : (
                             <table className="receipt-table" style={{ fontSize: '0.82rem' }}>
                               <thead>
                                 <tr>
-                                  <th>Date</th>
-                                  <th>Service Item</th>
+                                  <th>{t.bookingDate || 'Date'}</th>
+                                  <th>{t.serviceChecklist || 'Service Item'}</th>
                                   <th>Qty x Rate</th>
                                   <th className="align-right">Amt (₹)</th>
-                                  <th className="align-right">Action</th>
+                                  <th className="align-right">{t.editDetails || 'Action'}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -806,7 +806,7 @@ export default function PartnerBatches({
                                             setShowAddServiceModal(true);
                                           }}
                                           style={{ background: 'transparent', border: 'none', color: 'var(--yellow-primary)', cursor: 'pointer' }}
-                                          title="Edit Service Entry"
+                                          title={t.editDetails || 'Edit'}
                                         >
                                           <Edit3 size={13} />
                                         </button>
@@ -815,7 +815,7 @@ export default function PartnerBatches({
                                           type="button"
                                           onClick={() => handleDeleteService(v.id, s.id)}
                                           style={{ background: 'transparent', border: 'none', color: 'var(--ruby-primary)', cursor: 'pointer' }}
-                                          title="Delete Service Entry"
+                                          title={t.deleteBtn || 'Delete'}
                                         >
                                           <Trash2 size={13} />
                                         </button>
@@ -846,7 +846,7 @@ export default function PartnerBatches({
                             }}
                           >
                             <FileText size={13} />
-                            <span>Vehicle Bill Slip</span>
+                            <span>{t.viewVehicleSlip || 'Vehicle Bill Slip'}</span>
                           </button>
                         </div>
 
@@ -862,7 +862,7 @@ export default function PartnerBatches({
               <div className="card-header" style={{ justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <DollarSign className="card-icon" size={22} />
-                  <h2>Installment Payment Ledger ({(selectedBatch.payments || []).length})</h2>
+                  <h2>{t.paymentInstallments || 'Installment Payment Ledger'} ({(selectedBatch.payments || []).length})</h2>
                 </div>
 
                 <button
@@ -880,16 +880,16 @@ export default function PartnerBatches({
                     setShowAddPaymentModal(true);
                   }}
                 >
-                  <Plus size={14} /> Record Payment
+                  <Plus size={14} /> {t.recordPaymentBtn || 'Record Payment'}
                 </button>
               </div>
 
               {(selectedBatch.payments || []).length === 0 ? (
                 <div className="no-results-card" style={{ padding: '30px' }}>
                   <DollarSign size={32} className="text-muted" />
-                  <p>No payment installments recorded yet.</p>
+                  <p>{t.noPaymentsYet || 'No payment installments recorded yet.'}</p>
                   <button type="button" className="btn-whatsapp-sm" onClick={() => setShowAddPaymentModal(true)}>
-                    💳 Record Advance Payment
+                    💳 {t.recordPaymentBtn || 'Record Advance Payment'}
                   </button>
                 </div>
               ) : (
@@ -901,7 +901,7 @@ export default function PartnerBatches({
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-white)', fontWeight: '600' }}>
                           {p.date} via {p.paymentMethod}
                         </div>
-                        {p.note && <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Note: {p.note}</div>}
+                        {p.note && <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.warrantyNote || 'Note'}: {p.note}</div>}
                       </div>
 
                       <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -925,7 +925,7 @@ export default function PartnerBatches({
                             });
                             setShowAddPaymentModal(true);
                           }}
-                          title="Edit Payment Entry"
+                          title={t.editDetails || 'Edit'}
                         >
                           <Edit3 size={12} />
                         </button>
@@ -935,7 +935,7 @@ export default function PartnerBatches({
                           className="btn-delete-icon"
                           style={{ padding: '4px 8px' }}
                           onClick={() => handleDeletePayment(p.id)}
-                          title="Delete Payment Entry"
+                          title={t.deleteBtn || 'Delete'}
                         >
                           <Trash2 size={12} />
                         </button>
@@ -960,9 +960,9 @@ export default function PartnerBatches({
                             });
                             setActiveReceiptType('payment');
                           }}
-                          title="Generate payment receipt slip"
+                          title={t.viewReceipt || 'View Receipt'}
                         >
-                          <FileText size={12} /> Slip
+                          <FileText size={12} /> {t.viewSlip || 'Slip'}
                         </button>
                       </div>
                     </div>
@@ -987,14 +987,19 @@ export default function PartnerBatches({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
                 
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  {['Active', 'Completed', 'Overdue', 'All'].map(st => (
+                  {[
+                    { key: 'Active', label: t.filterActive || 'Active' },
+                    { key: 'Completed', label: t.filterCompleted || 'Completed' },
+                    { key: 'Overdue', label: t.filterOverdue || 'Overdue' },
+                    { key: 'All', label: t.filterAll || 'All' }
+                  ].map(item => (
                     <button
-                      key={st}
+                      key={item.key}
                       type="button"
-                      className={`sub-pill ${statusFilter === st ? 'active' : ''}`}
-                      onClick={() => setStatusFilter(st)}
+                      className={`sub-pill ${statusFilter === item.key ? 'active' : ''}`}
+                      onClick={() => setStatusFilter(item.key)}
                     >
-                      {st}
+                      {item.label}
                     </button>
                   ))}
                 </div>
@@ -1004,7 +1009,7 @@ export default function PartnerBatches({
                     <Search className="search-icon" size={16} />
                     <input
                       type="text"
-                      placeholder="Search Batch ID, Garage, Car..."
+                      placeholder={t.searchBatchPlaceholder || 'Search Partner Garage, Batch ID...'}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -1016,7 +1021,7 @@ export default function PartnerBatches({
                     onClick={() => setShowNewBatchModal(true)}
                   >
                     <Plus size={18} />
-                    <span>New Batch Drop-Off</span>
+                    <span>{t.createBatchBtn || 'New Batch Drop-Off'}</span>
                   </button>
                 </div>
 
@@ -1027,9 +1032,9 @@ export default function PartnerBatches({
                 {filteredBatches.length === 0 ? (
                   <div className="no-results-card" style={{ gridColumn: '1 / -1' }}>
                     <Package size={36} className="text-muted" />
-                    <p>No partner garage batches found.</p>
+                    <p>{t.noBatchesFound || 'No partner garage batches found.'}</p>
                     <button type="button" className="btn-generate-bill" onClick={() => setShowNewBatchModal(true)}>
-                      ➕ Create First Batch Drop-Off
+                      ➕ {t.createBatchBtn || 'Create First Batch Drop-Off'}
                     </button>
                   </div>
                 ) : (
@@ -1051,33 +1056,33 @@ export default function PartnerBatches({
                           </div>
 
                           <span className={`visit-badge ${batch.status === 'Completed' ? 'ok' : ''}`}>
-                            {batch.status}
+                            {batch.status === 'Completed' ? (t.statusCompleted || 'Completed') : batch.status === 'Active' ? (t.filterActive || 'Active') : batch.status}
                           </span>
                         </div>
 
                         <div className="customer-card-details">
                           <div className="detail-line">
                             <Calendar size={14} className="detail-icon" />
-                            <span>Drop-Off: <strong>{batch.dropOffDate}</strong></span>
+                            <span>{t.batchDropOff || 'Drop-Off'}: <strong>{batch.dropOffDate}</strong></span>
                           </div>
                           <div className="detail-line">
                             <Clock size={14} className="detail-icon" />
-                            <span>Expected Pickup: <strong>{batch.expectedPickupDate}</strong></span>
+                            <span>{t.batchExpectedPickup || 'Expected Pickup'}: <strong>{batch.expectedPickupDate}</strong></span>
                           </div>
                           <div className="detail-line">
                             <Package size={14} className="detail-icon" />
-                            <span>Vehicles in Batch: <strong>{(batch.vehicles || []).length} Cars</strong></span>
+                            <span>{t.batchVehiclesCount || 'Vehicles in Batch'}: <strong>{(batch.vehicles || []).length} Cars</strong></span>
                           </div>
                         </div>
 
                         {/* Financial Bar */}
                         <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', marginBottom: '14px', border: '1px solid var(--border-subtle)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            <span>Billed: ₹{fin.totalBilled.toLocaleString('en-IN')}</span>
-                            <span>Paid: ₹{fin.totalPaid.toLocaleString('en-IN')}</span>
+                            <span>{t.batchBilled || 'Billed'}: ₹{fin.totalBilled.toLocaleString('en-IN')}</span>
+                            <span>{t.batchTotalPaid || 'Paid'}: ₹{fin.totalPaid.toLocaleString('en-IN')}</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', fontWeight: '800', marginTop: '4px' }}>
-                            <span style={{ color: 'var(--text-white)' }}>Balance Due:</span>
+                            <span style={{ color: 'var(--text-white)' }}>{t.batchBalance || 'Balance Due'}:</span>
                             <span style={{ color: 'var(--yellow-primary)', fontFamily: 'var(--font-mono)' }}>₹{fin.balanceDue.toLocaleString('en-IN')}</span>
                           </div>
                         </div>
@@ -1088,7 +1093,7 @@ export default function PartnerBatches({
                           </span>
 
                           <button type="button" className="btn-details-sm">
-                            <span>Open Batch Workspace</span>
+                            <span>{t.manageBatchBtn || 'Open Batch Workspace'}</span>
                             <ChevronRight size={14} />
                           </button>
                         </div>
@@ -1104,10 +1109,10 @@ export default function PartnerBatches({
             /* SOURCE GARAGES DIRECTORY (SUBTAB = GARAGES) */
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 className="section-subtitle" style={{ margin: 0 }}>Partner Garage Directory</h3>
+                <h3 className="section-subtitle" style={{ margin: 0 }}>{t.tabGarages || 'Partner Garage Directory'}</h3>
                 <button type="button" className="btn-generate-bill" onClick={() => setShowAddGarageModal(true)}>
                   <Plus size={18} />
-                  <span>Add Partner Garage</span>
+                  <span>{t.addGarageBtn || 'Add Partner Garage'}</span>
                 </button>
               </div>
 
@@ -1115,7 +1120,7 @@ export default function PartnerBatches({
                 {partnerGarages.length === 0 ? (
                   <div className="no-results-card" style={{ gridColumn: '1 / -1' }}>
                     <Building2 size={36} className="text-muted" />
-                    <p>No partner garages added yet.</p>
+                    <p>{t.noGaragesFound || 'No partner garages added yet.'}</p>
                   </div>
                 ) : (
                   partnerGarages.map(g => (
@@ -1130,13 +1135,13 @@ export default function PartnerBatches({
                       <div className="customer-card-details">
                         <div className="detail-line">
                           <User size={14} className="detail-icon" />
-                          <span>Contact Person: <strong>{g.contactPerson || 'N/A'}</strong></span>
+                          <span>{t.contactPerson || 'Contact Person'}: <strong>{g.contactPerson || 'N/A'}</strong></span>
                         </div>
                         <div className="detail-line">
                           <MapPin size={14} className="detail-icon" />
-                          <span>Address: {g.address || 'N/A'}</span>
+                          <span>{t.garageAddress || 'Address'}: {g.address || 'N/A'}</span>
                         </div>
-                        {g.notes && <div className="detail-line"><span>Note: {g.notes}</span></div>}
+                        {g.notes && <div className="detail-line"><span>{t.warrantyNote || 'Note'}: {g.notes}</span></div>}
                       </div>
 
                       <div className="customer-card-footer">
@@ -1144,7 +1149,7 @@ export default function PartnerBatches({
                           type="button"
                           className="btn-delete-icon"
                           onClick={() => handleDeleteGarage(g.id, g.name)}
-                          title="Delete Garage"
+                          title={t.deleteBtn || 'Delete'}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -1158,7 +1163,7 @@ export default function PartnerBatches({
                             setShowNewBatchModal(true);
                           }}
                         >
-                          <Plus size={14} /> New Batch Drop-Off
+                          <Plus size={14} /> {t.createBatchBtn || 'New Batch Drop-Off'}
                         </button>
                       </div>
                     </div>
@@ -1180,14 +1185,14 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <Building2 style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Add New Partner / Source Garage</span>
+                <span>{t.addGarageBtn || 'Add New Partner / Source Garage'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddGarageModal(false)}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSaveGarage} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Garage Name *</label>
+                <label>{t.customerName || 'Garage Name'} *</label>
                 <input
                   type="text"
                   placeholder="e.g. Sahara Motors"
@@ -1198,7 +1203,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Contact Person</label>
+                <label>{t.contactPerson || 'Contact Person'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Aslam Khan"
@@ -1208,7 +1213,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Mobile Number *</label>
+                <label>{t.mobileNumber || 'Mobile Number *'}</label>
                 <input
                   type="tel"
                   placeholder="e.g. 9822011223"
@@ -1220,7 +1225,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Address</label>
+                <label>{t.garageAddress || 'Address'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Hotgi Road Industrial Estate, Solapur"
@@ -1231,7 +1236,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> Save Partner Garage
+                  <Plus size={18} /> {t.saveGarageBtn || 'Save Partner Garage'}
                 </button>
               </div>
             </form>
@@ -1248,14 +1253,14 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <Package style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Create New Batch Drop-Off Contract</span>
+                <span>{t.createBatchBtn || 'Create New Batch Drop-Off Contract'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowNewBatchModal(false)}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleCreateBatch} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Select Partner / Source Garage *</label>
+                <label>{t.tabGarages || 'Select Partner / Source Garage'} *</label>
                 <select
                   value={newBatch.partnerGarageId}
                   onChange={(e) => setNewBatch({ ...newBatch, partnerGarageId: e.target.value })}
@@ -1268,7 +1273,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Drop-Off Date *</label>
+                <label>{t.batchDropOff || 'Drop-Off Date'} *</label>
                 <input
                   type="date"
                   value={newBatch.dropOffDate}
@@ -1278,7 +1283,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Expected Pickup Date (15–20 Days) *</label>
+                <label>{t.batchExpectedPickup || 'Expected Pickup Date (15–20 Days)'} *</label>
                 <input
                   type="date"
                   value={newBatch.expectedPickupDate}
@@ -1288,7 +1293,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Contract Notes / Terms</label>
+                <label>{t.warrantyNote || 'Contract Notes / Terms'}</label>
                 <input
                   type="text"
                   placeholder="e.g. 10 vehicles drop-off for wheel alignment and engine repairs"
@@ -1299,7 +1304,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> Create & Open Batch Workspace
+                  <Plus size={18} /> {t.saveBatchBtn || 'Create & Open Batch Workspace'}
                 </button>
               </div>
             </form>
@@ -1316,14 +1321,14 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <Package style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>{editingVehicle ? 'Edit Vehicle Info' : `Add Vehicle to Batch #${selectedBatchId}`}</span>
+                <span>{editingVehicle ? (t.editDetails || 'Edit Vehicle Info') : `${t.addVehicleBtn || 'Add Vehicle to Batch'} #${selectedBatchId}`}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddVehicleModal(false)}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSaveVehicle} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Vehicle Reg. Number *</label>
+                <label>{t.vehicleRegNo || 'Vehicle Reg. Number *'}</label>
                 <input
                   type="text"
                   placeholder="e.g. MH-12-AB-1234"
@@ -1334,7 +1339,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Make / Model Name</label>
+                <label>{t.vehicleModel || 'Make / Model Name'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Maruti Swift / Tata Ace / Creta"
@@ -1344,7 +1349,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Initial Vehicle Condition / Notes</label>
+                <label>{t.warrantyNote || 'Initial Vehicle Condition / Notes'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Left front tyre damaged"
@@ -1355,7 +1360,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> {editingVehicle ? 'Update Vehicle Info' : 'Add Vehicle'}
+                  <Plus size={18} /> {editingVehicle ? (t.editDetails || 'Update Vehicle Info') : (t.saveVehicleBtn || 'Add Vehicle')}
                 </button>
               </div>
             </form>
@@ -1372,14 +1377,14 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <FileText style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>{editingService ? 'Edit Service Entry' : 'Log Service Entry'}</span>
+                <span>{editingService ? (t.editDetails || 'Edit Service Entry') : (t.logService || 'Log Service Entry')}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddServiceModal(false)}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSaveService} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Select Service Type</label>
+                <label>{t.serviceChecklist || 'Select Service Type'}</label>
                 <select
                   value={newService.serviceKey}
                   onChange={(e) => {
@@ -1388,25 +1393,25 @@ export default function PartnerBatches({
                     setNewService({ ...newService, serviceKey: key, rate: defaultRate });
                   }}
                 >
-                  <option value="wheelAlignment">1. Wheel Alignment (₹350)</option>
-                  <option value="wheelBalancing">2. Wheel Balancing Fees (₹200)</option>
-                  <option value="weight">3. Wheel Weight (Sticker/Brass)</option>
-                  <option value="tyreFitting">4. Tyre Fitting & Valves</option>
-                  <option value="tyreRotation">5. Tyre Rotation (₹200)</option>
-                  <option value="headlightBuffing">6. Head Light Buffing (₹700)</option>
-                  <option value="airFilling">7. Air Filling / Nitrogen (₹150)</option>
-                  <option value="tubelessPuncher">8. Tubeless Puncher Repair (₹100)</option>
-                  <option value="camberSetting">9. Camber Setting (₹1,200)</option>
-                  <option value="carWashing">10. Car Washing (₹350)</option>
-                  <option value="internalCleaning">11. Internal Cleaning (₹800)</option>
-                  <option value="oilChange">12. Engine Oil Change (₹1,500)</option>
+                  <option value="wheelAlignment">{t.wheelAlignment || '1. Wheel Alignment'} (₹350)</option>
+                  <option value="wheelBalancing">{t.wheelBalancing || '2. Wheel Balancing Fees'} (₹200)</option>
+                  <option value="weight">{t.wheelWeight || '3. Wheel Weight (Sticker/Brass)'}</option>
+                  <option value="tyreFitting">{t.tyreFitting || '4. Tyre Fitting & Valves'}</option>
+                  <option value="tyreRotation">{t.tyreRotation || '5. Tyre Rotation'} (₹200)</option>
+                  <option value="headlightBuffing">{t.headlightBuffing || '6. Head Light Buffing'} (₹700)</option>
+                  <option value="airFilling">{t.airFilling || '7. Air Filling / Nitrogen'} (₹150)</option>
+                  <option value="tubelessPuncher">{t.tubelessPuncher || '8. Tubeless Puncher Repair'} (₹100)</option>
+                  <option value="camberSetting">{t.camberSetting || '9. Camber Setting'} (₹1,200)</option>
+                  <option value="carWashing">{t.carWashing || '10. Car Washing'} (₹350)</option>
+                  <option value="internalCleaning">{t.internalCleaning || '11. Internal Cleaning'} (₹800)</option>
+                  <option value="oilChange">{t.oilChange || '12. Engine Oil Change'} (₹1,500)</option>
                   <option value="custom">⚙️ Free-Text Custom Repair (Engine, Painting, Denting)</option>
                 </select>
               </div>
 
               {newService.serviceKey === 'custom' && (
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Custom Repair / Service Name *</label>
+                  <label>{t.serviceChecklist || 'Custom Repair / Service Name'} *</label>
                   <input
                     type="text"
                     placeholder="e.g. Engine Overhaul, Body Painting, Denting Repair"
@@ -1418,7 +1423,7 @@ export default function PartnerBatches({
               )}
 
               <div className="form-group">
-                <label>Service Date *</label>
+                <label>{t.bookingDate || 'Service Date'} *</label>
                 <input
                   type="date"
                   value={newService.date}
@@ -1428,7 +1433,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Quantity *</label>
+                <label>{t.numberOfTyres || 'Quantity'} *</label>
                 <input
                   type="number"
                   min="1"
@@ -1439,7 +1444,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Rate / Price (₹) *</label>
+                <label>{t.priceSettings || 'Rate / Price (₹)'} *</label>
                 <input
                   type="number"
                   value={newService.rate}
@@ -1449,7 +1454,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Total Amount (₹)</label>
+                <label>{t.subtotal || 'Total Amount (₹)'}</label>
                 <input
                   type="text"
                   value={`₹${(parseFloat(newService.quantity || 1) * parseFloat(newService.rate || 0)).toLocaleString('en-IN')}`}
@@ -1459,7 +1464,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Work Description / Notes</label>
+                <label>{t.warrantyNote || 'Work Description / Notes'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Replaced front brake pads & aligned front tyres"
@@ -1470,7 +1475,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Plus size={18} /> {editingService ? 'Update Service Entry' : 'Log Service Entry'}
+                  <Plus size={18} /> {editingService ? (t.editDetails || 'Update Service Entry') : (t.saveServiceEntryBtn || 'Log Service Entry')}
                 </button>
               </div>
             </form>
@@ -1487,14 +1492,14 @@ export default function PartnerBatches({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <DollarSign style={{ color: 'var(--emerald-primary)' }} size={22} />
-                <span>{editingPayment ? 'Edit Payment Installment' : 'Record Installment Payment'}</span>
+                <span>{editingPayment ? (t.editDetails || 'Edit Payment Installment') : (t.recordPaymentBtn || 'Record Installment Payment')}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddPaymentModal(false)}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSavePayment} className="grid-form" style={{ padding: '20px' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Payment Stage / Category *</label>
+                <label>{t.paymentMethod || 'Payment Stage / Category'} *</label>
                 <select
                   value={newPayment.stage}
                   onChange={(e) => setNewPayment({ ...newPayment, stage: e.target.value })}
@@ -1506,7 +1511,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Payment Amount (₹) *</label>
+                <label>{t.expenseAmount || 'Payment Amount (₹)'} *</label>
                 <input
                   type="number"
                   placeholder="e.g. 10000"
@@ -1517,7 +1522,7 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group">
-                <label>Payment Date *</label>
+                <label>{t.bookingDate || 'Payment Date'} *</label>
                 <input
                   type="date"
                   value={newPayment.date}
@@ -1527,27 +1532,27 @@ export default function PartnerBatches({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Payment Mode *</label>
+                <label>{t.paymentMethod || 'Payment Mode'} *</label>
                 <div className="radio-group-segmented">
                   <button
                     type="button"
                     className={`segmented-btn ${newPayment.paymentMethod === 'UPI / QR Code' ? 'active' : ''}`}
                     onClick={() => setNewPayment({ ...newPayment, paymentMethod: 'UPI / QR Code' })}
                   >
-                    📱 UPI / QR Code
+                    {t.upiQr || '📱 UPI / QR Code'}
                   </button>
                   <button
                     type="button"
                     className={`segmented-btn ${newPayment.paymentMethod === 'Cash' ? 'active' : ''}`}
                     onClick={() => setNewPayment({ ...newPayment, paymentMethod: 'Cash' })}
                   >
-                    💵 Cash
+                    {t.cash || '💵 Cash'}
                   </button>
                 </div>
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Payment Note / Reference</label>
+                <label>{t.warrantyNote || 'Payment Note / Reference'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Received advance via PhonePe"
@@ -1558,7 +1563,7 @@ export default function PartnerBatches({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-whatsapp-sm" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                  <DollarSign size={18} /> {editingPayment ? 'Update Payment Entry' : 'Record & Generate Payment Slip'}
+                  <DollarSign size={18} /> {editingPayment ? (t.editDetails || 'Update Payment Entry') : (t.savePaymentBtn || 'Record & Generate Payment Slip')}
                 </button>
               </div>
             </form>
@@ -1576,9 +1581,9 @@ export default function PartnerBatches({
               <div className="modal-title">
                 <CheckCircle2 style={{ color: 'var(--emerald-primary)' }} size={22} />
                 <span>
-                  {activeReceiptType === 'payment' && 'Payment Installment Slip'}
-                  {activeReceiptType === 'vehicle' && 'Single Vehicle Service Slip'}
-                  {activeReceiptType === 'batch' && 'Consolidated Batch Statement'}
+                  {activeReceiptType === 'payment' && (t.viewReceipt || 'Payment Installment Slip')}
+                  {activeReceiptType === 'vehicle' && (t.viewVehicleSlip || 'Single Vehicle Service Slip')}
+                  {activeReceiptType === 'batch' && (t.consolidatedBillBtn || 'Consolidated Batch Statement')}
                 </span>
               </div>
               <button className="close-modal-btn" onClick={() => setActiveReceiptData(null)}><X size={20} /></button>
@@ -1696,7 +1701,7 @@ export default function PartnerBatches({
                 onClick={() => sendWhatsAppReceipt(activeReceiptType, activeReceiptData)}
               >
                 <Send size={18} />
-                <span>Send via WhatsApp</span>
+                <span>{t.shareViaWhatsAppBtn || 'Send via WhatsApp'}</span>
               </button>
 
               <button
@@ -1704,7 +1709,7 @@ export default function PartnerBatches({
                 onClick={() => window.print()}
               >
                 <Printer size={18} />
-                <span>Print Thermal Receipt</span>
+                <span>{t.printSlipBtn || 'Print Thermal Receipt'}</span>
               </button>
             </div>
 

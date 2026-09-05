@@ -175,8 +175,8 @@ export default function TyreWarranty({
       {/* Header & Controls Bar */}
       <div className="section-header-row">
         <div>
-          <h2 className="section-title">🛡️ Tyre Spec & Warranty Tracker</h2>
-          <p className="section-desc">Register tyre serial numbers, track manufacturer & unconditional warranties, and issue instant digital warranty slips</p>
+          <h2 className="section-title">{t.tyreWarrantyTitle || '🛡️ Tyre Spec & Warranty Tracker'}</h2>
+          <p className="section-desc">{t.tyreWarrantyDesc || 'Register tyre serial numbers, track manufacturer & unconditional warranties, and issue instant digital warranty slips'}</p>
         </div>
 
         <button
@@ -185,7 +185,7 @@ export default function TyreWarranty({
           onClick={() => setShowAddModal(true)}
         >
           <Plus size={18} />
-          <span>Register Tyre Warranty</span>
+          <span>{t.registerWarrantyBtn || 'Register Tyre Warranty'}</span>
         </button>
       </div>
 
@@ -193,14 +193,19 @@ export default function TyreWarranty({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
         
         <div style={{ display: 'flex', gap: '8px' }}>
-          {['All', 'Active', 'Expiring Soon', 'Expired'].map(st => (
+          {[
+            { key: 'All', label: t.filterAll || 'All' },
+            { key: 'Active', label: t.filterActive || 'Active' },
+            { key: 'Expiring Soon', label: t.filterExpiringSoon || 'Expiring Soon' },
+            { key: 'Expired', label: t.filterExpired || 'Expired' }
+          ].map(item => (
             <button
-              key={st}
+              key={item.key}
               type="button"
-              className={`sub-pill ${filterStatus === st ? 'active' : ''}`}
-              onClick={() => setFilterStatus(st)}
+              className={`sub-pill ${filterStatus === item.key ? 'active' : ''}`}
+              onClick={() => setFilterStatus(item.key)}
             >
-              {st}
+              {item.label}
             </button>
           ))}
         </div>
@@ -209,7 +214,7 @@ export default function TyreWarranty({
           <Search className="search-icon" size={16} />
           <input
             type="text"
-            placeholder="Search Customer, Reg No, Serial No..."
+            placeholder={t.searchWarrantyPlaceholder || 'Search Customer, Reg No, Serial No...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -222,9 +227,9 @@ export default function TyreWarranty({
         {filteredWarranties.length === 0 ? (
           <div className="no-results-card" style={{ gridColumn: '1 / -1' }}>
             <ShieldCheck size={40} className="text-muted" />
-            <p>No tyre warranty registrations found.</p>
+            <p>{t.noWarrantyFound || 'No tyre warranty registrations found.'}</p>
             <button type="button" className="btn-generate-bill" onClick={() => setShowAddModal(true)}>
-              ➕ Register First Tyre Warranty
+              {t.registerFirstWarranty || '➕ Register First Tyre Warranty'}
             </button>
           </div>
         ) : (
@@ -242,34 +247,34 @@ export default function TyreWarranty({
                   </div>
 
                   <span className={`visit-badge ${details.status === 'Active' ? 'ok' : details.status === 'Expiring Soon' ? 'warning' : 'danger'}`}>
-                    {details.status === 'Active' && '🟢 Active'}
-                    {details.status === 'Expiring Soon' && `🟡 Expires in ${details.diffDays} Days`}
-                    {details.status === 'Expired' && '🔴 Expired'}
+                    {details.status === 'Active' && (t.statusActiveTag || '🟢 Active')}
+                    {details.status === 'Expiring Soon' && `${t.statusExpiringSoonTag || '🟡 Expires in'} ${details.diffDays} ${t.daysUnit || 'Days'}`}
+                    {details.status === 'Expired' && (t.statusExpiredTag || '🔴 Expired')}
                   </span>
                 </div>
 
                 <div className="customer-card-details" style={{ marginTop: '12px' }}>
                   <div className="detail-line">
                     <Car size={14} className="detail-icon" />
-                    <span>Vehicle: <strong>{warranty.vehicleName} ({warranty.vehicleNumber})</strong></span>
+                    <span>{t.warrantyVehicle || 'Vehicle'}: <strong>{warranty.vehicleName} ({warranty.vehicleNumber})</strong></span>
                   </div>
 
                   <div className="detail-line">
                     <Tag size={14} className="detail-icon" />
-                    <span>Tyre: <strong style={{ color: 'var(--yellow-primary)' }}>{warranty.brand} {warranty.sizeSpec}</strong> ({warranty.quantity} Tyres)</span>
+                    <span>{t.warrantyTyre || 'Tyre'}: <strong style={{ color: 'var(--yellow-primary)' }}>{warranty.brand} {warranty.sizeSpec}</strong> ({warranty.quantity} {t.warrantyTyresUnit || 'Tyres'})</span>
                   </div>
 
                   <div className="detail-line">
                     <FileText size={14} className="detail-icon" />
-                    <span>Serial / DOT Code: <strong style={{ fontFamily: 'var(--font-mono)' }}>{warranty.serialNumber}</strong></span>
+                    <span>{t.warrantySerialDot || 'Serial / DOT Code'}: <strong style={{ fontFamily: 'var(--font-mono)' }}>{warranty.serialNumber}</strong></span>
                   </div>
 
                   <div className="detail-line">
                     <Calendar size={14} className="detail-icon" />
-                    <span>Purchase: <strong>{warranty.purchaseDate}</strong> (Valid till <strong>{details.expiryDateStr}</strong>)</span>
+                    <span>{t.warrantyPurchase || 'Purchase'}: <strong>{warranty.purchaseDate}</strong> ({t.warrantyValidTill || 'Valid till'} <strong>{details.expiryDateStr}</strong>)</span>
                   </div>
 
-                  {warranty.notes && <div className="detail-line"><span style={{ color: 'var(--text-muted)' }}>Note: {warranty.notes}</span></div>}
+                  {warranty.notes && <div className="detail-line"><span style={{ color: 'var(--text-muted)' }}>{t.warrantyNote || 'Note'}: {warranty.notes}</span></div>}
                 </div>
 
                 {/* Card Action Buttons */}
@@ -278,7 +283,7 @@ export default function TyreWarranty({
                     type="button"
                     className="btn-delete-icon"
                     onClick={() => handleDeleteWarranty(warranty.id)}
-                    title="Delete Warranty Record"
+                    title={t.deleteBtn || 'Delete'}
                   >
                     <Trash2 size={15} />
                   </button>
@@ -289,7 +294,7 @@ export default function TyreWarranty({
                       className="btn-secondary-sm"
                       onClick={() => setActiveCertificate(warranty)}
                     >
-                      <FileText size={13} /> View Slip
+                      <FileText size={13} /> {t.viewSlip || 'View Slip'}
                     </button>
 
                     <button
@@ -317,7 +322,7 @@ export default function TyreWarranty({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <ShieldCheck style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Register Tyre Warranty & Serial Number</span>
+                <span>{t.modalRegisterWarrantyTitle || 'Register Tyre Warranty & Serial Number'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setShowAddModal(false)}><X size={20} /></button>
             </div>
@@ -325,7 +330,7 @@ export default function TyreWarranty({
             <form onSubmit={handleSaveWarranty} className="grid-form" style={{ padding: '20px' }}>
               
               <div className="form-group">
-                <label>Customer Name *</label>
+                <label>{t.customerName || 'Customer Name *'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Aslam Khan"
@@ -336,7 +341,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Mobile Number *</label>
+                <label>{t.mobileNumber || 'Mobile Number *'}</label>
                 <input
                   type="tel"
                   placeholder="e.g. 9822011223"
@@ -348,7 +353,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Vehicle Reg Number *</label>
+                <label>{t.vehicleRegNo || 'Vehicle Reg Number *'}</label>
                 <input
                   type="text"
                   placeholder="e.g. MH-13-AB-1234"
@@ -359,7 +364,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Vehicle Make / Model</label>
+                <label>{t.vehicleModel || 'Vehicle Make / Model'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Maruti Swift / Creta"
@@ -369,7 +374,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Tyre Brand *</label>
+                <label>{t.tyreBrand || 'Tyre Brand *'}</label>
                 <select
                   value={formData.brand}
                   onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
@@ -380,7 +385,7 @@ export default function TyreWarranty({
 
               {formData.brand === 'Custom' && (
                 <div className="form-group">
-                  <label>Custom Brand Name *</label>
+                  <label>{t.customBrandName || 'Custom Brand Name *'}</label>
                   <input
                     type="text"
                     placeholder="e.g. Michelin / Falken"
@@ -392,7 +397,7 @@ export default function TyreWarranty({
               )}
 
               <div className="form-group">
-                <label>Tyre Size Spec *</label>
+                <label>{t.tyreSizeSpec || 'Tyre Size Spec *'}</label>
                 <select
                   value={formData.sizeSpec}
                   onChange={(e) => setFormData({ ...formData, sizeSpec: e.target.value })}
@@ -403,7 +408,7 @@ export default function TyreWarranty({
 
               {formData.sizeSpec === 'Custom' && (
                 <div className="form-group">
-                  <label>Custom Size Spec *</label>
+                  <label>{t.customSizeSpec || 'Custom Size Spec *'}</label>
                   <input
                     type="text"
                     placeholder="e.g. 245/45 R18"
@@ -415,7 +420,7 @@ export default function TyreWarranty({
               )}
 
               <div className="form-group">
-                <label>Serial / DOT Code Number *</label>
+                <label>{t.warrantySerialDot || 'Serial / DOT Code Number *'}</label>
                 <input
                   type="text"
                   placeholder="e.g. DOT-3824-AP9901"
@@ -426,7 +431,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Quantity of Tyres *</label>
+                <label>{t.numberOfTyres || 'Quantity of Tyres *'}</label>
                 <input
                   type="number"
                   min="1"
@@ -438,7 +443,7 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Purchase Date *</label>
+                <label>{t.purchaseDate || 'Purchase Date *'}</label>
                 <input
                   type="date"
                   value={formData.purchaseDate}
@@ -448,31 +453,31 @@ export default function TyreWarranty({
               </div>
 
               <div className="form-group">
-                <label>Warranty Duration *</label>
+                <label>{t.warrantyDuration || 'Warranty Duration *'}</label>
                 <select
                   value={formData.warrantyYears}
                   onChange={(e) => setFormData({ ...formData, warrantyYears: Number(e.target.value) })}
                 >
-                  <option value={1}>1 Year Warranty</option>
-                  <option value={2}>2 Years Warranty</option>
-                  <option value={3}>3 Years Warranty (Standard)</option>
-                  <option value={5}>5 Years Warranty (Unconditional)</option>
+                  <option value={1}>1 {t.warrantyYearsUnit || 'Years'}</option>
+                  <option value={2}>2 {t.warrantyYearsUnit || 'Years'}</option>
+                  <option value={3}>3 {t.warrantyYearsUnit || 'Years'}</option>
+                  <option value={5}>5 {t.warrantyYearsUnit || 'Years'}</option>
                 </select>
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Warranty Coverage Type</label>
+                <label>{t.coverageType || 'Warranty Coverage Type'}</label>
                 <select
                   value={formData.warrantyType}
                   onChange={(e) => setFormData({ ...formData, warrantyType: e.target.value })}
                 >
-                  <option value="Unconditional Warranty">🛡️ Unconditional Warranty (Includes Cuts & Bulges)</option>
-                  <option value="Manufacturing Defect Warranty">⚙️ Manufacturing Defect Warranty Only</option>
+                  <option value="Unconditional Warranty">{t.coverageUnconditional || '🛡️ Unconditional / Cut & Damage Warranty'}</option>
+                  <option value="Manufacturing Defect Warranty">{t.coverageStandard || '⚙️ Standard Manufacturer Warranty (Defects Only)'}</option>
                 </select>
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Special Notes / Remarks</label>
+                <label>{t.notesOrInvoiceRef || 'Special Notes / Remarks'}</label>
                 <input
                   type="text"
                   placeholder="e.g. Registered with manufacturer bill #SG-2026-9901"
@@ -483,7 +488,7 @@ export default function TyreWarranty({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <button type="submit" className="btn-generate-bill" style={{ width: '100%', justifyContent: 'center' }}>
-                  <ShieldCheck size={18} /> Register Warranty & Generate Slip
+                  <ShieldCheck size={18} /> {t.saveWarrantyBtn || 'Save Warranty Certificate'}
                 </button>
               </div>
 
@@ -501,7 +506,7 @@ export default function TyreWarranty({
             <div className="modal-header-bar">
               <div className="modal-title">
                 <ShieldCheck style={{ color: 'var(--yellow-primary)' }} size={22} />
-                <span>Official Tyre Warranty Certificate</span>
+                <span>{t.officialWarrantyCertTitle || 'Official Tyre Warranty Certificate'}</span>
               </div>
               <button className="close-modal-btn" onClick={() => setActiveCertificate(null)}><X size={20} /></button>
             </div>
@@ -536,13 +541,13 @@ export default function TyreWarranty({
                 <div style={{ fontSize: '0.85rem' }}>TYRE BRAND & SPECIFICATION:</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: '800' }}>{activeCertificate.brand} {activeCertificate.sizeSpec}</div>
                 <div style={{ fontSize: '0.88rem', marginTop: '4px' }}>Serial / DOT Code: <strong style={{ fontFamily: 'var(--font-mono)' }}>{activeCertificate.serialNumber}</strong></div>
-                <div style={{ fontSize: '0.88rem' }}>Quantity: <strong>{activeCertificate.quantity} Tyres</strong></div>
+                <div style={{ fontSize: '0.88rem' }}>Quantity: <strong>{activeCertificate.quantity} {t.warrantyTyresUnit || 'Tyres'}</strong></div>
               </div>
 
               <div className="receipt-divider">---------------------------------------------</div>
 
               <div className="receipt-totals">
-                <div className="total-row"><span>Warranty Coverage:</span><span>{activeCertificate.warrantyYears} Years ({activeCertificate.warrantyType})</span></div>
+                <div className="total-row"><span>Warranty Coverage:</span><span>{activeCertificate.warrantyYears} {t.warrantyYearsUnit || 'Years'} ({activeCertificate.warrantyType})</span></div>
                 <div className="total-row grand-total"><span>WARRANTY EXPIRY:</span><span>{getWarrantyDetails(activeCertificate).expiryDateStr}</span></div>
               </div>
 
@@ -560,7 +565,7 @@ export default function TyreWarranty({
                 onClick={() => sendWhatsAppWarranty(activeCertificate)}
               >
                 <Send size={18} />
-                <span>Send Certificate via WhatsApp</span>
+                <span>{t.shareViaWhatsAppBtn || 'Send Certificate via WhatsApp'}</span>
               </button>
 
               <button
@@ -568,7 +573,7 @@ export default function TyreWarranty({
                 onClick={() => window.print()}
               >
                 <Printer size={18} />
-                <span>Print Thermal Certificate</span>
+                <span>{t.printSlipBtn || 'Print Thermal Certificate'}</span>
               </button>
             </div>
 
