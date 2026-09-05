@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckSquare, Square, FileText, Send, Sparkles, RefreshCw } from 'lucide-react';
+import { CheckSquare, Square, FileText, Send } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/i18n';
 
 export default function ServiceChecklist({ services, setServices, discount, setDiscount, onGenerateInvoice, currentLang }) {

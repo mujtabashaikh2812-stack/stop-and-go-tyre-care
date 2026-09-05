@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Coffee, DollarSign, Users, RefreshCw, Plus, CheckCircle2, Trash2 } from 'lucide-react';
+import { Coffee, Users, RefreshCw, Plus, CheckCircle2, Trash2 } from 'lucide-react';
 import { addExpense, deleteExpense, addSalaryRecord, deleteSalaryRecord, addScrapSale, deleteScrapSale } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 
@@ -146,13 +146,13 @@ export default function ExpensesAndScrap({
 
         <form onSubmit={handleAddExpense} className="grid-form">
           <div className="form-group">
-            <label>Expense Category *</label>
+            <label>{t.expenseCategory || 'Expense Category'} *</label>
             <select value={expCategory} onChange={(e) => setExpCategory(e.target.value)}>
-              <option value="Tea & Snacks">{t.categoryTea}</option>
+              <option value="Tea & Snacks">☕ {t.categoryTea || 'Tea & Snacks'}</option>
               <option value="Shop Rent">🏢 {t.categoryRent || 'Shop Rent / Lease'}</option>
               <option value="Electricity & Utilities">⚡ {t.categoryUtilities || 'Electricity & Utilities'}</option>
-              <option value="Shop Maintenance">{t.categoryMaintenance}</option>
-              <option value="Tools & Spares">{t.categorySpares}</option>
+              <option value="Shop Maintenance">🛠️ {t.categoryMaintenance || 'Shop Maintenance'}</option>
+              <option value="Tools & Spares">🔧 {t.categorySpares || 'Tools & Spares'}</option>
             </select>
           </div>
 
@@ -327,11 +327,11 @@ export default function ExpensesAndScrap({
 
         <form onSubmit={handleAddScrapSale} className="grid-form">
           <div className="form-group">
-            <label>Item / Tyre Category *</label>
+            <label>{t.scrapItemCategory || 'Item / Tyre Category'} *</label>
             <select value={scrapType} onChange={(e) => setScrapType(e.target.value)}>
-              <option value="Scrap Rubber Tyres">Scrap Rubber Bulk Tyres</option>
-              <option value="Old Used Tyre Resale">Old Used Tyre Resale</option>
-              <option value="Scrap Brass & Lead Weights">Scrap Brass & Lead Weights</option>
+              <option value="Scrap Rubber Tyres">🛞 {t.scrapBulkTyres || 'Scrap Rubber Bulk Tyres'}</option>
+              <option value="Old Used Tyre Resale">🔄 {t.scrapUsedResale || 'Old Used Tyre Resale'}</option>
+              <option value="Scrap Brass & Lead Weights">⚖️ {t.scrapBrassWeights || 'Scrap Brass & Lead Weights'}</option>
             </select>
           </div>
 

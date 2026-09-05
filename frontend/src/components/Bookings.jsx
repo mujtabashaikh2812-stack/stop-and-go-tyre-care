@@ -149,13 +149,13 @@ export default function Bookings({ bookings, setBookings, currentLang = 'en' }) 
               value={newBooking.timeSlot}
               onChange={(e) => setNewBooking({ ...newBooking, timeSlot: e.target.value })}
             >
-              <option value="09:00 AM">09:00 AM</option>
-              <option value="10:00 AM">10:00 AM</option>
-              <option value="11:30 AM">11:30 AM</option>
-              <option value="01:00 PM">01:00 PM</option>
-              <option value="03:00 PM">03:00 PM</option>
-              <option value="05:00 PM">05:00 PM</option>
-              <option value="06:30 PM">06:30 PM</option>
+              <option value="09:00 AM">🌅 09:00 AM (Morning)</option>
+              <option value="10:00 AM">☀️ 10:00 AM (Morning)</option>
+              <option value="11:30 AM">☀️ 11:30 AM (Late Morning)</option>
+              <option value="01:00 PM">🥪 01:00 PM (Afternoon)</option>
+              <option value="03:00 PM">☕ 03:00 PM (Afternoon)</option>
+              <option value="05:00 PM">🌇 05:00 PM (Evening)</option>
+              <option value="06:30 PM">🌙 06:30 PM (Evening)</option>
             </select>
           </div>
 

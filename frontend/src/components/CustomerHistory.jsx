@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Phone, Car, Calendar, Search, Trash2, Edit3, MessageSquare, ChevronRight, X, Sparkles, CheckCircle2 } from 'lucide-react';
+import { User, Phone, Car, Calendar, Search, Trash2, Edit3, MessageSquare, ChevronRight, X } from 'lucide-react';
 import { deleteJobCard, deleteCustomerByMobile } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 

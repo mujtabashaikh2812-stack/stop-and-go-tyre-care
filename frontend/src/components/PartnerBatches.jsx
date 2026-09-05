@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Building2, Package, Plus, Search, Calendar, Phone, MapPin, DollarSign,
-  FileText, Send, Printer, Trash2, Edit3, CheckCircle2, AlertCircle, Clock, ChevronRight, X, User
+  FileText, Send, Printer, Trash2, Edit3, CheckCircle2, Clock, ChevronRight, X, User
 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
@@ -1393,19 +1393,19 @@ export default function PartnerBatches({
                     setNewService({ ...newService, serviceKey: key, rate: defaultRate });
                   }}
                 >
-                  <option value="wheelAlignment">{t.wheelAlignment || '1. Wheel Alignment'} (₹350)</option>
-                  <option value="wheelBalancing">{t.wheelBalancing || '2. Wheel Balancing Fees'} (₹200)</option>
-                  <option value="weight">{t.wheelWeight || '3. Wheel Weight (Sticker/Brass)'}</option>
-                  <option value="tyreFitting">{t.tyreFitting || '4. Tyre Fitting & Valves'}</option>
-                  <option value="tyreRotation">{t.tyreRotation || '5. Tyre Rotation'} (₹200)</option>
-                  <option value="headlightBuffing">{t.headlightBuffing || '6. Head Light Buffing'} (₹700)</option>
-                  <option value="airFilling">{t.airFilling || '7. Air Filling / Nitrogen'} (₹150)</option>
-                  <option value="tubelessPuncher">{t.tubelessPuncher || '8. Tubeless Puncher Repair'} (₹100)</option>
-                  <option value="camberSetting">{t.camberSetting || '9. Camber Setting'} (₹1,200)</option>
-                  <option value="carWashing">{t.carWashing || '10. Car Washing'} (₹350)</option>
-                  <option value="internalCleaning">{t.internalCleaning || '11. Internal Cleaning'} (₹800)</option>
-                  <option value="oilChange">{t.oilChange || '12. Engine Oil Change'} (₹1,500)</option>
-                  <option value="custom">⚙️ Free-Text Custom Repair (Engine, Painting, Denting)</option>
+                  <option value="wheelAlignment">🎯 {t.wheelAlignment || '1. Wheel Alignment'} (₹350)</option>
+                  <option value="wheelBalancing">⚖️ {t.wheelBalancing || '2. Wheel Balancing Fees'} (₹200)</option>
+                  <option value="weight">🔩 {t.wheelWeight || '3. Wheel Weight (Sticker/Brass)'}</option>
+                  <option value="tyreFitting">🔧 {t.tyreFitting || '4. Tyre Fitting & Valves'}</option>
+                  <option value="tyreRotation">🔄 {t.tyreRotation || '5. Tyre Rotation'} (₹200)</option>
+                  <option value="headlightBuffing">✨ {t.headlightBuffing || '6. Head Light Buffing'} (₹700)</option>
+                  <option value="airFilling">💨 {t.airFilling || '7. Air Filling / Nitrogen'} (₹150)</option>
+                  <option value="tubelessPuncher">🩹 {t.tubelessPuncher || '8. Tubeless Puncher Repair'} (₹100)</option>
+                  <option value="camberSetting">📐 {t.camberSetting || '9. Camber Setting'} (₹1,200)</option>
+                  <option value="carWashing">🚿 {t.carWashing || '10. Car Washing'} (₹350)</option>
+                  <option value="internalCleaning">🧽 {t.internalCleaning || '11. Internal Cleaning'} (₹800)</option>
+                  <option value="oilChange">🛢️ {t.oilChange || '12. Engine Oil Change'} (₹1,500)</option>
+                  <option value="custom">⚙️ {t.customRepairLabel || 'Free-Text Custom Repair (Engine, Painting, Denting)'}</option>
                 </select>
               </div>
 

@@ -1,4 +1,4 @@
-import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_INVENTORY, INITIAL_BOOKINGS, INITIAL_EXPENSES, INITIAL_SALARIES, INITIAL_SCRAP_SALES } from '../data/mockData';
+import { DEFAULT_SERVICES, INITIAL_JOB_CARDS, INITIAL_BOOKINGS, INITIAL_EXPENSES, INITIAL_SALARIES, INITIAL_SCRAP_SALES } from '../data/mockData';
 import { saveItemToCloud, deleteItemFromCloud } from './syncService';
 
 const KEYS = {
@@ -30,7 +30,7 @@ const CLEAN_INITIAL_INVENTORY = [
 export const getDeletedItems = () => {
   const data = localStorage.getItem(KEYS.DELETED_ITEMS);
   if (!data) return [];
-  try { return JSON.parse(data); } catch (e) { return []; }
+  try { return JSON.parse(data); } catch { return []; }
 };
 
 export const recordDeletedItem = (collectionName, id) => {
@@ -95,7 +95,7 @@ export const getJobCards = () => {
   const data = localStorage.getItem(KEYS.JOB_CARDS);
   let parsed = [];
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_JOB_CARDS; }
+    try { parsed = JSON.parse(data); } catch { parsed = INITIAL_JOB_CARDS; }
   } else {
     parsed = INITIAL_JOB_CARDS;
   }
@@ -154,7 +154,7 @@ export const getInventory = () => {
       const read = JSON.parse(data);
       const filtered = read.filter(item => item.id !== 'nitrogen_tank');
       parsed = filtered.length > 0 ? filtered : CLEAN_INITIAL_INVENTORY;
-    } catch (e) {
+    } catch {
       parsed = CLEAN_INITIAL_INVENTORY;
     }
   }
@@ -255,7 +255,7 @@ export const getServicePrices = () => {
       }
     });
     return merged;
-  } catch (e) { return DEFAULT_SERVICES; }
+  } catch { return DEFAULT_SERVICES; }
 };
 
 export const saveServicePrices = (prices) => {
@@ -302,7 +302,7 @@ export const getBookings = () => {
   const data = localStorage.getItem(KEYS.BOOKINGS);
   let parsed = INITIAL_BOOKINGS;
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_BOOKINGS; }
+    try { parsed = JSON.parse(data); } catch { parsed = INITIAL_BOOKINGS; }
   }
   return filterOutDeleted('bookings', parsed);
 };
@@ -344,7 +344,7 @@ export const getExpenses = () => {
   const data = localStorage.getItem(KEYS.EXPENSES);
   let parsed = INITIAL_EXPENSES;
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_EXPENSES; }
+    try { parsed = JSON.parse(data); } catch { parsed = INITIAL_EXPENSES; }
   }
   return filterOutDeleted('expenses', parsed);
 };
@@ -371,7 +371,7 @@ export const getSalaries = () => {
   const data = localStorage.getItem(KEYS.SALARIES);
   let parsed = INITIAL_SALARIES;
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_SALARIES; }
+    try { parsed = JSON.parse(data); } catch { parsed = INITIAL_SALARIES; }
   }
   return filterOutDeleted('salaries', parsed);
 };
@@ -398,7 +398,7 @@ export const getScrapSales = () => {
   const data = localStorage.getItem(KEYS.SCRAP_SALES);
   let parsed = INITIAL_SCRAP_SALES;
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = INITIAL_SCRAP_SALES; }
+    try { parsed = JSON.parse(data); } catch { parsed = INITIAL_SCRAP_SALES; }
   }
   return filterOutDeleted('scrapSales', parsed);
 };
@@ -429,7 +429,7 @@ export const getPartnerGarages = () => {
   const data = localStorage.getItem(KEYS.PARTNER_GARAGES);
   let parsed = [];
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+    try { parsed = JSON.parse(data); } catch { parsed = []; }
   } else {
     parsed = [
       { id: 'pg_1', name: 'Sahara Motors', contactPerson: 'Aslam Khan', mobile: '9822011223', address: 'Hotgi Road Industrial Estate, Solapur', notes: 'Primary bulk drop-off garage client' }
@@ -465,7 +465,7 @@ export const getPartnerBatches = () => {
   const data = localStorage.getItem(KEYS.PARTNER_BATCHES);
   let parsed = [];
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+    try { parsed = JSON.parse(data); } catch { parsed = []; }
   }
   return filterOutDeleted('partnerBatches', parsed);
 };
@@ -509,7 +509,7 @@ export const getTyreWarranties = () => {
   const data = localStorage.getItem(KEYS.TYRE_WARRANTIES);
   let parsed = [];
   if (data) {
-    try { parsed = JSON.parse(data); } catch (e) { parsed = []; }
+    try { parsed = JSON.parse(data); } catch { parsed = []; }
   }
   return filterOutDeleted('tyreWarranties', parsed);
 };

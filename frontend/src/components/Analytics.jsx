@@ -133,7 +133,7 @@ export default function Analytics({ jobCards, expenses = [], salaries = [], scra
             className={`filter-pill ${filterPeriod === 'all' ? 'active' : ''}`}
             onClick={() => setFilterPeriod('all')}
           >
-            {t.filterAll}
+            {t.filterAllTime || t.filterAll}
           </button>
         </div>
       </div>

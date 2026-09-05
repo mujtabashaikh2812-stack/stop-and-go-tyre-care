@@ -146,14 +146,14 @@ export default function Inventory({ inventory, setInventory, currentLang = 'en' 
             </div>
 
             <div className="form-group">
-              <label>Unit of Measurement *</label>
+              <label>{t.unitOfMeasurement || 'Unit of Measurement'} *</label>
               <select value={newItemUnit} onChange={(e) => setNewItemUnit(e.target.value)}>
-                <option value="Pieces">Pieces</option>
-                <option value="Grams">Grams</option>
-                <option value="kg">kg</option>
-                <option value="Boxes">Boxes</option>
-                <option value="Liters">Liters</option>
-                <option value="Units">Units</option>
+                <option value="Pieces">🧩 {t.unitPieces || 'Pieces (pcs)'}</option>
+                <option value="Grams">⚖️ {t.unitGrams || 'Grams (g)'}</option>
+                <option value="kg">🏋️ {t.unitKg || 'Kilograms (kg)'}</option>
+                <option value="Boxes">📦 {t.unitBoxes || 'Boxes (box)'}</option>
+                <option value="Liters">🧴 {t.unitLiters || 'Liters (L)'}</option>
+                <option value="Units">🏷️ {t.unitUnits || 'Units (units)'}</option>
               </select>
             </div>
 
@@ -200,14 +200,14 @@ export default function Inventory({ inventory, setInventory, currentLang = 'en' 
 
           <form onSubmit={handleUpdateStock} className="grid-form">
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label>Select Inventory Item</label>
+              <label>{t.selectInventoryItem || 'Select Inventory Item'}</label>
               <select
                 value={selectedItem || inventory[0]?.id}
                 onChange={(e) => setSelectedItem(e.target.value)}
               >
                 {inventory.map(item => (
                   <option key={item.id} value={item.id}>
-                    {item.name} ({t.itemInStock}: {item.inStock} {item.unit})
+                    📦 {item.name} ({t.itemInStock || 'In Stock'}: {item.inStock} {item.unit})
                   </option>
                 ))}
               </select>

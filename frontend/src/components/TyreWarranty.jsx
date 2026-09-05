@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-  ShieldCheck, Plus, Search, Calendar, Phone, User, Car, Tag,
-  FileText, Send, Printer, Trash2, CheckCircle2, Clock, AlertTriangle, X
+  ShieldCheck, Plus, Search, Calendar, Phone, Car, Tag,
+  FileText, Send, Printer, Trash2, X
 } from 'lucide-react';
 import LogoBanner from './LogoBanner';
 import { TRANSLATIONS } from '../utils/i18n';
@@ -379,7 +379,11 @@ export default function TyreWarranty({
                   value={formData.brand}
                   onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                 >
-                  {TYRE_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+                  {TYRE_BRANDS.map(b => (
+                    <option key={b} value={b}>
+                      {b === 'Custom' ? '✏️ Custom Brand...' : `🛞 ${b}`}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -402,7 +406,11 @@ export default function TyreWarranty({
                   value={formData.sizeSpec}
                   onChange={(e) => setFormData({ ...formData, sizeSpec: e.target.value })}
                 >
-                  {TYRE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                  {TYRE_SIZES.map(s => (
+                    <option key={s} value={s}>
+                      {s === 'Custom' ? '✏️ Custom Size Spec...' : `📏 ${s}`}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -458,10 +466,10 @@ export default function TyreWarranty({
                   value={formData.warrantyYears}
                   onChange={(e) => setFormData({ ...formData, warrantyYears: Number(e.target.value) })}
                 >
-                  <option value={1}>1 {t.warrantyYearsUnit || 'Years'}</option>
-                  <option value={2}>2 {t.warrantyYearsUnit || 'Years'}</option>
-                  <option value={3}>3 {t.warrantyYearsUnit || 'Years'}</option>
-                  <option value={5}>5 {t.warrantyYearsUnit || 'Years'}</option>
+                  <option value={1}>⏳ 1 {t.warrantyYearsUnit || 'Year'}</option>
+                  <option value={2}>⏳ 2 {t.warrantyYearsUnit || 'Years'}</option>
+                  <option value={3}>⭐ 3 {t.warrantyYearsUnit || 'Years'} (Standard)</option>
+                  <option value={5}>🛡️ 5 {t.warrantyYearsUnit || 'Years'} (Comprehensive)</option>
                 </select>
               </div>
 
@@ -471,8 +479,8 @@ export default function TyreWarranty({
                   value={formData.warrantyType}
                   onChange={(e) => setFormData({ ...formData, warrantyType: e.target.value })}
                 >
-                  <option value="Unconditional Warranty">{t.coverageUnconditional || '🛡️ Unconditional / Cut & Damage Warranty'}</option>
-                  <option value="Manufacturing Defect Warranty">{t.coverageStandard || '⚙️ Standard Manufacturer Warranty (Defects Only)'}</option>
+                  <option value="Unconditional Warranty">🛡️ {t.coverageUnconditional || 'Unconditional / Cut & Damage Warranty'}</option>
+                  <option value="Manufacturing Defect Warranty">⚙️ {t.coverageStandard || 'Standard Manufacturer Warranty (Defects Only)'}</option>
                 </select>
               </div>
 

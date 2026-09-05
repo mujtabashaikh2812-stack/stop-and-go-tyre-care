@@ -72,7 +72,7 @@ export const TRANSLATIONS = {
     filterToday: 'Today',
     filterMonth: 'This Month',
     filterYear: 'This Year',
-    filterAll: 'All Time',
+    filterAllTime: 'All Time',
     grossRevenue: 'Gross Revenue',
     shopExpenses: 'Shop Expenses',
     netProfit: 'Net Garage Profit',
@@ -85,6 +85,14 @@ export const TRANSLATIONS = {
     itemInStock: 'In Stock',
     restockItem: 'Restock Item',
     updateStockBtn: 'Update Stock Level',
+    selectInventoryItem: 'Select Inventory Item',
+    unitOfMeasurement: 'Unit of Measurement',
+    unitPieces: 'Pieces (pcs)',
+    unitGrams: 'Grams (g)',
+    unitKg: 'Kilograms (kg)',
+    unitBoxes: 'Boxes (box)',
+    unitLiters: 'Liters (L)',
+    unitUnits: 'Units (units)',
 
     // Bookings Tab
     bookingsTitle: '📅 Service Appointments & Bookings',
@@ -98,6 +106,7 @@ export const TRANSLATIONS = {
     expensesTitle: '☕ Daily Shop Expenses & Staff Salaries',
     expensesDesc: 'Log tea/snacks expenses, track staff monthly advances, and record scrap sales',
     logExpense: 'Log Daily Expense',
+    expenseCategory: 'Expense Category',
     categoryTea: 'Tea & Snacks',
     categoryRent: 'Shop Rent / Lease',
     categoryUtilities: 'Electricity & Utilities',
@@ -107,6 +116,10 @@ export const TRANSLATIONS = {
     addExpenseBtn: 'Record Expense',
     staffSalaries: 'Staff Salary Manager',
     scrapSales: 'Scrap Rubber & Tyre Resale',
+    scrapItemCategory: 'Item / Tyre Category',
+    scrapBulkTyres: 'Scrap Rubber Bulk Tyres',
+    scrapUsedResale: 'Old Used Tyre Resale',
+    scrapBrassWeights: 'Scrap Brass & Lead Weights',
 
     // Master Price Editor Tab
     masterPricesTitle: '⚙️ Master Service Price & Security Settings',
@@ -167,6 +180,7 @@ export const TRANSLATIONS = {
     statusActiveWork: '🟢 Active (Work in Progress)',
     statusCompleted: '✅ Completed & Delivered',
     statusOverdueTag: '🔴 Overdue',
+    customRepairLabel: 'Free-Text Custom Repair (Engine, Painting, Denting)',
 
     // Tyre Warranty Tab
     tyreWarrantyTitle: '🛡️ Tyre Spec & Warranty Tracker',
@@ -278,7 +292,7 @@ export const TRANSLATIONS = {
     filterToday: 'आज',
     filterMonth: 'या महिन्यात',
     filterYear: 'या वर्षी',
-    filterAll: 'सर्व वेळ',
+    filterAllTime: 'सर्व काळ (All Time)',
     grossRevenue: 'एकूण उत्पन्न',
     shopExpenses: 'दुकानातील खर्च',
     netProfit: 'निव्वळ नफा',
@@ -291,6 +305,14 @@ export const TRANSLATIONS = {
     itemInStock: 'शिल्लक स्टॉक',
     restockItem: 'स्टॉक वाढवा',
     updateStockBtn: 'स्टॉक अपडेट करा',
+    selectInventoryItem: 'इन्व्हेंटरी साहित्य निवडा',
+    unitOfMeasurement: 'मोजमापाचे एकक (Unit)',
+    unitPieces: 'नग / तुकडे (pcs)',
+    unitGrams: 'ग्रॅम (g)',
+    unitKg: 'किलोग्रॅम (kg)',
+    unitBoxes: 'खोके / बॉक्स (box)',
+    unitLiters: 'लिटर (L)',
+    unitUnits: 'युनिट्स (units)',
 
     // Bookings Tab
     bookingsTitle: '📅 सर्व्हिस अपॉइंटमेंट आणि बुकिंग',
@@ -304,13 +326,20 @@ export const TRANSLATIONS = {
     expensesTitle: '☕ दैनिक खर्च आणि कर्मचाऱ्यांचे पगार',
     expensesDesc: 'चहा/नाश्ता खर्च नोंदवा, कर्मचाऱ्यांचे ॲडव्हान्स आणि स्क्रॅप विक्रीची नोंद ठेवा',
     logExpense: 'दैनिक खर्च नोंदवा',
+    expenseCategory: 'खर्च प्रवर्ग (कॅटेगरी)',
     categoryTea: 'चहा आणि नाश्ता',
+    categoryRent: 'दुकान भाडे / लीज',
+    categoryUtilities: 'वीज आणि पाणी बिल',
     categoryMaintenance: 'दुकान देखभाल',
     categorySpares: 'टूल्स आणि स्पेअर्स',
     expenseAmount: 'खर्च रक्कम (₹)',
     addExpenseBtn: 'खर्च नोंदवा',
     staffSalaries: 'कर्मचारी पगार व्यवस्थापक',
     scrapSales: 'स्क्रॅप टायर विक्री नोंद',
+    scrapItemCategory: 'वस्तू / टायर कॅटेगरी',
+    scrapBulkTyres: 'स्क्रॅप रबर टायर (घाऊक)',
+    scrapUsedResale: 'जुने वापरलेले टायर पुनर्विक्री',
+    scrapBrassWeights: 'स्क्रॅप पितळ आणि लीड वजन',
 
     // Master Price Editor Tab
     masterPricesTitle: '⚙️ मास्टर सर्व्हिस दर आणि सुरक्षा सेटिंग्ज',
@@ -371,6 +400,7 @@ export const TRANSLATIONS = {
     statusActiveWork: '🟢 सक्रिय (काम सुरू आहे)',
     statusCompleted: '✅ पूर्ण आणि वितरित',
     statusOverdueTag: '🔴 थकीत',
+    customRepairLabel: 'कस्टम दुरुस्ती काम (इंजिन, पेंटिंग, डेंटिंग)',
 
     // Tyre Warranty Tab
     tyreWarrantyTitle: '🛡️ टायर वॉरंटी आणि स्पेक ट्रॅकर',
@@ -482,7 +512,7 @@ export const TRANSLATIONS = {
     filterToday: 'आज',
     filterMonth: 'इस महीने',
     filterYear: 'इस वर्ष',
-    filterAll: 'सभी समय',
+    filterAllTime: 'सभी समय (All Time)',
     grossRevenue: 'कुल राजस्व',
     shopExpenses: 'दुकान के खर्च',
     netProfit: 'शुद्ध लाभ',
@@ -495,6 +525,14 @@ export const TRANSLATIONS = {
     itemInStock: 'उपलब्ध स्टॉक',
     restockItem: 'स्टॉक बढ़ाएं',
     updateStockBtn: 'स्टॉक अपडेट करें',
+    selectInventoryItem: 'इन्वेंट्री आइटम चुनें',
+    unitOfMeasurement: 'माप की इकाई (Unit)',
+    unitPieces: 'पीस (pcs)',
+    unitGrams: 'ग्राम (g)',
+    unitKg: 'किलोग्राम (kg)',
+    unitBoxes: 'डिब्बे / बॉक्स (box)',
+    unitLiters: 'लीटर (L)',
+    unitUnits: 'यूनिट्स (units)',
 
     // Bookings Tab
     bookingsTitle: '📅 सर्विस अपॉइंटमेंट और बुकिंग',
@@ -508,13 +546,20 @@ export const TRANSLATIONS = {
     expensesTitle: '☕ दैनिक दुकान खर्च और स्टाफ वेतन',
     expensesDesc: 'चाय/नाश्ता खर्च दर्ज करें, स्टाफ अग्रिम राशि और स्क्रैप बिक्री दर्ज करें',
     logExpense: 'दैनिक खर्च दर्ज करें',
+    expenseCategory: 'खर्च श्रेणी (कैटेगरी)',
     categoryTea: 'चाय और नाश्ता',
+    categoryRent: 'दुकान का किराया / लीज',
+    categoryUtilities: 'बिजली और उपयोगिता बिल',
     categoryMaintenance: 'दुकान रखरखाव',
     categorySpares: 'टूल और स्पेयर',
     expenseAmount: 'खर्च राशि (₹)',
     addExpenseBtn: 'खर्च दर्ज करें',
     staffSalaries: 'स्टाफ वेतन प्रबंधक',
     scrapSales: 'स्क्रैप टायर बिक्री रिकॉर्ड',
+    scrapItemCategory: 'वस्तु / टायर श्रेणी',
+    scrapBulkTyres: 'स्क्रैप रबर टायर (थोक)',
+    scrapUsedResale: 'पुराने इस्तेमाल किए गए टायर पुनर्विक्रय',
+    scrapBrassWeights: 'स्क्रैप पीतल और लेड वजन',
 
     // Master Price Editor Tab
     masterPricesTitle: '⚙️ मास्टर सर्विस दरें और सुरक्षा सेटिंग्स',
@@ -575,6 +620,7 @@ export const TRANSLATIONS = {
     statusActiveWork: '🟢 सक्रिय (कार्य प्रगति पर है)',
     statusCompleted: '✅ पूर्ण और डिलीवर',
     statusOverdueTag: '🔴 अतिदेय',
+    customRepairLabel: 'कस्टम मरम्मत कार्य (इंजन, पेंटिंग, डेंटिंग)',
 
     // Tyre Warranty Tab
     tyreWarrantyTitle: '🛡️ टायर वारंटी और स्पेक ट्रैकर',

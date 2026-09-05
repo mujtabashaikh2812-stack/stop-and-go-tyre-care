@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Phone, Car, Hash, Calendar, Shield, Search, CheckCircle, Edit3, X } from 'lucide-react';
+import { User, Phone, Car, Hash, Calendar, CheckCircle, Edit3, X } from 'lucide-react';
 import { searchCustomerByMobile } from '../utils/storage';
 import { TRANSLATIONS } from '../utils/i18n';
 
