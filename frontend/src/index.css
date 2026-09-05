@@ -539,6 +539,61 @@ input:focus, select:focus {
   text-align: center;
 }
 
+.counter-stepper-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepper-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  color: var(--yellow-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition: all 0.15s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.stepper-btn:hover {
+  background: var(--yellow-primary);
+  color: #000;
+  border-color: var(--yellow-primary);
+}
+
+.stepper-btn:active {
+  transform: scale(0.92);
+}
+
+.stepper-input {
+  width: 58px !important;
+  height: 36px !important;
+  text-align: center;
+  font-size: 1rem !important;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0 4px !important;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+}
+
+.stepper-input:focus {
+  border-color: var(--yellow-primary);
+  outline: none;
+}
+
 .unit-tag {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -1330,6 +1385,23 @@ input:focus, select:focus {
 
   .services-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  .counter-stepper-group {
+    gap: 8px;
+  }
+
+  .stepper-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    font-size: 1.35rem !important;
+  }
+
+  .stepper-input {
+    width: 65px !important;
+    height: 42px !important;
+    font-size: 1.05rem !important;
   }
 
   .billing-summary-footer {

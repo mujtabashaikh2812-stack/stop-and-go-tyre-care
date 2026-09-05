@@ -422,6 +422,7 @@ export default function ServiceChecklist({ services, setServices, discount, setD
           }
 
           if (key === 'tyreRotation') {
+            const currentCount = parseInt(item.tyresCount, 10) || 4;
             return (
               <div key={key} className={`service-item-card ${isEnabled ? 'active' : ''}`}>
                 <div className="service-card-top" onClick={() => toggleService('tyreRotation')}>
@@ -432,7 +433,7 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                   <span className="service-price">₹{getItemPrice('tyreRotation', item)}</span>
                 </div>
                 {isEnabled && (
-                  <div className="service-options-row vertical">
+                  <div className="service-options-row vertical" onClick={(e) => e.stopPropagation()}>
                     <div className="input-inline">
                       <span>Rate / Tyre (₹):</span>
                       <input
@@ -442,18 +443,70 @@ export default function ServiceChecklist({ services, setServices, discount, setD
                         onChange={(e) => updateServiceDetail('tyreRotation', 'ratePerTyre', e.target.value)}
                       />
                     </div>
-                    <div className="input-inline">
-                      <span>Tyres Count:</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="6"
-                        value={item.tyresCount || 4}
-                        onChange={(e) => updateServiceDetail('tyreRotation', 'tyresCount', e.target.value)}
-                      />
-                      <span className="unit-tag">tyres</span>
+
+                    {/* Quick-Select Tyres Count Pills for 1-Tap Mobile Access */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                      {[2, 4, 5].map((cnt) => (
+                        <button
+                          key={cnt}
+                          type="button"
+                          className={`option-pill ${currentCount === cnt ? 'selected' : ''}`}
+                          onClick={() => updateServiceDetail('tyreRotation', 'tyresCount', cnt)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {cnt === 5 ? `5 Tyres (With Spare) (₹${(item.ratePerTyre || 50) * 5})` : `${cnt} Tyres (₹${(item.ratePerTyre || 50) * cnt})`}
+                        </button>
+                      ))}
                     </div>
-                    <div className="pill-selector">
+
+                    {/* Touch-Friendly Stepper Buttons & Numeric Input */}
+                    <div className="input-inline" style={{ marginTop: '6px' }}>
+                      <span>Tyres Count:</span>
+                      <div className="counter-stepper-group">
+                        <button
+                          type="button"
+                          className="stepper-btn"
+                          aria-label="Decrease Tyres Count"
+                          onClick={() => {
+                            if (currentCount > 1) {
+                              updateServiceDetail('tyreRotation', 'tyresCount', currentCount - 1);
+                            }
+                          }}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          className="stepper-input"
+                          min="1"
+                          max="10"
+                          value={item.tyresCount === '' ? '' : (item.tyresCount ?? 4)}
+                          onChange={(e) => updateServiceDetail('tyreRotation', 'tyresCount', e.target.value)}
+                          onBlur={() => {
+                            if (item.tyresCount === '' || isNaN(item.tyresCount) || Number(item.tyresCount) < 1) {
+                              updateServiceDetail('tyreRotation', 'tyresCount', 4);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="stepper-btn"
+                          aria-label="Increase Tyres Count"
+                          onClick={() => {
+                            if (currentCount < 10) {
+                              updateServiceDetail('tyreRotation', 'tyresCount', currentCount + 1);
+                            }
+                          }}
+                        >
+                          +
+                        </button>
+                        <span className="unit-tag">tyres</span>
+                      </div>
+                    </div>
+
+                    <div className="pill-selector" style={{ marginTop: '8px' }}>
                       <button
                         type="button"
                         className={`sub-pill ${item.rotationPattern === 'Cross Pattern' ? 'active' : ''}`}
